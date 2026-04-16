@@ -92,7 +92,7 @@ export function Header() {
           />
         </div>
         <div>
-          <div className="text-sm font-semibold tracking-widest text-white/85 uppercase">Pulse</div>
+          <div className="text-sm font-semibold tracking-widest text-white/85 uppercase">Vigil</div>
           <div className="hidden sm:block text-[11px] text-white/30 -mt-0.5">Live Dashboard</div>
         </div>
       </div>

@@ -307,7 +307,7 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
 
               {/* Status sumário */}
               <div className="flex items-center gap-2 md:gap-3 self-center flex-wrap">
-                <span className="text-xs md:text-sm font-medium text-white/50">Pulse Brief</span>
+                <span className="text-xs md:text-sm font-medium text-white/50">Vigil Brief</span>
                 {alertCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
