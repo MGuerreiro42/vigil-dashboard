@@ -8,6 +8,7 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square)
 
 ---
+<img width="1719" height="1255" alt="image" src="https://github.com/user-attachments/assets/7ae00ab8-7c9c-4083-bb29-beebf9f15b7b" />
 
 ## O Projeto
 
