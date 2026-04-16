@@ -1,0 +1,30 @@
+export type BinanceTicker = {
+  symbol: string      // e.g. 'BTCUSDT'
+  price: number       // last price
+  open: number        // 24h open
+  high: number        // 24h high
+  low: number         // 24h low
+  volume: number      // base asset volume
+  quoteVolume: number // quote asset volume (USD)
+  updatedAt: number   // local timestamp
+}
+
+export type BinanceOrderBookEntry = {
+  price: number
+  qty: number
+}
+
+export type BinanceOrderBook = {
+  bids: BinanceOrderBookEntry[] // sorted price desc
+  asks: BinanceOrderBookEntry[] // sorted price asc
+  updatedAt: number
+}
+
+export type BinanceTrade = {
+  id: number
+  price: number
+  qty: number
+  value: number     // price * qty
+  buyerMaker: boolean // true = sell-initiated (red), false = buy-initiated (green)
+  timestamp: number
+}

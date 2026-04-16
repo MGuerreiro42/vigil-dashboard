@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/gdacs/(.*)", "destination": "https://www.gdacs.org/$1" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

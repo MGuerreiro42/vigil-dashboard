@@ -1,0 +1,5 @@
+# Netlify: proxy GDACS RSS feed (no CORS on gdacs.org)
+/api/gdacs/* https://www.gdacs.org/:splat 200
+
+# SPA fallback — all routes serve index.html
+/* /index.html 200

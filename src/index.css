@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surfaces */
+  --color-surface-base: #080b12;
+  --color-surface-elevated: #0d1117;
+  --color-surface-overlay: #131822;
+
+  /* Borders */
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-border-default: rgba(255, 255, 255, 0.09);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Accents */
+  --color-accent-cyan: #22d3ee;
+  --color-accent-purple: #a855f7;
+  --color-accent-amber: #f59e0b;
+  --color-accent-emerald: #10b981;
+  --color-accent-rose: #f43f5e;
+
+  /* Text */
+  --color-text-primary: rgba(255, 255, 255, 0.92);
+  --color-text-secondary: rgba(255, 255, 255, 0.54);
+  --color-text-muted: rgba(255, 255, 255, 0.32);
+
+  /* Radius */
+  --radius-widget: 1rem;
+  --radius-card: 0.75rem;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 17px;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #080b12;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Leaflet dark override */
+.leaflet-container {
+  background: #080b12 !important;
+  border-radius: 0.75rem;
+}
+.leaflet-tile-pane {
+  filter: brightness(0.65) saturate(0.75);
+}
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* Popup dark theme */
+.leaflet-popup-content-wrapper {
+  background: #0d1117 !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.04) !important;
+  padding: 0 !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+.leaflet-popup-tip {
+  background: #0d1117 !important;
+  box-shadow: none !important;
+}
+.leaflet-popup-tip-container {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+.leaflet-popup-close-button {
+  color: rgba(255, 255, 255, 0.3) !important;
+  font-size: 18px !important;
+  top: 8px !important;
+  right: 10px !important;
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+}
+.leaflet-popup-close-button:hover {
+  color: rgba(255, 255, 255, 0.7) !important;
+  background: transparent !important;
+}
+.eq-popup-link:hover {
+  opacity: 1 !important;
+  text-decoration: underline !important;
+}
+
+/* Slider personalizado */
+input[type="range"].eq-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  background: transparent;
+  margin: 4px 0;
+}
+input[type="range"].eq-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+input[type="range"].eq-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+input[type="range"].eq-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f43f5e;
+  border: 2px solid rgba(255,255,255,0.15);
+  margin-top: -5px;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(244, 63, 94, 0.5);
+}
+input[type="range"].eq-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f43f5e;
+  border: 2px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(244, 63, 94, 0.5);
+}
