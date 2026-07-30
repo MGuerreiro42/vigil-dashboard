@@ -1,6 +1,6 @@
 # Vigil — Live Global Monitoring Dashboard
 
-> Um painel de monitoramento global em tempo real, construído como projeto de portfólio para demonstrar proficiência em frontend moderno: arquitetura de componentes, comunicação em tempo real, consumo de múltiplas APIs públicas, responsividade e performance.
+> A real-time global monitoring dashboard, built as a portfolio project to demonstrate proficiency in modern frontend engineering: component architecture, real-time communication, consuming multiple public APIs, responsiveness, and performance.
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white&style=flat-square)
@@ -10,138 +10,137 @@
 ---
 <img width="1719" height="1255" alt="image" src="https://github.com/user-attachments/assets/7ae00ab8-7c9c-4083-bb29-beebf9f15b7b" />
 
-## O Projeto
+## The Project
 
-O **Vigil** agrega dados de múltiplas fontes globais num único painel compacto e responsivo. A ideia central é demonstrar a capacidade de integrar sistemas heterogêneos — WebSockets, APIs REST com polling, feeds XML, serviços de geolocalização — mantendo a interface fluida, leve e informativa.
+**Vigil** aggregates data from multiple global sources into a single, compact and responsive dashboard. The core idea is to demonstrate the ability to integrate heterogeneous systems — WebSockets, polling REST APIs, XML feeds, geolocation services — while keeping the interface fluid, lightweight, and informative.
 
-O dashboard é dividido em uma **visão resumida** (página inicial com todos os widgets em miniatura) e **páginas individuais** para cada domínio de dados, onde a experiência é expandida com mais detalhes, interatividade e visualizações dedicadas.
+The dashboard is split into a **summary view** (home page with all widgets in miniature) and **individual pages** per data domain, where the experience expands with more detail, interactivity, and dedicated visualizations.
 
 ---
 
-## Funcionalidades & Fontes de Dados
+## Features & Data Sources
 
-| Widget | Fonte | Tipo |
+| Widget | Source | Type |
 |---|---|---|
 | **Crypto** | CoinGecko + Binance | REST + WebSocket |
 | **ISS** | Open-Notify + WhereTheISS | REST polling |
-| **Eventos Naturais** | GDACS (UN/EU) | RSS/XML via proxy |
-| **Sismica** | USGS Earthquake Catalog | REST |
-| **Notícias** | The Guardian Open API | REST |
-| **Clima** | Open-Meteo + OpenAQ | REST |
+| **Natural Events** | GDACS (UN/EU) | RSS/XML via proxy |
+| **Seismic** | USGS Earthquake Catalog | REST |
+| **News** | The Guardian Open API | REST |
+| **Weather** | Open-Meteo + OpenAQ | REST |
 | **GitHub Trending** | GitHub Search API | REST |
 | **Wikipedia** | Wikipedia REST API | REST |
 
 ---
 
-## Stack Técnica
+## Tech Stack
 
 ### Core
-- **React 19** — com `lazy()` + `Suspense` para code splitting por rota
-- **TypeScript 6** — tipagem estrita em toda a base; zero `any` implícito
-- **Vite 8 (Rolldown)** — build com `manualChunks` para separar vendors pesados (globe, leaflet, recharts, framer-motion)
-- **Tailwind CSS v4** — utility-first com sistema de design baseado em variáveis CSS e tokens de opacidade
+- **React 19** — with `lazy()` + `Suspense` for route-based code splitting
+- **TypeScript 6** — strict typing across the codebase; zero implicit `any`
+- **Vite 8 (Rolldown)** — build with `manualChunks` to split heavy vendors (globe, leaflet, recharts, framer-motion)
+- **Tailwind CSS v4** — utility-first with a design system based on CSS variables and opacity tokens
 
-### Estado & Dados
-- **TanStack Query v5** — cache de servidor, stale-while-revalidate, retry automático e deduplicação de requests
-- **Zustand v5** — estado global mínimo para: IDs de crypto selecionados, tickers Binance (WebSocket), geolocalização, alertas e preferências
-- **Separação de concerns**: cada API tem seu próprio módulo em `src/api/`, retornando hooks do TanStack Query com tipos explícitos
+### State & Data
+- **TanStack Query v5** — server cache, stale-while-revalidate, automatic retry and request deduplication
+- **Zustand v5** — minimal global state for: selected crypto IDs, Binance tickers (WebSocket), geolocation, alerts, and preferences
+- **Separation of concerns**: each API has its own module in `src/api/`, returning TanStack Query hooks with explicit types
 
-### Comunicação em Tempo Real
-- **Binance WebSocket** (`wss://stream.binance.com`) — mini-ticker em tempo real para preços de crypto, com store Zustand como buffer. Conecta apenas na página `/crypto` para economizar recursos
-- **Flash de preço** — cada linha de crypto detecta direção da mudança (`up/down`) e aplica cor transitória por 500ms usando `useRef` + `useEffect`
+### Real-Time Communication
+- **Binance WebSocket** (`wss://stream.binance.com`) — real-time mini-ticker for crypto prices, with a Zustand store as buffer. Connects only on the `/crypto` page to save resources
+- **Price flash** — each crypto row detects the direction of change (`up/down`) and applies a transient color for 500ms using `useRef` + `useEffect`
 
-### Roteamento
-- **React Router v7** — rotas lazy com `Suspense`, todas as páginas são chunks independentes
-- Padrão: dashboard como resumo global → páginas dedicadas por domínio (`/crypto`, `/iss`, `/earthquakes`, etc.)
+### Routing
+- **React Router v7** — lazy routes with `Suspense`, every page is an independent chunk
+- Pattern: dashboard as global summary → dedicated pages per domain (`/crypto`, `/iss`, `/earthquakes`, etc.)
 
-### Visualizações
-- **react-globe.gl** — globo 3D WebGL para rastreamento da ISS com rastro de trajetória
-- **Recharts** — gráficos de área (sparklines, histórico 7d) e profundidade de order book
-- **Leaflet + react-leaflet** — mapas interativos para eventos sísmicos e naturais
-- **Canvas nativo** — partículas de fundo animadas via `requestAnimationFrame` sem dependência extra
+### Visualizations
+- **react-globe.gl** — 3D WebGL globe for ISS tracking with trajectory trail
+- **Recharts** — area charts (sparklines, 7-day history) and order book depth
+- **Leaflet + react-leaflet** — interactive maps for seismic and natural events
+- **Native Canvas** — animated background particles via `requestAnimationFrame` with no extra dependency
 
 ### Proxy & CORS
-- **Vite dev proxy** — contorna CORS do GDACS (certificado self-signed) com `secure: false`
-- **Vercel Rewrites** (`vercel.json`) + **Netlify `_redirects`** — proxy de produção para o mesmo endpoint
-- Estratégia documentada: o frontend sempre chama `/api/gdacs/...`, o ambiente resolve o destino
+- **Vite dev proxy** — works around GDACS's CORS (self-signed certificate) with `secure: false`
+- **Vercel Rewrites** (`vercel.json`) + **Netlify `_redirects`** — production proxy to the same endpoint
+- Documented strategy: the frontend always calls `/api/gdacs/...`, the environment resolves the target
 
 ---
 
-## Decisões de Arquitetura
+## Architecture Decisions
 
 ### Widget Shell
-Todos os widgets compartilham um `WidgetShell` que encapsula: header com título/ícone, indicador LIVE, estado de loading/erro com retry, e link de navegação para a página dedicada. Isso garante consistência visual e evita duplicação de lógica de estado de UI.
+All widgets share a `WidgetShell` that encapsulates: header with title/icon, LIVE indicator, loading/error state with retry, and a navigation link to the dedicated page. This ensures visual consistency and avoids duplicating UI state logic.
 
-### Code Splitting Agressivo
-Widgets pesados (globo 3D, mapas Leaflet) são completamente isolados em chunks separados via `React.lazy()`. O dashboard carrega apenas o chunk do Dashboard — os demais carregam sob demanda. O vendor do Three.js/Globe (~476KB gz) nunca bloqueia o carregamento inicial.
+### Aggressive Code Splitting
+Heavy widgets (3D globe, Leaflet maps) are fully isolated into separate chunks via `React.lazy()`. The dashboard only loads the Dashboard chunk — the rest load on demand. The Three.js/Globe vendor (~476KB gz) never blocks the initial load.
 
-### Performance no Dashboard
-- WebSocket da Binance desconectado no dashboard (só ativo em `/crypto`)
-- `React.memo` nos componentes de lista que recebem atualizações frequentes (`CompactCoinRow`)
-- `useMemo` para cálculos derivados pesados (domínio do gráfico, ordenação de sismos, insights do brief)
-- Widgets carregados com `Suspense` + skeleton animado, sem travar o thread principal
+### Dashboard Performance
+- Binance WebSocket disconnected on the dashboard (only active on `/crypto`)
+- `React.memo` on list components that receive frequent updates (`CompactCoinRow`)
+- `useMemo` for expensive derived calculations (chart domain, seismic sorting, brief insights)
+- Widgets loaded with `Suspense` + animated skeleton, without blocking the main thread
 
-### Responsividade
-Layout em três camadas:
-- **Mobile** (`< md`): coluna única, scroll natural, header compacto
-- **Tablet** (`md`): grid de 2 colunas, painéis laterais empilhados
-- **Desktop** (`lg+`): layout fixo `h-screen overflow-hidden`, grids 3/5 colunas, sem scroll
+### Responsiveness
+Three-tier layout:
+- **Mobile** (`< md`): single column, natural scroll, compact header
+- **Tablet** (`md`): 2-column grid, stacked side panels
+- **Desktop** (`lg+`): fixed `h-screen overflow-hidden` layout, 3/5-column grids, no scroll
 
-### Gestalt & Hierarquia Visual
-O `DailyBrief` (painel de insights) aplica princípios de design visual explicitamente: alertas críticos têm cards maiores, barra de destaque mais espessa, dot pulsante e gradiente colorido. Itens informacionais ficam em segundo plano visualmente. A ordenação é `alert → warning → info`.
+### Gestalt & Visual Hierarchy
+The `DailyBrief` (insights panel) explicitly applies visual design principles: critical alerts get larger cards, a thicker highlight bar, a pulsing dot, and a colored gradient. Informational items recede visually. Sort order is `alert → warning → info`.
 
 ---
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 src/
-├── api/              # Hooks de dados (um arquivo por serviço)
-│   ├── types/        # Tipos TypeScript das respostas de API
-│   ├── binance.ts    # WebSocket Binance
-│   ├── coingecko.ts  # Mercado crypto
-│   ├── gdacs.ts      # Eventos naturais globais (XML parser)
-│   ├── guardian.ts   # Notícias The Guardian
-│   ├── iss.ts        # Rastreamento ISS
-│   ├── openmeteo.ts  # Clima
-│   └── usgs.ts       # Atividade sísmica
+├── api/              # Data hooks (one file per service)
+│   ├── types/        # TypeScript types for API responses
+│   ├── binance.ts    # Binance WebSocket
+│   ├── coingecko.ts  # Crypto market
+│   ├── gdacs.ts      # Global natural events (XML parser)
+│   ├── guardian.ts   # The Guardian news
+│   ├── iss.ts        # ISS tracking
+│   ├── openmeteo.ts  # Weather
+│   └── usgs.ts       # Seismic activity
 ├── components/
 │   ├── layout/       # Header, DailyBrief, PageLayout, WidgetShell
 │   └── ui/           # LiveTickerBar, WidgetSkeleton, ParticleBackground
 ├── engine/
-│   └── brief.ts      # Gerador de insights do Vigil Brief
-├── pages/            # Uma página por rota (lazy loaded)
+│   └── brief.ts      # Vigil Brief insight generator
+├── pages/            # One page per route (lazy loaded)
 ├── store/            # Zustand stores (app, binance, geo, alerts)
-└── widgets/          # Um diretório por domínio de dados
+└── widgets/          # One directory per data domain
 ```
 
 ---
 
-## Rodando Localmente
+## Running Locally
 
 ```bash
-# Instalar dependências
+# Install dependencies
 npm install
 
-# Iniciar servidor de desenvolvimento (com proxy GDACS)
+# Start dev server (with GDACS proxy)
 npm run dev
 
-# Build de produção
+# Production build
 npm run build
 ```
 
-> **Variáveis de ambiente opcionais:**
+> **Optional environment variables:**
 > ```
-> VITE_GUARDIAN_API_KEY=sua_chave   # padrão: chave demo "test" do The Guardian
+> VITE_GUARDIAN_API_KEY=your_key   # default: The Guardian's "test" demo key
 > ```
 
 ---
 
-## Deploy
+## Deployment
 
-O projeto está configurado para **Vercel** (rewrites em `vercel.json`) e **Netlify** (`public/_redirects`), ambos resolvendo o proxy do GDACS em produção.
+The project is configured for **Vercel** (rewrites in `vercel.json`) and **Netlify** (`public/_redirects`), both resolving the GDACS proxy in production.
 
 ---
 
-*Projeto de portfólio — Miguel Guerreiro*
-
+*Portfolio project — Miguel Guerreiro*
