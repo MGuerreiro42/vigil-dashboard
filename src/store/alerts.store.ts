@@ -17,18 +17,20 @@ export interface Alert {
 interface AlertsState {
   alerts: Alert[]
   unreadCount: number
-  addAlert: (alert: Omit<Alert, 'id' | 'timestamp' | 'read'>) => void
+  /** Pass a stable `id` to dedupe: an alert whose id is already listed is ignored */
+  addAlert: (alert: Omit<Alert, 'id' | 'timestamp' | 'read'> & { id?: string }) => void
   markAllRead: () => void
 }
 
-export const useAlertsStore = create<AlertsState>((set) => ({
+export const useAlertsStore = create<AlertsState>((set, get) => ({
   alerts: [],
   unreadCount: 0,
 
   addAlert: (alert) => {
+    if (alert.id && get().alerts.some((a) => a.id === alert.id)) return
     const newAlert: Alert = {
       ...alert,
-      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      id: alert.id ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       timestamp: Date.now(),
       read: false,
     }
