@@ -10,11 +10,13 @@ import { StatsBar } from './stats-bar'
 import { TLEPanel } from './tle-panel'
 import { TrajectoryPanel } from './trajectory-panel'
 import { ACCENT } from '@/features/iss/lib/iss-display'
+import { useTranslation } from 'react-i18next'
 
 const TRAIL_MAX = 45
 export type FocusTab = 'now' | 'trajectory' | 'tle'
 
 export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t } = useTranslation()
 
   const { data: position, isLoading, error, refetch, dataUpdatedAt } = useISSPosition()
   const { data: coords, isLoading: coordsLoading } = useISSCoordinates(position)
@@ -58,7 +60,7 @@ export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   return (
     <WidgetShell
-      title="ISS · Estação Espacial"
+      title={t('iss.title')}
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🛸</span>}
       isLoading={isLoading && !position}
       error={error}

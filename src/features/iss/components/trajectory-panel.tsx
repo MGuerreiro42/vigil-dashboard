@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion'
 import type { ISSPosition, ISSFuturePosition } from '@/features/iss/types'
 import { ACCENT } from '@/features/iss/lib/iss-display'
+import { useTranslation } from 'react-i18next'
 
 export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFuturePosition[]; position: ISSPosition | null }) {
+  const { t } = useTranslation()
   if (futurePath.length === 0) {
     return (
       <div style={{ width: 185, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Calculando…</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{t('iss.trajectory.computing')}</div>
       </div>
     )
   }
@@ -23,15 +25,15 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
       }}>
         <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
-          Próxima órbita (~{period} min)
+          {t('iss.trajectory.nextOrbit', { minutes: period })}
         </div>
         {/* Day/night bar */}
         <div style={{ height: 6, borderRadius: 99, background: '#818cf830', overflow: 'hidden', marginBottom: 6 }}>
           <div style={{ height: '100%', width: `${dayPct}%`, background: 'linear-gradient(90deg, #f59e0b, #fbbf24)', borderRadius: 99 }} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10 }}>
-          <span style={{ color: '#fbbf24' }}>☀ {dayPct}% dia</span>
-          <span style={{ color: '#818cf8' }}>🌑 {100 - dayPct}% noite</span>
+          <span style={{ color: '#fbbf24' }}>{t('iss.trajectory.dayShare', { percent: dayPct })}</span>
+          <span style={{ color: '#818cf8' }}>{t('iss.trajectory.nightShare', { percent: 100 - dayPct })}</span>
         </div>
       </div>
 
@@ -41,7 +43,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
       }}>
         <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-          Posições futuras
+          {t('iss.trajectory.futurePositions')}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
           {futurePath.map((fp, i) => {
@@ -78,11 +80,11 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
           <div style={{ width: 20, height: 2, background: '#f59e0b', borderRadius: 1, flexShrink: 0 }} />
-          <span>Trajetória em luz do dia</span>
+          <span>{t('iss.trajectory.daylightPath')}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 20, height: 2, background: '#818cf8', borderRadius: 1, flexShrink: 0 }} />
-          <span>Trajetória na sombra</span>
+          <span>{t('iss.trajectory.shadowPath')}</span>
         </div>
       </div>
     </div>

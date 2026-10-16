@@ -2,8 +2,10 @@ import { useMemo } from 'react'
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, Area, CartesianGrid, ComposedChart } from 'recharts'
 import type { BinanceOrderBook } from '@/features/crypto/types'
 import { formatPrice } from '@/features/crypto/lib/crypto-format'
+import { useTranslation } from 'react-i18next'
 
 export function DepthChart({ book }: { book: BinanceOrderBook }) {
+  const { t } = useTranslation()
   const { chartData, bestBid, bestAsk, spread, spreadPct } = useMemo(() => {
     const topBids = book.bids.slice(0, 20)
     const topAsks = book.asks.slice(0, 20)
@@ -38,11 +40,11 @@ export function DepthChart({ book }: { book: BinanceOrderBook }) {
     <div className="flex flex-col h-full min-h-0 gap-2">
       {/* Spread info */}
       <div className="flex items-center gap-3 flex-shrink-0 text-[11px]">
-        <span className="text-emerald-400 font-mono">Bid {formatPrice(bestBid)}</span>
+        <span className="text-emerald-400 font-mono">{t('crypto.depth.bid', { price: formatPrice(bestBid) })}</span>
         <span className="text-fg-subtle">
-          Spread ${spread.toFixed(2)} · {spreadPct.toFixed(3)}%
+          {t('crypto.depth.spread', { value: `$${spread.toFixed(2)}`, percent: spreadPct.toFixed(3) })}
         </span>
-        <span className="text-rose-400 font-mono">Ask {formatPrice(bestAsk)}</span>
+        <span className="text-rose-400 font-mono">{t('crypto.depth.ask', { price: formatPrice(bestAsk) })}</span>
       </div>
 
       {/* Chart */}
@@ -65,8 +67,8 @@ export function DepthChart({ book }: { book: BinanceOrderBook }) {
             />
             <Tooltip
               contentStyle={{ background: 'rgba(13,17,23,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }}
-              labelFormatter={(value) => `Preço: ${formatPrice(Number(value))}`}
-              formatter={(value, name) => [Number(value).toFixed(4), name === 'bid' ? '📗 Bid vol' : '📕 Ask vol']}
+              labelFormatter={(value) => t('crypto.depth.priceLabel', { price: formatPrice(Number(value)) })}
+              formatter={(value, name) => [Number(value).toFixed(4), name === 'bid' ? t('crypto.depth.bidVolume') : t('crypto.depth.askVolume')]}
             />
             <Area
               type="step" dataKey="bid"

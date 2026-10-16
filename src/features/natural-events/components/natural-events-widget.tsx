@@ -15,10 +15,12 @@ import { SeismicTab } from './seismic-tab'
 import { TimelineView } from './timeline-view'
 import { ACCENT, alertBadge, categoryStyle } from '@/features/natural-events/lib/event-style'
 import { StatTile } from '@/components/ui/stat-tile'
+import { useTranslation } from 'react-i18next'
 
 type RightTab = 'globe' | 'timeline' | 'categories' | 'seismic'
 
 export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t } = useTranslation()
 
   const { data: events = [], isLoading, error, refetch, dataUpdatedAt } = useNaturalEvents()
   const { data: quakes = [] } = useEarthquakes(2.5)
@@ -81,10 +83,10 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
     : null
 
   const tabs: { id: RightTab; label: string }[] = [
-    { id: 'globe',      label: '🌍 Globo' },
-    { id: 'seismic',    label: `🌋 Sismica (${quakes.length})` },
-    { id: 'timeline',   label: '📅 Timeline' },
-    { id: 'categories', label: '🗂 Categorias' },
+    { id: 'globe',      label: t('naturalEvents.tabs.globe') },
+    { id: 'seismic',    label: t('naturalEvents.tabs.seismic', { count: quakes.length }) },
+    { id: 'timeline',   label: t('naturalEvents.tabs.timeline') },
+    { id: 'categories', label: t('naturalEvents.tabs.categories') },
   ]
 
   const handleEventClick = (evt: NaturalEvent) => {
@@ -97,7 +99,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
 
   return (
     <WidgetShell
-      title="Eventos Naturais"
+      title={t('naturalEvents.title')}
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌿</span>}
       isLoading={isLoading}
       error={error}
@@ -111,27 +113,27 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
       {/* ── Stats header ── */}
       {events.length > 0 && (
         <div className="flex gap-2 mb-3 flex-shrink-0">
-          <StatTile label="Ativos" value={totalActive} caption="global" valueColor={ACCENT} />
+          <StatTile label={t('naturalEvents.stats.active')} value={totalActive} caption={t('naturalEvents.stats.global')} valueColor={ACCENT} />
 
           {dominantCat && (
-            <StatTile label="Maior Freq." value={dominantCat.cfg.icon} caption={dominantCat.cfg.label} color={dominantCat.cfg.color} valueClassName="text-[18px]" />
+            <StatTile label={t('naturalEvents.stats.mostFrequent')} value={dominantCat.cfg.icon} caption={dominantCat.cfg.label} color={dominantCat.cfg.color} valueClassName="text-[18px]" />
           )}
 
           {isFocused && (
-            <StatTile label="Países" value={countriesAffected} caption="afetados" />
+            <StatTile label={t('naturalEvents.stats.countries')} value={countriesAffected} caption={t('naturalEvents.stats.affected')} />
           )}
 
           {isFocused && highAlertCount > 0 && (
-            <StatTile label="Alerta Alto" value={highAlertCount} caption="Orange+Red" color="#f97316" />
+            <StatTile label={t('naturalEvents.stats.highAlert')} value={highAlertCount} caption={t('naturalEvents.stats.highAlertCaption')} color="#f97316" />
           )}
 
           {isFocused && maxQuake && (
-            <StatTile label="Maior M" value={maxQuake.magnitude.toFixed(1)} caption={maxQuake.place.split(',')[0]} color={magnitudeColor(maxQuake.magnitude)} />
+            <StatTile label={t('naturalEvents.stats.strongestQuake')} value={maxQuake.magnitude.toFixed(1)} caption={maxQuake.place.split(',')[0]} color={magnitudeColor(maxQuake.magnitude)} />
           )}
 
           {lastEvent && (
             <div className="flex-1 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
-              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Último Evento</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('naturalEvents.stats.latestEvent')}</span>
               <span className="text-[12px] text-white/70 leading-tight mt-1.5 line-clamp-2">{lastEvent.title}</span>
               <span className="text-[10px] mt-1 leading-none" style={{ color: categoryStyle(lastEvent.categoryId).color }}>
                 {categoryStyle(lastEvent.categoryId).icon} {formatRelativeTime(Math.floor(new Date(lastEvent.date).getTime() / 1000))}
@@ -236,7 +238,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
           {/* Feed — RIGHT (w-52 on md+, full width on mobile) */}
           <div className="w-full md:w-52 md:flex-shrink-0 flex flex-col md:min-h-0 min-h-[200px]">
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
-              <span className="text-[10px] uppercase tracking-widest text-fg-subtle">Feed ao vivo</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle">{t('naturalEvents.liveFeed')}</span>
               <span className="text-[11px] font-mono text-fg-subtle">{events.length}</span>
             </div>
             <EventFeed events={events} selectedEventId={selectedEventId} onEventClick={handleEventClick} />

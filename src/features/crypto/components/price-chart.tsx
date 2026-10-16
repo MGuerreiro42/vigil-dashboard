@@ -5,11 +5,13 @@ import type { CryptoAsset } from '@/features/crypto/types'
 import { ChangeBadge } from './change-badge'
 import { LivePrice } from './live-price'
 import { chartTooltipStyle } from '@/lib/chart-styles'
+import { useTranslation } from 'react-i18next'
 
 const SPARKLINE_HOURS = 168
 
 /** 7-day price area for the selected coin, or 24h change bars for every coin when none is selected. */
 export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; selectedCoin: CryptoAsset | null }) {
+  const { t } = useTranslation()
   const chartData = selectedCoin
     ? selectedCoin.sparkline.slice(-SPARKLINE_HOURS).map((price, index) => ({ i: index, v: price }))
     : []
@@ -71,7 +73,7 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
       </>
     ) : (
       <div style={{ flex: 1, position: 'relative' }}>
-        <p className="text-[11px] text-fg-muted uppercase tracking-widest mb-2">Variação 24h</p>
+        <p className="text-[11px] text-fg-muted uppercase tracking-widest mb-2">{t('crypto.change24h')}</p>
         <div style={{
           position: 'absolute', inset: 0, top: 24,
           background: '#06080f', borderRadius: 10,
@@ -87,7 +89,7 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
               <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
               <Tooltip
                 contentStyle={chartTooltipStyle}
-                formatter={(value) => [`${Number(value) > 0 ? '+' : ''}${value}%`, 'Variação']}
+                formatter={(value) => [`${Number(value) > 0 ? '+' : ''}${value}%`, t('crypto.change')]}
                 labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
               />
               <Bar dataKey="pct" radius={[4, 4, 0, 0]}>

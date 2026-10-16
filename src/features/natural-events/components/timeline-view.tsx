@@ -2,8 +2,11 @@ import { useState, useMemo } from 'react'
 import { formatRelativeTime } from '@/lib/format-relative-time'
 import type { NaturalEvent } from '@/features/natural-events/types'
 import { ACCENT, CATEGORIES, categoryStyle } from '@/features/natural-events/lib/event-style'
+import { useTranslation } from 'react-i18next'
+import { intlLocale } from '@/i18n'
 
 export function TimelineView({ events }: { events: NaturalEvent[] }) {
+  const { t } = useTranslation()
   const [hovered, setHovered] = useState<NaturalEvent | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
@@ -13,7 +16,7 @@ export function TimelineView({ events }: { events: NaturalEvent[] }) {
 
   const categories = useMemo(() => {
     const ids = Array.from(new Set(events.map(event => event.categoryId)))
-    return ids.filter(id => CATEGORIES[id]).sort((first, second) => {
+    return ids.filter(id => id in CATEGORIES).sort((first, second) => {
       const firstCount = events.filter(event => event.categoryId === first).length
       const secondCount = events.filter(event => event.categoryId === second).length
       return secondCount - firstCount
@@ -29,7 +32,7 @@ export function TimelineView({ events }: { events: NaturalEvent[] }) {
     return Array.from({ length: 5 }, (_, i) => {
       const timestamp = startMs + ((i + 1) / 5) * (nowMs - startMs)
       const date = new Date(timestamp)
-      return { label: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), pct: ((i + 1) / 5) * 100 }
+      return { label: date.toLocaleDateString(intlLocale(), { day: '2-digit', month: '2-digit' }), pct: ((i + 1) / 5) * 100 }
     })
   }, [startMs, nowMs])
 
@@ -102,7 +105,7 @@ export function TimelineView({ events }: { events: NaturalEvent[] }) {
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>−20d</span>
           </div>
           <div style={{ position: 'absolute', right: 0, top: 4 }}>
-            <span style={{ fontSize: 9, color: ACCENT }}>agora</span>
+            <span style={{ fontSize: 9, color: ACCENT }}>{t('naturalEvents.now')}</span>
           </div>
         </div>
       </div>

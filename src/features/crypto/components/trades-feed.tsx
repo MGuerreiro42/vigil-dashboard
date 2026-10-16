@@ -1,8 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import type { BinanceTrade } from '@/features/crypto/types'
 import { USD_COMPACT, formatPrice } from '@/features/crypto/lib/crypto-format'
+import { useTranslation } from 'react-i18next'
 
 export function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coinSymbol: string }) {
+  const { t } = useTranslation()
   if (trades.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-2 text-fg-subtle">
@@ -11,7 +13,7 @@ export function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coi
           transition={{ repeat: Infinity, duration: 1.2 }}
           className="w-2 h-2 rounded-full bg-amber-400"
         />
-        <span className="text-xs">Conectando ao stream de {coinSymbol}…</span>
+        <span className="text-xs">{t('crypto.connectingTrades', { symbol: coinSymbol })}</span>
       </div>
     )
   }
@@ -25,7 +27,7 @@ export function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coi
     <div className="flex flex-col h-full min-h-0 gap-1.5">
       {/* Buy / sell pressure bar */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        <span className="text-[11px] text-emerald-400 tabular-nums w-14">{buyPct.toFixed(1)}% buy</span>
+        <span className="text-[11px] text-emerald-400 tabular-nums w-14">{t('crypto.trades.buy', { percent: buyPct.toFixed(1) })}</span>
         <div className="flex-1 h-1.5 rounded-full overflow-hidden bg-rose-500/20">
           <motion.div
             className="h-full rounded-full bg-emerald-500"
@@ -33,14 +35,14 @@ export function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coi
             transition={{ type: 'spring', stiffness: 60, damping: 20 }}
           />
         </div>
-        <span className="text-[11px] text-rose-400 tabular-nums w-14 text-right">{(100 - buyPct).toFixed(1)}% sell</span>
+        <span className="text-[11px] text-rose-400 tabular-nums w-14 text-right">{t('crypto.trades.sell', { percent: (100 - buyPct).toFixed(1) })}</span>
       </div>
 
       {/* Column header */}
       <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 px-2 py-1 text-[10px] text-fg-subtle uppercase tracking-widest flex-shrink-0">
-        <span>Preço</span>
-        <span className="text-right">Qtd</span>
-        <span className="text-right w-16">Valor USD</span>
+        <span>{t('crypto.trades.price')}</span>
+        <span className="text-right">{t('crypto.trades.quantity')}</span>
+        <span className="text-right w-16">{t('crypto.trades.value')}</span>
       </div>
 
       {/* Trades */}

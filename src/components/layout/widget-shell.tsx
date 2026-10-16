@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GlassCard } from '@/components/surfaces/glass-card'
+import { useTranslation } from 'react-i18next'
+import { formatRelativeTime } from '@/lib/format-relative-time'
 
 interface WidgetShellProps {
   title: string
@@ -22,12 +24,6 @@ interface WidgetShellProps {
   fillHeight?: boolean
 }
 
-function formatRelative(ts: number): string {
-  const diff = Math.floor((Date.now() - ts) / 1000)
-  if (diff < 60) return `${diff}s ago`
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  return `${Math.floor(diff / 3600)}h ago`
-}
 
 // Inline width: Tailwind can't generate a class built at runtime like `w-${width}`
 function SkeletonLine({ width = '100%' }: { width?: string }) {
@@ -68,6 +64,7 @@ export function WidgetShell({
   viewRoute,
   fillHeight = false,
 }: WidgetShellProps) {
+  const { t } = useTranslation()
   return (
     <GlassCard
       accentColor={accentColor}
@@ -98,12 +95,12 @@ export function WidgetShell({
                 animate={{ opacity: [1, 0.25, 1] }}
                 transition={{ repeat: Infinity, duration: 1.4 }}
               />
-              <span className="text-[9px] font-bold tracking-widest uppercase text-emerald-400">live</span>
+              <span className="text-[9px] font-bold tracking-widest uppercase text-emerald-400">{t('common.live')}</span>
             </div>
           )}
           {lastUpdated && (
             <span className="text-[12px] text-fg-subtle tabular-nums">
-              {formatRelative(lastUpdated)}
+              {formatRelativeTime(Math.floor(lastUpdated / 1000))}
             </span>
           )}
           {/* Expand → navigate to dedicated page (only in compact mode) */}
@@ -111,7 +108,7 @@ export function WidgetShell({
             <Link
               to={viewRoute}
               className="text-fg-subtle hover:text-white/60 transition-colors p-0.5 rounded"
-              aria-label="Abrir página completa"
+              aria-label={t('common.openFullPage')}
               onClick={(event) => event.stopPropagation()}
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -145,13 +142,13 @@ export function WidgetShell({
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center h-full gap-3 py-8"
             >
-              <span className="text-fg-subtle text-sm">Falha ao carregar dados</span>
+              <span className="text-fg-subtle text-sm">{t('common.loadError')}</span>
               {onRetry && (
                 <button
                   onClick={onRetry}
                   className="text-xs px-3 py-1.5 rounded-md border border-white/10 text-white/50 hover:text-white/80 hover:border-white/20 transition-all"
                 >
-                  Tentar novamente
+                  {t('common.retry')}
                 </button>
               )}
             </motion.div>

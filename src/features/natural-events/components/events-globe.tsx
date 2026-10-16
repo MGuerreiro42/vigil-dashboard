@@ -5,6 +5,7 @@ import { useGlobe, GLOBE_TEXTURE_URL } from '@/hooks/use-globe'
 import { PinnedTooltip } from './pinned-tooltip'
 import { categoryStyle, magnitudeRadius } from '@/features/natural-events/lib/event-style'
 import { buildGlobeTooltip } from '@/features/natural-events/lib/globe-tooltip'
+import { useTranslation } from 'react-i18next'
 
 type GlobePoint = { id: string; lat: number; lng: number; color: string; radius: number }
 
@@ -15,6 +16,7 @@ export function EventsGlobe({ events, selectedEvent, onEventClick, onClearSelect
   onClearSelection: () => void
   active: boolean
 }) {
+  const { t } = useTranslation()
   const { containerRef, globeRef, Globe, size } = useGlobe(active)
   const rotatingRef = useRef(true)
 
@@ -94,7 +96,7 @@ export function EventsGlobe({ events, selectedEvent, onEventClick, onClearSelect
         />
       )}
       {(!Globe || size.width === 0) && (
-        <div className="flex items-center justify-center h-full text-fg-subtle text-sm">Carregando globo…</div>
+        <div className="flex items-center justify-center h-full text-fg-subtle text-sm">{t('naturalEvents.loadingGlobe')}</div>
       )}
 
       {/* Pinned tooltip overlay */}
@@ -105,7 +107,7 @@ export function EventsGlobe({ events, selectedEvent, onEventClick, onClearSelect
       </AnimatePresence>
 
       <div style={{ position: 'absolute', bottom: 10, right: 12, fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>
-        clique no globo · pausa rotação
+        {t('naturalEvents.globeHint')}
       </div>
     </div>
   )

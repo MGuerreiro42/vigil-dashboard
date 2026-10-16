@@ -3,6 +3,7 @@ import { useBinanceTickerStore } from '@/features/crypto/store/ticker-store'
 import { COINGECKO_TO_BINANCE } from '@/features/crypto/api/binance'
 import { usePriceFlash, flashColor } from '@/features/crypto/hooks/use-price-flash'
 import type { CryptoAsset } from '@/features/crypto/types'
+import { useTranslation } from 'react-i18next'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -70,6 +71,7 @@ interface Props {
 }
 
 export function LiveTickerBar({ coins }: Props) {
+  const { t } = useTranslation()
   const connectedCount = useBinanceTickerStore((state) => state.connectedCount)
   const isLive = connectedCount > 0
 
@@ -123,7 +125,7 @@ export function LiveTickerBar({ coins }: Props) {
             className="text-[10px] font-bold tracking-widest uppercase"
             style={{ color: isLive ? '#10b981' : 'rgba(255,255,255,0.25)' }}
           >
-            LIVE
+            {t('crypto.tickerLive')}
           </span>
           <div className="w-px h-4 bg-white/10 ml-1" />
         </div>

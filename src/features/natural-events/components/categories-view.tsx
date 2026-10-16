@@ -3,8 +3,10 @@ import { motion } from 'framer-motion'
 import { formatRelativeTime } from '@/lib/format-relative-time'
 import type { NaturalEvent } from '@/features/natural-events/types'
 import { categoryStyle, stormCategory } from '@/features/natural-events/lib/event-style'
+import { useTranslation } from 'react-i18next'
 
 export function CategoriesView({ events }: { events: NaturalEvent[] }) {
+  const { t } = useTranslation()
   const categoryGroups = useMemo(() => {
     const groups: Record<string, NaturalEvent[]> = {}
     events.forEach(event => {
@@ -84,7 +86,7 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
       {topFires.length > 0 && (
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>🔥</span> Maiores Incêndios Ativos
+            <span>🔥</span> {t('naturalEvents.categoriesView.largestFires')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             {topFires.map((fire, i) => {
@@ -126,7 +128,7 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
       {storms.length > 0 && (
         <div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>🌀</span> Tempestades Ativas
+            <span>🌀</span> {t('naturalEvents.categoriesView.activeStorms')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {storms.map(storm => (

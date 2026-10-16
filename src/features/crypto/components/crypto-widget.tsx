@@ -16,10 +16,12 @@ import { MarketShareList } from './market-share-list'
 import { MarketStats } from './market-stats'
 import { PriceChart } from './price-chart'
 import { ACCENT } from '@/features/crypto/lib/crypto-format'
+import { useTranslation } from 'react-i18next'
 
 type RightTab = 'chart' | 'market' | 'forex' | 'trades' | 'depth'
 
 export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t } = useTranslation()
   const cryptoIds = useAppStore((state) => state.cryptoIds)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [rightTab, setRightTab] = useState<RightTab>('chart')
@@ -39,16 +41,16 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
   }
 
   const tabs: TabOption<RightTab>[] = [
-    { id: 'chart',  label: 'Gráfico' },
-    { id: 'market', label: 'Mercado' },
-    { id: 'forex',  label: 'Forex' },
-    { id: 'trades', label: '⚡ Trades', disabled: !selectedId },
-    { id: 'depth',  label: '📊 Depth',  disabled: !selectedId },
+    { id: 'chart',  label: t('crypto.tabs.chart') },
+    { id: 'market', label: t('crypto.tabs.market') },
+    { id: 'forex',  label: t('crypto.tabs.forex') },
+    { id: 'trades', label: t('crypto.tabs.trades'), disabled: !selectedId },
+    { id: 'depth',  label: t('crypto.tabs.depth'),  disabled: !selectedId },
   ]
 
   return (
     <WidgetShell
-      title="Mercado Cripto"
+      title={t('crypto.title')}
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>₿</span>}
       isLoading={isLoading}
       error={error}
@@ -114,7 +116,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
                   <TradesFeed trades={trades} coinSymbol={selectedCoin.symbol} />
                 ) : (
                   <div className="flex items-center justify-center h-full text-sm text-fg-subtle">
-                    Selecione uma moeda para ver o feed ao vivo
+                    {t('crypto.selectForTrades')}
                   </div>
                 )}
               </div>
@@ -131,12 +133,12 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
                         transition={{ repeat: Infinity, duration: 1.2 }}
                         className="w-2 h-2 rounded-full bg-amber-400"
                       />
-                      <span className="text-sm">Carregando order book de {selectedCoin.symbol}…</span>
+                      <span className="text-sm">{t('crypto.loadingDepth', { symbol: selectedCoin.symbol })}</span>
                     </div>
                   )
                 ) : (
                   <div className="flex items-center justify-center h-full text-sm text-fg-subtle">
-                    Selecione uma moeda para ver o order book
+                    {t('crypto.selectForDepth')}
                   </div>
                 )}
               </div>

@@ -5,11 +5,14 @@ import { useWeather } from '@/features/weather/api/open-meteo'
 import { getWMO } from '@/features/weather/lib/wmo-icons'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from './language-switcher'
 
 // ─── Weather pill ──────────────────────────────────────────────────────────────
 function WeatherPill() {
   const coords = useGeoStore((state) => state.coords)
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { data: weather } = useWeather(coords ?? undefined)
   const current = weather?.current
 
@@ -41,7 +44,7 @@ function WeatherPill() {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
       onClick={() => navigate('/weather')}
-      title="Ver previsão completa"
+      title={t('header.weatherPill.title')}
       className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-xl transition-all hover:bg-white/[0.07] active:scale-95"
       style={{
         background: 'rgba(255,255,255,0.04)',
@@ -56,7 +59,7 @@ function WeatherPill() {
       <div className="hidden md:flex items-center gap-2">
         <div className="h-3 w-px bg-white/10 flex-shrink-0" />
         <span className="text-[11px] text-fg-muted whitespace-nowrap">
-          Sens. {Math.round(current.feelsLike)}°
+          {t('header.weatherPill.feelsLike', { temperature: Math.round(current.feelsLike) })}
         </span>
         <div className="h-3 w-px bg-white/10 flex-shrink-0" />
         <span className="text-[11px] text-fg-muted whitespace-nowrap">💧 {current.humidity}%</span>
@@ -74,6 +77,7 @@ export function Header() {
   const status = useGeoStore((state) => state.status)
   const coords = useGeoStore((state) => state.coords)
   const [showAlerts, setShowAlerts] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <header className="flex items-center justify-between py-3 md:py-4 px-3 md:px-6 relative z-10">
@@ -96,14 +100,14 @@ export function Header() {
         </div>
         <div>
           <div className="text-sm font-semibold tracking-widest text-white/85 uppercase">Vigil</div>
-          <div className="hidden sm:block text-[11px] text-fg-subtle -mt-0.5">Live Dashboard</div>
+          <div className="hidden sm:block text-[11px] text-fg-subtle -mt-0.5">{t('header.tagline')}</div>
         </div>
       </div>
 
       {/* Right side */}
       <div className="flex items-center gap-2 md:gap-3">
-        {/* Geo status — hidden on mobile */}
-        <div className="hidden sm:flex items-center gap-1.5">
+        {/* Geo status — hidden on mobile, and until a page asks for the location */}
+        {status !== 'idle' && <div className="hidden sm:flex items-center gap-1.5">
           <div
             className="w-1.5 h-1.5 rounded-full"
             style={{
@@ -112,9 +116,13 @@ export function Header() {
             }}
           />
           <span className="text-[11px] text-fg-subtle">
-            {status === 'granted' && coords ? `${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}` : status === 'denied' ? 'Localização negada' : 'Detectando...'}
+            {status === 'granted' && coords
+              ? `${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}`
+              : t(status === 'loading' ? 'header.location.detecting' : 'header.location.denied')}
           </span>
-        </div>
+        </div>}
+
+        <LanguageSwitcher />
 
         {/* Weather pill */}
         <WeatherPill />
@@ -123,6 +131,8 @@ export function Header() {
         <div className="relative">
           <button
             onClick={() => setShowAlerts((isOpen) => !isOpen)}
+            aria-label={unreadCount > 0 ? t('header.alerts.openWithCount', { count: unreadCount }) : t('header.alerts.open')}
+            aria-expanded={showAlerts}
             className="relative p-2 rounded-lg text-fg-muted hover:text-white/70 hover:bg-white/5 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -157,16 +167,16 @@ export function Header() {
                 }}
               >
                 <div className="flex items-center justify-between px-3 py-2 border-b border-white/6">
-                  <span className="text-xs font-medium text-white/60">Alertas</span>
+                  <span className="text-xs font-medium text-white/60">{t('header.alerts.title')}</span>
                   {unreadCount > 0 && (
                     <button onClick={markAllRead} className="text-[12px] text-fg-subtle hover:text-white/60 transition-colors">
-                      Marcar todos lidos
+                      {t('header.alerts.markAllRead')}
                     </button>
                   )}
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {alerts.length === 0 ? (
-                    <div className="px-3 py-4 text-[13px] text-fg-subtle text-center">Nenhum alerta</div>
+                    <div className="px-3 py-4 text-[13px] text-fg-subtle text-center">{t('header.alerts.empty')}</div>
                   ) : (
                     alerts.slice(0, 10).map((alert) => (
                       <div

@@ -2,13 +2,16 @@ import { motion } from 'framer-motion'
 import { formatRelativeTime } from '@/lib/format-relative-time'
 import type { NaturalEvent } from '@/features/natural-events/types'
 import { categoryStyle, stormCategory } from '@/features/natural-events/lib/event-style'
+import { useTranslation } from 'react-i18next'
+import { intlLocale } from '@/i18n'
 
 export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: () => void }) {
+  const { t } = useTranslation()
   const cfg = categoryStyle(evt.categoryId)
   const rel = formatRelativeTime(Math.floor(new Date(evt.date).getTime() / 1000))
-  const absDate = new Date(evt.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-  const latDir = evt.lat >= 0 ? 'N' : 'S'
-  const lngDir = evt.lng >= 0 ? 'L' : 'O'
+  const absDate = new Date(evt.date).toLocaleDateString(intlLocale(), { day: '2-digit', month: 'short', year: 'numeric' })
+  const latDir = t(evt.lat >= 0 ? 'naturalEvents.directions.north' : 'naturalEvents.directions.south')
+  const lngDir = t(evt.lng >= 0 ? 'naturalEvents.directions.east' : 'naturalEvents.directions.west')
   const isStorm = evt.categoryId === 'severeStorms'
   const stormCat = isStorm && evt.magnitude ? stormCategory(evt.magnitude) : null
 
@@ -18,7 +21,7 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
     const unit = evt.magnitudeUnit
     if (unit === 'kts') magDisplay = `${evt.magnitude} kts`
     else if (unit === 'NM^2') magDisplay = `${evt.magnitude.toFixed(1)} NM²`
-    else if (unit === 'hectare') magDisplay = `${(evt.magnitude).toLocaleString('pt-BR')} ha`
+    else if (unit === 'hectare') magDisplay = `${evt.magnitude.toLocaleString(intlLocale())} ha`
     else {
       magDisplay = evt.magnitude >= 1000
         ? `${(evt.magnitude / 1000).toFixed(1)}k ${unit}`
@@ -54,8 +57,8 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
           <span style={{ fontSize: 9, fontWeight: 700, color: stormCat.color, background: stormCat.color + '20', padding: '1px 6px', borderRadius: 99 }}>{stormCat.short}</span>
         )}
         {evt.status === 'open'
-          ? <span style={{ marginLeft: 'auto', fontSize: 9, color: '#10b981', background: '#10b98118', padding: '1px 6px', borderRadius: 99, fontWeight: 700 }}>ATIVO</span>
-          : <span style={{ marginLeft: 'auto', fontSize: 9, color: '#8b93a1', background: '#8b93a118', padding: '1px 6px', borderRadius: 99 }}>FECHADO</span>}
+          ? <span style={{ marginLeft: 'auto', fontSize: 9, color: '#10b981', background: '#10b98118', padding: '1px 6px', borderRadius: 99, fontWeight: 700 }}>{t('naturalEvents.tooltip.active')}</span>
+          : <span style={{ marginLeft: 'auto', fontSize: 9, color: '#8b93a1', background: '#8b93a118', padding: '1px 6px', borderRadius: 99 }}>{t('naturalEvents.tooltip.closed')}</span>}
         <button onClick={onClose} style={{
           marginLeft: 4, background: 'rgba(255,255,255,0.06)', border: 'none',
           color: 'rgba(255,255,255,0.62)', borderRadius: 6, width: 18, height: 18,
@@ -72,19 +75,19 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
       {/* Info grid */}
       <div style={{ display: 'grid', gridTemplateColumns: magDisplay ? '1fr 1fr 1fr' : '1fr 1fr', gap: 4, marginBottom: hasFooter ? 7 : 0 }}>
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: '4px 7px' }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Data</div>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{t('naturalEvents.tooltip.date')}</div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{absDate}</div>
           <div style={{ fontSize: 9, color: cfg.color, marginTop: 1 }}>{rel}</div>
         </div>
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: '4px 7px' }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Coords</div>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{t('naturalEvents.tooltip.coordinates')}</div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>{Math.abs(evt.lat).toFixed(2)}°{latDir}</div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>{Math.abs(evt.lng).toFixed(2)}°{lngDir}</div>
         </div>
         {magDisplay && (
           <div style={{ background: cfg.color + '0f', border: `1px solid ${cfg.color}25`, borderRadius: 6, padding: '4px 7px' }}>
             <div style={{ fontSize: 9, color: cfg.color, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
-              {isStorm ? 'Vento' : 'Área'}
+              {isStorm ? t('naturalEvents.tooltip.wind') : t('naturalEvents.tooltip.area')}
             </div>
             <div style={{ fontSize: 10, fontWeight: 700, color: stormCat?.color ?? cfg.color }}>{magDisplay}</div>
             {stormCat && <div style={{ fontSize: 9, color: stormCat.color, marginTop: 1 }}>{stormCat.label}</div>}
@@ -101,7 +104,7 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
           {evt.sourceUrl && (
             <a href={evt.sourceUrl} target="_blank" rel="noopener"
               style={{ color: cfg.color, fontSize: 10, textDecoration: 'none', borderBottom: `1px dotted ${cfg.color}55` }}>
-              Ver fonte ↗
+              {t('naturalEvents.tooltip.source')}
             </a>
           )}
         </div>

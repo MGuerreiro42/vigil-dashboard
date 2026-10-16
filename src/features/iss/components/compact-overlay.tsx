@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { ISSPosition } from '@/features/iss/types'
 import { ACCENT, countryFlag, formatAltitude, formatCoordinate } from '@/features/iss/lib/iss-display'
+import { useTranslation } from 'react-i18next'
 
 export function CompactOverlay({
   position,
@@ -13,17 +14,18 @@ export function CompactOverlay({
   timezoneId: string | undefined
   coordsLoading: boolean
 }) {
+  const { t } = useTranslation()
   const locationLabel = useMemo(() => {
     if (coordsLoading) return '…'
     if (countryCode) return `${countryFlag(countryCode)} ${countryCode}`
     if (timezoneId) {
       // Extract ocean/region from timezone like "Etc/GMT+3" or "Indian/Christmas"
       const parts = timezoneId.split('/')
-      if (parts[0] === 'Etc') return '🌊 Alto Mar'
+      if (parts[0] === 'Etc') return t('iss.highSeas')
       return `🌊 ${parts[0]}`
     }
-    return '🌊 Alto Mar'
-  }, [countryCode, timezoneId, coordsLoading])
+    return t('iss.highSeas')
+  }, [countryCode, timezoneId, coordsLoading, t])
 
   if (!position) return null
   const daylight = position.visibility === 'daylight'
@@ -38,7 +40,7 @@ export function CompactOverlay({
     }}>
       <div>
         <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
-          sobrevoo
+          {t('iss.overflight')}
         </div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.80)', fontWeight: 600, marginBottom: 2 }}>
           {locationLabel}
@@ -55,7 +57,7 @@ export function CompactOverlay({
           border: `1px solid ${daylight ? 'rgba(251,191,36,0.25)' : 'rgba(129,140,248,0.25)'}`,
           padding: '2px 7px', borderRadius: 99,
         }}>
-          {daylight ? '☀ dia' : '🌑 noite'}
+          {daylight ? t('iss.day') : t('iss.night')}
         </span>
         <span style={{ fontSize: 10, color: ACCENT, fontFamily: 'monospace' }}>
           ↑ {formatAltitude(position.altitude)}

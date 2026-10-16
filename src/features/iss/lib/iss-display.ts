@@ -1,3 +1,5 @@
+import { intlLocale } from '@/i18n'
+
 
 
 export const ACCENT = '#22d3ee'
@@ -19,7 +21,7 @@ export function countryFlag(code: string): string {
 export function epochToDate(year: number, day: number): string {
   const date = new Date(Date.UTC(year, 0, 1))
   date.setUTCDate(date.getUTCDate() + Math.floor(day) - 1)
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  return date.toLocaleDateString(intlLocale(), { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
 }
 
 /** Orbital period in minutes from mean motion (rev/day) */

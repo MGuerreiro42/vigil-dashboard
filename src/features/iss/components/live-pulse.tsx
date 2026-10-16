@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { ACCENT } from '@/features/iss/lib/iss-display'
+import { useTranslation } from 'react-i18next'
 
 export function LivePulse() {
+  const { t } = useTranslation()
   return (
     <motion.div
       style={{
@@ -15,7 +17,7 @@ export function LivePulse() {
         transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
         style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, boxShadow: `0 0 6px ${ACCENT}` }}
       />
-      <span style={{ fontSize: 9, color: ACCENT, letterSpacing: '0.05em' }}>LIVE</span>
+      <span style={{ fontSize: 9, color: ACCENT, letterSpacing: '0.05em' }}>{t('crypto.tickerLive')}</span>
     </motion.div>
   )
 }

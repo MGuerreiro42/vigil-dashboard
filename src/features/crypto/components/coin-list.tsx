@@ -7,15 +7,11 @@ import { ACCENT } from '@/features/crypto/lib/crypto-format'
 import type { CryptoAsset } from '@/features/crypto/types'
 import { ChangeBadge } from './change-badge'
 import { LivePrice } from './live-price'
+import { useTranslation } from 'react-i18next'
 
 type SortOrder = 'rank' | 'gain' | 'loss' | 'cap'
 
-const SORT_OPTIONS: { id: SortOrder; label: string }[] = [
-  { id: 'rank', label: 'Rank' },
-  { id: 'gain', label: 'Alta↓' },
-  { id: 'loss', label: 'Baixa↑' },
-  { id: 'cap',  label: 'Cap↓' },
-]
+const SORT_OPTIONS: SortOrder[] = ['rank', 'gain', 'loss', 'cap']
 
 function compareCoins(order: SortOrder) {
   return (first: CryptoAsset, second: CryptoAsset) => {
@@ -31,6 +27,7 @@ export function CoinList({ coins, selectedId, onSelect }: {
   selectedId: string | null
   onSelect: (coinId: string) => void
 }) {
+  const { t } = useTranslation()
   const [sortOrder, setSortOrder] = useState<SortOrder>('rank')
   // Symbols only: re-renders when a coin goes live, not on every price tick
   const liveSymbols = useBinanceTickerStore(useShallow((state) => Object.keys(state.tickers)))
@@ -41,16 +38,16 @@ export function CoinList({ coins, selectedId, onSelect }: {
       <div className="flex gap-1 mb-2 flex-shrink-0">
         {SORT_OPTIONS.map((option) => (
           <button
-            key={option.id}
-            onClick={() => setSortOrder(option.id)}
+            key={option}
+            onClick={() => setSortOrder(option)}
             className="px-2.5 py-1 rounded-md text-[11px] font-medium transition-all"
             style={{
-              background: sortOrder === option.id ? 'rgba(255,255,255,0.08)' : 'transparent',
-              color: sortOrder === option.id ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
-              border: `1px solid ${sortOrder === option.id ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
+              background: sortOrder === option ? 'rgba(255,255,255,0.08)' : 'transparent',
+              color: sortOrder === option ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
+              border: `1px solid ${sortOrder === option ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
             }}
           >
-            {option.label}
+            {t(`crypto.sort.${option}`)}
           </button>
         ))}
       </div>

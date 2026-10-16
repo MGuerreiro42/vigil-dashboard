@@ -2,6 +2,7 @@ import { useEffect, useCallback, useMemo } from 'react'
 import { useGlobe, GLOBE_TEXTURE_URL } from '@/hooks/use-globe'
 import type { ISSPosition, ISSFuturePosition } from '@/features/iss/types'
 import { ACCENT, formatAltitude, formatCoordinate, formatVelocity } from '@/features/iss/lib/iss-display'
+import { useTranslation } from 'react-i18next'
 
 type GlobePt = { id: string; lat: number; lng: number; _opacity: number }
 type GlobePath = { points: [number, number][]; color: string; strokeWidth: number; dashed?: boolean }
@@ -22,6 +23,7 @@ export function ISSGlobe({
   followISS: boolean
   compact: boolean
 }) {
+  const { t } = useTranslation()
   const { containerRef, globeRef, Globe, size } = useGlobe()
 
   // Follow ISS whenever position changes (if enabled)
@@ -126,8 +128,8 @@ export function ISSGlobe({
     if (point.id === 'solar' && position) {
       return `
         <div style="background:#07090f;border:1px solid #fbbf2445;border-radius:10px;padding:8px 12px;font-family:system-ui">
-          <div style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:5px">☀ Ponto Subsolar</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.55)">O Sol está diretamente no zênite aqui</div>
+          <div style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:5px">${t('iss.tooltip.subsolarPoint')}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.55)">${t('iss.tooltip.subsolarHint')}</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.62);margin-top:4px;font-family:monospace">${formatCoordinate(position.solarLat, 'N', 'S')} ${formatCoordinate(position.solarLng, 'E', 'W')}</div>
         </div>`
     }
@@ -136,16 +138,16 @@ export function ISSGlobe({
       const fp = futurePath[idx]
       if (!fp) return ''
       const minsFromNow = Math.round((fp.timestamp - Date.now() / 1000) / 60)
-      const vis = fp.visibility === 'daylight' ? '☀ Luz do dia' : '🌑 Eclipsada'
+      const vis = fp.visibility === 'daylight' ? t('iss.daylight') : t('iss.eclipsed')
       return `
         <div style="background:#07090f;border:1px solid #ffffff20;border-radius:8px;padding:7px 11px;font-family:system-ui">
-          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:4px">+${minsFromNow} min</div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:4px">${t('iss.tooltip.minutesAhead', { minutes: minsFromNow })}</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.62)">${formatCoordinate(fp.lat, 'N', 'S')} ${formatCoordinate(fp.lng, 'E', 'W')}</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:3px">${vis}</div>
         </div>`
     }
     return ''
-  }, [position, futurePath])
+  }, [position, futurePath, t])
 
   return (
     <div
@@ -189,7 +191,7 @@ export function ISSGlobe({
         />
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
-          Carregando globo…
+          {t('iss.loadingGlobe')}
         </div>
       )}
     </div>

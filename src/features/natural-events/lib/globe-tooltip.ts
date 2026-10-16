@@ -2,12 +2,13 @@ import { formatRelativeTime } from '@/lib/format-relative-time'
 import type { NaturalEvent } from '@/features/natural-events/types'
 import { escapeHtml } from '@/lib/escape-html'
 import { categoryStyle, stormCategory } from './event-style'
+import i18n from '@/i18n'
 
 export function buildGlobeTooltip(evt: NaturalEvent): string {
   const cfg = categoryStyle(evt.categoryId)
   const rel = formatRelativeTime(Math.floor(new Date(evt.date).getTime() / 1000))
-  const latDir = evt.lat >= 0 ? 'N' : 'S'
-  const lngDir = evt.lng >= 0 ? 'L' : 'O'
+  const latDir = i18n.t(evt.lat >= 0 ? 'naturalEvents.directions.north' : 'naturalEvents.directions.south')
+  const lngDir = i18n.t(evt.lng >= 0 ? 'naturalEvents.directions.east' : 'naturalEvents.directions.west')
 
   // Magnitude display
   let magLine = ''
