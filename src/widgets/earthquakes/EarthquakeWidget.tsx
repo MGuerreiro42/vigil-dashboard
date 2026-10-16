@@ -197,9 +197,8 @@ function LeafletMap({
       layerRef.current = null
       markers.clear()
     }
-  }, []) // monta uma vez — os marcadores são sincronizados no efeito abaixo
+  }, [])
 
-  // Recria os marcadores sempre que os dados mudam (refetch ou filtro de magnitude)
   useEffect(() => {
     const L = leafletRef.current
     const layer = layerRef.current

@@ -15,17 +15,14 @@ interface Handlers {
   onClose?: () => void
 }
 
-/**
- * One WebSocket per `url` (null disconnects). Reconnects with backoff and
- * closes while the tab is hidden, reopening when it becomes visible again.
- */
+/** Reconnects with backoff; stays closed while the tab is hidden. `null` url disconnects. */
 export function useWebSocket(url: string | null, handlers: Handlers) {
   const handlersRef = useRef(handlers)
   useEffect(() => { handlersRef.current = handlers })
 
   useEffect(() => {
     if (!url) return
-    // Per-connection state: a closing socket from a previous url can't reconnect or touch the new one
+    // Per-connection state, so a closing socket from the previous url can't reconnect
     let active = true
     let socket: WebSocket | null = null
     let retry: ReturnType<typeof setTimeout> | undefined

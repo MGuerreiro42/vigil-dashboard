@@ -17,7 +17,7 @@ export interface Alert {
 interface AlertsState {
   alerts: Alert[]
   unreadCount: number
-  /** Pass a stable `id` to dedupe: an alert whose id is already listed is ignored */
+  /** A stable `id` dedupes: an alert already listed is ignored */
   addAlert: (alert: Omit<Alert, 'id' | 'timestamp' | 'read'> & { id?: string }) => void
   markAllRead: () => void
 }
