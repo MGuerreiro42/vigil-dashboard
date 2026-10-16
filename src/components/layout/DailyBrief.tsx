@@ -28,7 +28,7 @@ function WikiDiscoverCard() {
   const navigate = useNavigate()
   const [seed, setSeed] = useState(() => Date.now())
   const { data: article, isLoading } = useRandomWikipedia('en', seed)
-  const progress = useAutoAdvance(WIKI_AUTO_MS, seed, () => setSeed((s) => s + 1))
+  const progress = useAutoAdvance(WIKI_AUTO_MS, seed, () => setSeed((current) => current + 1))
 
   return (
     <div className="w-full lg:w-72 flex-shrink-0 flex flex-col gap-2.5 min-h-0">

@@ -28,3 +28,8 @@ export type BinanceTrade = {
   buyerMaker: boolean // true = sell-initiated (red), false = buy-initiated (green)
   timestamp: number
 }
+
+// Raw stream payloads: single-letter keys are Binance's wire format
+export type RawMiniTicker = { s: string; c: string; o: string; h: string; l: string; v: string; q: string }
+export type RawDepth = { bids: [string, string][]; asks: [string, string][] }
+export type RawTrade = { t: number; p: string; q: string; m: boolean; T: number }

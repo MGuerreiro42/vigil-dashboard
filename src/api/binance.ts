@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import type { BinanceOrderBook, BinanceTrade } from './types/binance'
+import { useWebSocket } from '@/hooks/useWebSocket'
+import type { BinanceOrderBook, BinanceOrderBookEntry, BinanceTrade, RawDepth, RawTrade } from './types/binance'
 
 /** Maps CoinGecko IDs → Binance USDT pair (lowercase) */
 export const COINGECKO_TO_BINANCE: Record<string, string> = {
@@ -20,47 +21,12 @@ export const COINGECKO_TO_BINANCE: Record<string, string> = {
   monero: 'xmrusdt',
 }
 
-const WS_BASE = 'wss://stream.binance.com:9443'
+const toBookEntry = ([price, qty]: [string, string]): BinanceOrderBookEntry => ({
+  price: parseFloat(price),
+  qty: parseFloat(qty),
+})
 
-// ─── Internal utility ─────────────────────────────────────────────────────
-
-/**
- * Low-level hook that manages a single WebSocket connection with
- * auto-reconnect on close/error. Uses a ref for the callback so the
- * connection is only recreated when `url` changes.
- */
-function useWS(url: string | null, onMessage: (data: unknown) => void) {
-  const cbRef = useRef(onMessage)
-  useEffect(() => { cbRef.current = onMessage })
-
-  useEffect(() => {
-    if (!url) return
-    // Per-connection state: a closing socket from a previous url can't reconnect or touch the new one
-    let active = true
-    let socket: WebSocket | null = null
-    let retry: ReturnType<typeof setTimeout> | undefined
-
-    function connect() {
-      const ws = new WebSocket(url as string)
-      socket = ws
-      ws.onmessage = (ev) => {
-        try { cbRef.current(JSON.parse(ev.data as string)) } catch { /* ignore */ }
-      }
-      ws.onerror = () => ws.close()
-      ws.onclose = () => {
-        if (active) retry = setTimeout(connect, 3_000)
-      }
-    }
-
-    connect()
-
-    return () => {
-      active = false
-      clearTimeout(retry)
-      socket?.close()
-    }
-  }, [url])
-}
+export const WS_BASE = 'wss://stream.binance.com:9443'
 
 // ─── Order book depth ─────────────────────────────────────────────────────
 
@@ -75,20 +41,18 @@ export function useBinanceOrderBook(coinId: string | null): BinanceOrderBook | n
   const symbol = coinId ? COINGECKO_TO_BINANCE[coinId] : null
   const url = symbol ? `${WS_BASE}/ws/${symbol}@depth20` : null
 
-  useWS(url, (raw) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const d = raw as any
-    if (!Array.isArray(d?.bids)) return
-    if (!symbol) return
+  useWebSocket(url, { onMessage: (raw) => {
+    const depth = raw as RawDepth
+    if (!Array.isArray(depth?.bids) || !symbol) return
     setBook({
       symbol,
       data: {
-        bids: d.bids.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
-        asks: d.asks.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
+        bids: depth.bids.map(toBookEntry),
+        asks: depth.asks.map(toBookEntry),
         updatedAt: Date.now(),
       },
     })
-  })
+  } })
 
   // State from a previous symbol reads as empty, so switching coins needs no reset
   return book?.symbol === symbol ? book.data : null
@@ -106,30 +70,44 @@ const EMPTY_TRADES: BinanceTrade[] = []
  */
 export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
   const [trades, setTrades] = useState<{ symbol: string; data: BinanceTrade[] } | null>(null)
+  // Busy pairs send dozens of trades/s: buffer them and flush once per frame
+  const bufferRef = useRef<BinanceTrade[]>([])
+  const frameRef = useRef<number | null>(null)
 
   const symbol = coinId ? COINGECKO_TO_BINANCE[coinId] : null
   const url = symbol ? `${WS_BASE}/ws/${symbol}@trade` : null
 
-  useWS(url, (raw) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const t = raw as any
-    if (!t?.t) return
-    const price = parseFloat(t.p)
-    const qty = parseFloat(t.q)
-    if (!symbol) return
-    const trade: BinanceTrade = {
-      id: t.t,
+  // Drop a pending batch when the symbol changes or the hook unmounts
+  useEffect(() => () => {
+    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
+    frameRef.current = null
+    bufferRef.current = []
+  }, [symbol])
+
+  useWebSocket(url, { onMessage: (raw) => {
+    const trade = raw as RawTrade
+    if (!trade?.t || !symbol) return
+    const price = parseFloat(trade.p)
+    const qty = parseFloat(trade.q)
+    bufferRef.current.push({
+      id: trade.t,
       price,
       qty,
       value: price * qty,
-      buyerMaker: t.m,
-      timestamp: t.T,
-    }
-    setTrades((prev) => ({
-      symbol,
-      data: [trade, ...(prev?.symbol === symbol ? prev.data.slice(0, MAX_TRADES - 1) : [])],
-    }))
-  })
+      buyerMaker: trade.m,
+      timestamp: trade.T,
+    })
+    if (frameRef.current !== null) return
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null
+      const batch = bufferRef.current.reverse()
+      bufferRef.current = []
+      setTrades((prev) => ({
+        symbol,
+        data: [...batch, ...(prev?.symbol === symbol ? prev.data : [])].slice(0, MAX_TRADES),
+      }))
+    })
+  } })
 
   return trades?.symbol === symbol ? trades.data : EMPTY_TRADES
 }

@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "preview": "vite preview",
+    "prepare": "lefthook install"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
@@ -23,6 +27,8 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^9.39.4",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^24.12.2",
@@ -33,8 +39,15 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "jsdom": "^30.1.3",
+    "lefthook": "^2.2.2",
+    "lint-staged": "^17.6.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
-    "vite": "^8.0.4"
+    "vite": "^8.0.4",
+    "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
