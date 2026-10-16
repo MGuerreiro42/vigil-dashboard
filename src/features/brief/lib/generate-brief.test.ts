@@ -14,6 +14,7 @@ const coin = (id: string, change24h: number): CryptoAsset => ({
   sparkline: [],
   rank: 1,
   imageUrl: '',
+  source: 'coingecko',
 })
 
 it('gives each insight a stable id so cards are not remounted on refetch', () => {

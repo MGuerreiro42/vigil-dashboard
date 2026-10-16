@@ -10,13 +10,8 @@ export interface CryptoAsset {
   sparkline: number[]
   rank: number
   imageUrl: string
-}
-
-export interface ExchangeRates {
-  base: string
-  date: string
-  rates: Record<string, number>
-  updatedAt: number
+  /** Binance data has no logo, market cap or 7-day history */
+  source: 'coingecko' | 'binance'
 }
 
 export type BinanceTicker = {

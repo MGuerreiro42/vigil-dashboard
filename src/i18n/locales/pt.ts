@@ -39,7 +39,7 @@ export const pt = {
   },
   crypto: {
     title: 'Mercado Cripto',
-    tabs: { chart: 'Gráfico', market: 'Mercado', forex: 'Câmbio', trades: '⚡ Trades', depth: '📊 Profundidade' },
+    tabs: { chart: 'Gráfico', market: 'Mercado', trades: '⚡ Trades', depth: '📊 Profundidade' },
     sort: { rank: 'Rank', gain: 'Alta↓', loss: 'Baixa↑', cap: 'Cap↓' },
     stats: {
       assets: 'Ativos', coins: 'moedas',
@@ -55,7 +55,7 @@ export const pt = {
     connectingTrades: 'Conectando ao stream de {{symbol}}…',
     trades: { buy: '{{percent}}% compra', sell: '{{percent}}% venda', price: 'Preço', quantity: 'Qtd', value: 'Valor USD' },
     depth: { bid: 'Compra {{price}}', ask: 'Venda {{price}}', spread: 'Spread {{value}} · {{percent}}%', priceLabel: 'Preço: {{price}}', bidVolume: '📗 Vol. compra', askVolume: '📕 Vol. venda' },
-    forex: { unavailable: 'Câmbio indisponível.', per: 'por {{currency}}' },
+    fallbackSource: 'Dados da Binance: o CoinGecko está indisponível (sem logos, market cap e histórico de 7 dias).',
     tickerLive: 'AO VIVO',
   },
   iss: {
@@ -291,5 +291,34 @@ export const pt = {
       rateLimited: 'Limite da API da NASA atingido. Tente de novo mais tarde.',
     },
     news: { title: 'Notícias espaciais' },
+  },
+  economy: {
+    fx: {
+      title: 'Câmbio',
+      history: 'USD/{{currency}} · 90 dias',
+      source: 'Taxas de referência do BCE via Frankfurter · {{date}}',
+    },
+    brazil: {
+      title: 'Brasil · Juros e inflação',
+      selic: 'Selic',
+      perYear: 'meta a.a.',
+      ipca12m: 'IPCA 12m',
+      ipcaMonth: 'IPCA mês',
+      realRate: 'Juro real',
+      realRateCaption: 'vs IPCA 12m',
+      ipcaTrend: 'IPCA acumulado em 12 meses',
+      source: 'Banco Central do Brasil · SGS',
+    },
+    pulse: {
+      title: 'Pulso cripto',
+      fearGreed: 'Medo & Ganância',
+      marketCap: 'Cap. de mercado',
+      volume: 'Vol. 24h',
+      btcDominance: 'Dominância BTC',
+      fees: 'Taxa BTC sat/vB',
+      feesCaption: '30min {{halfHour}} · 1h {{hour}}',
+      thirtyDays: 'Medo & Ganância · 30 dias',
+      source: 'alternative.me · Coinpaprika · mempool.space',
+    },
   },
 }

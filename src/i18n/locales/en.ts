@@ -41,7 +41,7 @@ export const en: typeof pt = {
   },
   crypto: {
     title: 'Crypto Market',
-    tabs: { chart: 'Chart', market: 'Market', forex: 'Forex', trades: '⚡ Trades', depth: '📊 Depth' },
+    tabs: { chart: 'Chart', market: 'Market', trades: '⚡ Trades', depth: '📊 Depth' },
     sort: { rank: 'Rank', gain: 'Gain↓', loss: 'Loss↑', cap: 'Cap↓' },
     stats: {
       assets: 'Assets', coins: 'coins',
@@ -57,7 +57,7 @@ export const en: typeof pt = {
     connectingTrades: 'Connecting to the {{symbol}} stream…',
     trades: { buy: '{{percent}}% buy', sell: '{{percent}}% sell', price: 'Price', quantity: 'Qty', value: 'USD value' },
     depth: { bid: 'Bid {{price}}', ask: 'Ask {{price}}', spread: 'Spread {{value}} · {{percent}}%', priceLabel: 'Price: {{price}}', bidVolume: '📗 Bid vol', askVolume: '📕 Ask vol' },
-    forex: { unavailable: 'Exchange rates unavailable.', per: 'per {{currency}}' },
+    fallbackSource: 'Binance data: CoinGecko is unavailable (no logos, market cap or 7-day history).',
     tickerLive: 'LIVE',
   },
   iss: {
@@ -293,5 +293,34 @@ export const en: typeof pt = {
       rateLimited: 'NASA API limit reached. Try again later.',
     },
     news: { title: 'Space news' },
+  },
+  economy: {
+    fx: {
+      title: 'Exchange rates',
+      history: 'USD/{{currency}} · 90 days',
+      source: 'ECB reference rates via Frankfurter · {{date}}',
+    },
+    brazil: {
+      title: 'Brazil · Rates and inflation',
+      selic: 'Selic',
+      perYear: 'target p.a.',
+      ipca12m: 'IPCA 12m',
+      ipcaMonth: 'IPCA month',
+      realRate: 'Real rate',
+      realRateCaption: 'vs IPCA 12m',
+      ipcaTrend: 'IPCA accumulated over 12 months',
+      source: 'Central Bank of Brazil · SGS',
+    },
+    pulse: {
+      title: 'Crypto pulse',
+      fearGreed: 'Fear & Greed',
+      marketCap: 'Market cap',
+      volume: '24h vol.',
+      btcDominance: 'BTC dominance',
+      fees: 'BTC fee sat/vB',
+      feesCaption: '30min {{halfHour}} · 1h {{hour}}',
+      thirtyDays: 'Fear & Greed · 30 days',
+      source: 'alternative.me · Coinpaprika · mempool.space',
+    },
   },
 }
