@@ -6,7 +6,7 @@ export function RepoDetail({ repo }: { repo: GithubRepo | null }) {
   if (!repo) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-sm text-white/25">Selecione um repositório</p>
+        <p className="text-sm text-fg-subtle">Selecione um repositório</p>
       </div>
     )
   }
@@ -15,7 +15,7 @@ export function RepoDetail({ repo }: { repo: GithubRepo | null }) {
     <div style={{ background: '#06080f', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', padding: 16 }}>
       <div className="mb-3">
         <div className="text-base font-bold text-white/90">{repo.name}</div>
-        <div className="text-[12px] text-white/35 mt-0.5">{repo.fullName}</div>
+        <div className="text-[12px] text-fg-muted mt-0.5">{repo.fullName}</div>
       </div>
       {repo.description && (
         <p className="text-sm text-white/60 leading-relaxed mb-3">{repo.description}</p>
@@ -24,7 +24,7 @@ export function RepoDetail({ repo }: { repo: GithubRepo | null }) {
         <div className="flex flex-wrap gap-1.5 mb-3">
           {repo.topics.map((topic) => (
             <span key={topic} className="text-[11px] px-2 py-0.5 rounded-full"
-              style={{ background: ACCENT + '18', color: ACCENT + 'cc', border: `1px solid ${ACCENT}30` }}>
+              style={{ background: ACCENT + '18', color: ACCENT, border: `1px solid ${ACCENT}30` }}>
               #{topic}
             </span>
           ))}

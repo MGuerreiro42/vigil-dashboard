@@ -17,7 +17,7 @@ export function MarketShareList({ coins }: { coins: CryptoAsset[] }) {
               <span className="text-[12px] font-semibold text-white/80">{coin.symbol}</span>
               <span className="flex-1" />
               <span className="text-[12px] font-mono text-white/55">{formatMarketCap(coin.marketCap)}</span>
-              <span className="text-[12px] font-mono text-white/40">{formatMarketCap(coin.volume24h)}</span>
+              <span className="text-[12px] font-mono text-fg-muted">{formatMarketCap(coin.volume24h)}</span>
               <ChangeBadge pct={coin.change7d} />
             </div>
             <div className="h-0.5 rounded-full bg-white/6 overflow-hidden">

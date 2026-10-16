@@ -55,10 +55,10 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
         )}
         {evt.status === 'open'
           ? <span style={{ marginLeft: 'auto', fontSize: 9, color: '#10b981', background: '#10b98118', padding: '1px 6px', borderRadius: 99, fontWeight: 700 }}>ATIVO</span>
-          : <span style={{ marginLeft: 'auto', fontSize: 9, color: '#6b7280', background: '#6b728018', padding: '1px 6px', borderRadius: 99 }}>FECHADO</span>}
+          : <span style={{ marginLeft: 'auto', fontSize: 9, color: '#8b93a1', background: '#8b93a118', padding: '1px 6px', borderRadius: 99 }}>FECHADO</span>}
         <button onClick={onClose} style={{
           marginLeft: 4, background: 'rgba(255,255,255,0.06)', border: 'none',
-          color: 'rgba(255,255,255,0.4)', borderRadius: 6, width: 18, height: 18,
+          color: 'rgba(255,255,255,0.62)', borderRadius: 6, width: 18, height: 18,
           fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
         }}>×</button>
@@ -72,22 +72,22 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
       {/* Info grid */}
       <div style={{ display: 'grid', gridTemplateColumns: magDisplay ? '1fr 1fr 1fr' : '1fr 1fr', gap: 4, marginBottom: hasFooter ? 7 : 0 }}>
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: '4px 7px' }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Data</div>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Data</div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{absDate}</div>
-          <div style={{ fontSize: 9, color: cfg.color + '99', marginTop: 1 }}>{rel}</div>
+          <div style={{ fontSize: 9, color: cfg.color, marginTop: 1 }}>{rel}</div>
         </div>
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: '4px 7px' }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Coords</div>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Coords</div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>{Math.abs(evt.lat).toFixed(2)}°{latDir}</div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>{Math.abs(evt.lng).toFixed(2)}°{lngDir}</div>
         </div>
         {magDisplay && (
           <div style={{ background: cfg.color + '0f', border: `1px solid ${cfg.color}25`, borderRadius: 6, padding: '4px 7px' }}>
-            <div style={{ fontSize: 9, color: cfg.color + 'aa', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+            <div style={{ fontSize: 9, color: cfg.color, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
               {isStorm ? 'Vento' : 'Área'}
             </div>
             <div style={{ fontSize: 10, fontWeight: 700, color: stormCat?.color ?? cfg.color }}>{magDisplay}</div>
-            {stormCat && <div style={{ fontSize: 9, color: stormCat.color + 'aa', marginTop: 1 }}>{stormCat.label}</div>}
+            {stormCat && <div style={{ fontSize: 9, color: stormCat.color, marginTop: 1 }}>{stormCat.label}</div>}
           </div>
         )}
       </div>
@@ -96,7 +96,7 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
       {hasFooter && (
         <div style={{ paddingTop: 6, borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: 3 }}>
           {evt.description && (
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>{evt.description}</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.62)', lineHeight: 1.4 }}>{evt.description}</div>
           )}
           {evt.sourceUrl && (
             <a href={evt.sourceUrl} target="_blank" rel="noopener"

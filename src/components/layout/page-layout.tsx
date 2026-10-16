@@ -35,7 +35,7 @@ export function PageLayout({ children, subheader }: Props) {
             onClick={() => navigate(-1)}
             whileHover={{ x: -2 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="flex items-center gap-1.5 text-white/40 hover:text-white/75 transition-colors text-sm"
+            className="flex items-center gap-1.5 text-fg-muted hover:text-white/75 transition-colors text-sm"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 11L5 7l4-4" />

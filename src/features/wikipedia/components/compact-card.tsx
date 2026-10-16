@@ -51,7 +51,7 @@ export function CompactCard({
           {article.title}
         </h3>
         {article.description && (
-          <p className="text-[11px] text-white/38 leading-snug line-clamp-1">
+          <p className="text-[11px] text-fg-muted leading-snug line-clamp-1">
             {article.description}
           </p>
         )}
@@ -67,7 +67,7 @@ export function CompactCard({
           target="_blank"
           rel="noopener noreferrer"
           className="text-[11px] transition-opacity hover:opacity-70"
-          style={{ color: ACCENT + '90' }}
+          style={{ color: ACCENT }}
         >
           wikipedia ↗
         </a>

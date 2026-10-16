@@ -55,13 +55,13 @@ function WeatherPill() {
       {/* Extra details only on md+ */}
       <div className="hidden md:flex items-center gap-2">
         <div className="h-3 w-px bg-white/10 flex-shrink-0" />
-        <span className="text-[11px] text-white/35 whitespace-nowrap">
+        <span className="text-[11px] text-fg-muted whitespace-nowrap">
           Sens. {Math.round(current.feelsLike)}°
         </span>
         <div className="h-3 w-px bg-white/10 flex-shrink-0" />
-        <span className="text-[11px] text-white/35 whitespace-nowrap">💧 {current.humidity}%</span>
+        <span className="text-[11px] text-fg-muted whitespace-nowrap">💧 {current.humidity}%</span>
         <div className="h-3 w-px bg-white/10 flex-shrink-0" />
-        <span className="text-[11px] text-white/35 whitespace-nowrap">💨 {Math.round(current.windSpeed)} km/h</span>
+        <span className="text-[11px] text-fg-muted whitespace-nowrap">💨 {Math.round(current.windSpeed)} km/h</span>
       </div>
     </motion.button>
   )
@@ -96,7 +96,7 @@ export function Header() {
         </div>
         <div>
           <div className="text-sm font-semibold tracking-widest text-white/85 uppercase">Vigil</div>
-          <div className="hidden sm:block text-[11px] text-white/30 -mt-0.5">Live Dashboard</div>
+          <div className="hidden sm:block text-[11px] text-fg-subtle -mt-0.5">Live Dashboard</div>
         </div>
       </div>
 
@@ -111,7 +111,7 @@ export function Header() {
               boxShadow: status === 'granted' ? '0 0 6px #10b981' : 'none',
             }}
           />
-          <span className="text-[11px] text-white/30">
+          <span className="text-[11px] text-fg-subtle">
             {status === 'granted' && coords ? `${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}` : status === 'denied' ? 'Localização negada' : 'Detectando...'}
           </span>
         </div>
@@ -123,7 +123,7 @@ export function Header() {
         <div className="relative">
           <button
             onClick={() => setShowAlerts((isOpen) => !isOpen)}
-            className="relative p-2 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/5 transition-all"
+            className="relative p-2 rounded-lg text-fg-muted hover:text-white/70 hover:bg-white/5 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -159,14 +159,14 @@ export function Header() {
                 <div className="flex items-center justify-between px-3 py-2 border-b border-white/6">
                   <span className="text-xs font-medium text-white/60">Alertas</span>
                   {unreadCount > 0 && (
-                    <button onClick={markAllRead} className="text-[12px] text-white/30 hover:text-white/60 transition-colors">
+                    <button onClick={markAllRead} className="text-[12px] text-fg-subtle hover:text-white/60 transition-colors">
                       Marcar todos lidos
                     </button>
                   )}
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {alerts.length === 0 ? (
-                    <div className="px-3 py-4 text-[13px] text-white/25 text-center">Nenhum alerta</div>
+                    <div className="px-3 py-4 text-[13px] text-fg-subtle text-center">Nenhum alerta</div>
                   ) : (
                     alerts.slice(0, 10).map((alert) => (
                       <div
@@ -182,7 +182,7 @@ export function Header() {
                         />
                         <div>
                           <div className="text-[13px] font-medium text-white/75">{alert.title}</div>
-                          <div className="text-[12px] text-white/35">{alert.body}</div>
+                          <div className="text-[12px] text-fg-muted">{alert.body}</div>
                         </div>
                       </div>
                     ))

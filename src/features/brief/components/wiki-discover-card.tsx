@@ -20,11 +20,11 @@ export function WikiDiscoverCard() {
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-1.5">
           <span className="font-serif font-black leading-none" style={{ fontSize: 14, color: WIKI_ACCENT }}>W</span>
-          <span className="text-[10px] uppercase tracking-widest text-white/25">Descobrir</span>
+          <span className="text-[10px] uppercase tracking-widest text-fg-subtle">Descobrir</span>
         </div>
         <button
           onClick={() => navigate('/wikipedia')}
-          className="text-[10px] text-white/22 hover:text-white/50 transition-colors"
+          className="text-[10px] text-fg-subtle hover:text-white/50 transition-colors"
         >
           expandir ↗
         </button>
@@ -63,7 +63,7 @@ export function WikiDiscoverCard() {
                     className="w-full h-full flex items-center justify-center"
                     style={{ background: 'rgba(167,139,250,0.10)' }}
                   >
-                    <span className="font-serif font-bold text-white/20 text-sm">W</span>
+                    <span className="font-serif font-bold text-fg-subtle text-sm">W</span>
                   </div>
                 )}
               </div>
@@ -72,7 +72,7 @@ export function WikiDiscoverCard() {
                   {article.title}
                 </p>
                 {article.description && (
-                  <p className="text-[10px] text-white/32 leading-snug mt-0.5 line-clamp-1">
+                  <p className="text-[10px] text-fg-subtle leading-snug mt-0.5 line-clamp-1">
                     {article.description}
                   </p>
                 )}
@@ -80,7 +80,7 @@ export function WikiDiscoverCard() {
             </div>
 
             {/* Extract */}
-            <p className="text-[11px] text-white/45 leading-relaxed line-clamp-2 flex-1">
+            <p className="text-[11px] text-fg-muted leading-relaxed line-clamp-2 flex-1">
               {article.extract}
             </p>
 
@@ -91,7 +91,7 @@ export function WikiDiscoverCard() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[10px] transition-opacity hover:opacity-70"
-                style={{ color: WIKI_ACCENT + '78' }}
+                style={{ color: WIKI_ACCENT }}
               >
                 wikipedia ↗
               </a>

@@ -19,7 +19,7 @@ export const CATEGORIES: Record<string, { label: string; icon: string; color: st
 }
 
 export function categoryStyle(id: string) {
-  return CATEGORIES[id] ?? { label: id, icon: '🌐', color: '#6b7280' }
+  return CATEGORIES[id] ?? { label: id, icon: '🌐', color: '#8b93a1' }
 }
 
 // GDACS alert level → color
@@ -30,7 +30,7 @@ export const ALERT_COLOR: Record<string, string> = {
 }
 export function alertBadge(level?: string) {
   if (!level) return null
-  return { color: ALERT_COLOR[level] ?? '#6b7280', label: level }
+  return { color: ALERT_COLOR[level] ?? '#8b93a1', label: level }
 }
 
 export function stormCategory(kts: number): { label: string; color: string; short: string } {

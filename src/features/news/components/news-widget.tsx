@@ -59,9 +59,9 @@ function ArticleRow({ article, index, section }: {
         </p>
         <div className="flex items-center gap-1.5 mt-1">
           {article.byline && (
-            <span className="text-[10px] text-white/35 truncate flex-1">{article.byline}</span>
+            <span className="text-[10px] text-fg-muted truncate flex-1">{article.byline}</span>
           )}
-          <span className="text-[10px] text-white/25 flex-shrink-0">
+          <span className="text-[10px] text-fg-subtle flex-shrink-0">
             {relativeDate(article.webPublicationDate)}
           </span>
         </div>
@@ -125,15 +125,15 @@ function ArticleCard({ article, section }: {
       {/* Footer: byline + date */}
       <div className="flex items-center gap-1.5 px-3 py-2 flex-shrink-0">
         {article.byline && (
-          <span className="text-[10px] text-white/30 truncate flex-1">{article.byline}</span>
+          <span className="text-[10px] text-fg-subtle truncate flex-1">{article.byline}</span>
         )}
-        <span className="text-[10px] text-white/25 flex-shrink-0">
+        <span className="text-[10px] text-fg-subtle flex-shrink-0">
           {relativeDate(article.webPublicationDate)}
         </span>
       </div>
 
       {article.trailText && (
-        <p className="px-3 pb-3 text-[11px] text-white/40 leading-relaxed line-clamp-2 -mt-1">
+        <p className="px-3 pb-3 text-[11px] text-fg-muted leading-relaxed line-clamp-2 -mt-1">
           {article.trailText}
         </p>
       )}
@@ -183,14 +183,14 @@ export function NewsWidget({ isFocused = false }: { isFocused?: boolean }) {
       {isFocused && articles.length > 0 && (
         <div className="flex gap-2 mb-3 flex-shrink-0">
           <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[60px]">
-            <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Artigos</span>
+            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Artigos</span>
             <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: section.color }}>{articles.length}</span>
-            <span className="text-[10px] text-white/20 mt-1 leading-none">{section.label}</span>
+            <span className="text-[10px] text-fg-subtle mt-1 leading-none">{section.label}</span>
           </div>
           <div className="flex-1 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
-            <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Mais Recente</span>
+            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Mais Recente</span>
             <span className="text-[12px] text-white/70 leading-tight mt-1.5 line-clamp-2">{articles[0]?.webTitle}</span>
-            <span className="text-[10px] text-white/30 mt-1" style={{ color: section.color + 'aa' }}>
+            <span className="text-[10px] text-fg-subtle mt-1" style={{ color: section.color }}>
               {articles[0] && relativeDate(articles[0].webPublicationDate)}
             </span>
           </div>

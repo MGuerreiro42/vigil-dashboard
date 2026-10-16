@@ -23,8 +23,8 @@ export function StarsDistributionChart({ repos }: { repos: GithubRepo[] }) {
         <div style={chartFrameStyle}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={starsDist} margin={{ top: 16, right: 16, left: -16, bottom: 8 }}>
-              <XAxis dataKey="range" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="range" tick={{ fill: 'rgba(255,255,255,0.62)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={chartTooltipStyle}
                 formatter={(value) => [Number(value), 'Repos']}
@@ -35,7 +35,7 @@ export function StarsDistributionChart({ repos }: { repos: GithubRepo[] }) {
           </ResponsiveContainer>
         </div>
       </div>
-      <p className="text-[10px] text-white/30 uppercase tracking-widest flex-shrink-0">Distribuição de Stars</p>
+      <p className="text-[10px] text-fg-subtle uppercase tracking-widest flex-shrink-0">Distribuição de Stars</p>
     </>
   )
 }

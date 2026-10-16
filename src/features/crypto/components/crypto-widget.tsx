@@ -113,7 +113,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
                 {selectedCoin ? (
                   <TradesFeed trades={trades} coinSymbol={selectedCoin.symbol} />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-white/25">
+                  <div className="flex items-center justify-center h-full text-sm text-fg-subtle">
                     Selecione uma moeda para ver o feed ao vivo
                   </div>
                 )}
@@ -125,7 +125,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
                   orderBook ? (
                     <DepthChart book={orderBook} />
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-full gap-2 text-white/25">
+                    <div className="flex flex-col items-center justify-center h-full gap-2 text-fg-subtle">
                       <motion.div
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ repeat: Infinity, duration: 1.2 }}
@@ -135,7 +135,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
                     </div>
                   )
                 ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-white/25">
+                  <div className="flex items-center justify-center h-full text-sm text-fg-subtle">
                     Selecione uma moeda para ver o order book
                   </div>
                 )}

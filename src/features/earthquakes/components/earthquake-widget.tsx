@@ -92,15 +92,15 @@ function buildPopupHTML(quake: QuakeForMap): string {
       <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.45;margin-bottom:10px;max-width:220px">${escapeHtml(quake.place)}</div>
       <div style="display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px">
         <div style="display:flex;justify-content:space-between;gap:16px">
-          <span style="font-size:11px;color:rgba(255,255,255,0.35)">Profundidade</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.62)">Profundidade</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${quake.depth.toFixed(0)} km</span>
         </div>
         <div style="display:flex;justify-content:space-between;gap:16px">
-          <span style="font-size:11px;color:rgba(255,255,255,0.35)">Ocorreu</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.62)">Ocorreu</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.65)">${relTime}</span>
         </div>
         <div style="display:flex;justify-content:space-between;gap:16px">
-          <span style="font-size:11px;color:rgba(255,255,255,0.35)">Significância</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.62)">Significância</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${quake.significance}</span>
         </div>
       </div>
@@ -290,11 +290,11 @@ function ScatterTooltip({ active, payload }: { active?: boolean; payload?: { pay
       {/* Métricas */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.32)' }}>Profundidade</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Profundidade</span>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>{d.depth} km</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.32)' }}>Ocorreu</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Ocorreu</span>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{formatRelativeTime(Math.floor(d.time / 1000))}</span>
         </div>
       </div>
@@ -349,7 +349,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
         { label: 'Severos',   color: '#f43f5e', count: quakes.filter(q => q.magnitude >= 6.5).length },
         { label: 'Fortes',    color: '#f97316', count: quakes.filter(q => q.magnitude >= 5.0 && q.magnitude < 6.5).length },
         { label: 'Moderados', color: '#f59e0b', count: quakes.filter(q => q.magnitude >= 3.5 && q.magnitude < 5.0).length },
-        { label: 'Menores',   color: '#6b7280', count: quakes.filter(q => q.magnitude < 3.5).length },
+        { label: 'Menores',   color: '#8b93a1', count: quakes.filter(q => q.magnitude < 3.5).length },
       ]
     : []
   const tsunamiCount = quakes?.filter(q => q.tsunamiRisk).length ?? 0
@@ -388,9 +388,9 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
 
           {/* Total de eventos */}
           <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[68px]">
-            <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Eventos</span>
+            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Eventos</span>
             <span className="text-[22px] font-mono font-bold text-white/85 leading-none mt-1.5">{quakes.length}</span>
-            <span className="text-[10px] text-white/20 mt-1 leading-none">7 dias</span>
+            <span className="text-[10px] text-fg-subtle mt-1 leading-none">7 dias</span>
           </div>
 
           {/* Maior magnitude */}
@@ -398,11 +398,11 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
             className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[68px]"
             style={{ background: magnitudeColor(maxMag) + '0f', borderColor: magnitudeColor(maxMag) + '35' }}
           >
-            <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magnitudeColor(maxMag) + 'aa' }}>Maior</span>
+            <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magnitudeColor(maxMag) }}>Maior</span>
             <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: magnitudeColor(maxMag) }}>
               M{maxMag.toFixed(1)}
             </span>
-            <span className="text-[10px] mt-1 leading-none" style={{ color: magnitudeColor(maxMag) + '99' }}>
+            <span className="text-[10px] mt-1 leading-none" style={{ color: magnitudeColor(maxMag) }}>
               {magnitudeLabel(maxMag)}{tsunamiCount > 0 && <span className="ml-1.5 text-amber-400">⚠ {tsunamiCount}</span>}
             </span>
           </div>
@@ -410,7 +410,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           {/* Distribuição de severidade — só no modo expandido */}
           {isFocused && (
             <div className="flex-1 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
-              <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Distribuição</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Distribuição</span>
 
               {/* Barra proporcional */}
               <div className="flex h-1.5 rounded-full overflow-hidden gap-px mt-2">
@@ -429,7 +429,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                 {severities.map(({ label, color, count }) => (
                   <div key={label} className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
-                    <span className="text-[10px] text-white/35 whitespace-nowrap">
+                    <span className="text-[10px] text-fg-muted whitespace-nowrap">
                       <span className="font-mono text-white/55">{count}</span> {label}
                     </span>
                   </div>
@@ -441,7 +441,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           {/* Filtro de magnitude */}
           <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[110px]">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Filtro</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Filtro</span>
               <span className="text-[11px] font-mono text-white/55 leading-none">M≥{minMag}</span>
             </div>
             <input
@@ -451,8 +451,8 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
               style={{ accentColor: ACCENT }}
             />
             <div className="flex justify-between">
-              <span className="text-[9px] text-white/18">M1</span>
-              <span className="text-[9px] text-white/18">M6</span>
+              <span className="text-[9px] text-fg-subtle">M1</span>
+              <span className="text-[9px] text-fg-subtle">M6</span>
             </div>
           </div>
 
@@ -480,7 +480,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[13px] text-white/75 truncate group-hover:text-white/90">{quake.place}</div>
-                <div className="flex gap-2 mt-0.5 text-[12px] text-white/30">
+                <div className="flex gap-2 mt-0.5 text-[12px] text-fg-subtle">
                   <span>{magnitudeLabel(quake.magnitude)}</span>
                   <span>·</span>
                   <span>{quake.depth.toFixed(0)} km</span>
@@ -524,7 +524,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                   {opt.label}
                 </button>
               ))}
-              <span className="ml-auto text-[11px] text-white/20 self-center pr-0.5">
+              <span className="ml-auto text-[11px] text-fg-subtle self-center pr-0.5">
                 {sortedQuakes.length}
               </span>
             </div>
@@ -563,7 +563,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                           {quake.place}
                         </div>
                       </div>
-                      <div className="text-[11px] text-white/28 mt-0.5">
+                      <div className="text-[11px] text-fg-subtle mt-0.5">
                         {quake.depth.toFixed(0)} km · {formatRelativeTime(Math.floor(quake.time / 1000))}
                         {quake.tsunamiRisk && <span className="ml-1 text-amber-400">⚠️</span>}
                       </div>
@@ -603,7 +603,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
               {/* Análise — também sempre no DOM */}
               <div {...tabPanel(rightTab === 'analysis', { display: 'flex', flexDirection: 'column', gap: 16 })}>
                 <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
-                  <p className="text-xs text-white/40 uppercase tracking-widest" style={{ position: 'absolute', top: 0, left: 0 }}>
+                  <p className="text-xs text-fg-muted uppercase tracking-widest" style={{ position: 'absolute', top: 0, left: 0 }}>
                     Magnitude × Profundidade
                   </p>
                 <div style={{
@@ -625,14 +625,14 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                         dataKey="depth" name="Profundidade" unit=" km"
                         type="number" domain={[0, 'dataMax']}
                         tickCount={6} allowDecimals={false}
-                        tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 11 }}
+                        tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
                         axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false}
                       />
                       <YAxis
                         dataKey="mag" name="Magnitude"
                         type="number" domain={[0, 'dataMax']}
                         tickCount={5} allowDecimals={false}
-                        tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 11 }}
+                        tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
                         axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false}
                       />
                       <ZAxis dataKey="size" range={[20, 200]} />
@@ -644,14 +644,14 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                 </div>
                 <div className="flex gap-4 flex-shrink-0">
                   {[
-                    { label: '< 3.5', color: '#6b7280' },
+                    { label: '< 3.5', color: '#8b93a1' },
                     { label: '3.5–5.0', color: '#f59e0b' },
                     { label: '5.0–6.5', color: '#f97316' },
                     { label: '≥ 6.5', color: '#f43f5e' },
                   ].map(({ label, color }) => (
                     <div key={label} className="flex items-center gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
-                      <span className="text-[11px] text-white/40">{label}</span>
+                      <span className="text-[11px] text-fg-muted">{label}</span>
                     </div>
                   ))}
                 </div>

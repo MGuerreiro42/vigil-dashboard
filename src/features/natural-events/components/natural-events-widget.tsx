@@ -131,9 +131,9 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
 
           {lastEvent && (
             <div className="flex-1 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
-              <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Último Evento</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Último Evento</span>
               <span className="text-[12px] text-white/70 leading-tight mt-1.5 line-clamp-2">{lastEvent.title}</span>
-              <span className="text-[10px] mt-1 leading-none" style={{ color: categoryStyle(lastEvent.categoryId).color + 'aa' }}>
+              <span className="text-[10px] mt-1 leading-none" style={{ color: categoryStyle(lastEvent.categoryId).color }}>
                 {categoryStyle(lastEvent.categoryId).icon} {formatRelativeTime(Math.floor(new Date(lastEvent.date).getTime() / 1000))}
               </span>
             </div>
@@ -169,8 +169,8 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
                     <div className="text-[12px] text-white/75 truncate group-hover:text-white/90">
                       {evt.country ?? evt.title}
                     </div>
-                    <div className="text-[10px] text-white/30 mt-0.5 flex items-center gap-1.5">
-                      <span style={{ color: cfg.color + 'aa' }}>{cfg.label}</span>
+                    <div className="text-[10px] text-fg-subtle mt-0.5 flex items-center gap-1.5">
+                      <span style={{ color: cfg.color }}>{cfg.label}</span>
                       <span>·</span>
                       <span>{formatRelativeTime(Math.floor(new Date(evt.date).getTime() / 1000))}</span>
                     </div>
@@ -236,8 +236,8 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
           {/* Feed — RIGHT (w-52 on md+, full width on mobile) */}
           <div className="w-full md:w-52 md:flex-shrink-0 flex flex-col md:min-h-0 min-h-[200px]">
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
-              <span className="text-[10px] uppercase tracking-widest text-white/25">Feed ao vivo</span>
-              <span className="text-[11px] font-mono text-white/20">{events.length}</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle">Feed ao vivo</span>
+              <span className="text-[11px] font-mono text-fg-subtle">{events.length}</span>
             </div>
             <EventFeed events={events} selectedEventId={selectedEventId} onEventClick={handleEventClick} />
           </div>

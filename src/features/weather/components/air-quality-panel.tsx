@@ -3,7 +3,7 @@ import { AQI_LABELS } from '@/features/weather/lib/weather-format'
 import type { AirQuality } from '@/features/weather/types'
 
 export function AirQualityPanel({ air }: { air: AirQuality | null | undefined }) {
-  if (!air) return <p className="text-sm text-white/30">Dados de qualidade do ar indisponíveis.</p>
+  if (!air) return <p className="text-sm text-fg-subtle">Dados de qualidade do ar indisponíveis.</p>
 
   const aqiInfo = AQI_LABELS[air.category]
   const pollutants = [
@@ -20,7 +20,7 @@ export function AirQualityPanel({ air }: { air: AirQuality | null | undefined })
         <div className="text-5xl font-mono font-bold" style={{ color: aqiInfo.color }}>{air.aqi}</div>
         <div>
           <div className="text-sm font-semibold" style={{ color: aqiInfo.color }}>AQI · {aqiInfo.label}</div>
-          <div className="text-[12px] text-white/40 mt-0.5">Índice de Qualidade do Ar</div>
+          <div className="text-[12px] text-fg-muted mt-0.5">Índice de Qualidade do Ar</div>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 flex-shrink-0">
@@ -32,7 +32,7 @@ export function AirQualityPanel({ air }: { air: AirQuality | null | undefined })
           return (
             <div key={label} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex justify-between mb-2">
-                <span className="text-[11px] text-white/40">{label}</span>
+                <span className="text-[11px] text-fg-muted">{label}</span>
                 <span className="text-[11px] font-mono text-white/60">{value.toFixed(1)} {unit}</span>
               </div>
               <div className="h-1 rounded-full bg-white/8">

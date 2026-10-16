@@ -95,14 +95,14 @@ export function TimelineView({ events }: { events: NaturalEvent[] }) {
         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', width: '100%', position: 'relative' }}>
           {dayLabels.map(({ label, pct }) => (
             <div key={label} style={{ position: 'absolute', left: `${pct}%`, transform: 'translateX(-50%)', top: 4 }}>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{label}</span>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>{label}</span>
             </div>
           ))}
           <div style={{ position: 'absolute', left: 0, top: 4 }}>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>−20d</span>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>−20d</span>
           </div>
           <div style={{ position: 'absolute', right: 0, top: 4 }}>
-            <span style={{ fontSize: 9, color: `${ACCENT}80` }}>agora</span>
+            <span style={{ fontSize: 9, color: ACCENT }}>agora</span>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ export function TimelineView({ events }: { events: NaturalEvent[] }) {
             <span style={{ fontSize: 11, color: categoryStyle(hovered.categoryId).color, fontWeight: 600 }}>{categoryStyle(hovered.categoryId).label}</span>
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{hovered.title}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{formatRelativeTime(Math.floor(new Date(hovered.date).getTime() / 1000))}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{formatRelativeTime(Math.floor(new Date(hovered.date).getTime() / 1000))}</div>
         </div>
       )}
     </div>

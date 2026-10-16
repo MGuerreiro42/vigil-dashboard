@@ -33,7 +33,7 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
           <span className="text-sm font-semibold text-white/80">{selectedCoin.name}</span>
           <LivePrice coin={selectedCoin} className="text-[13px] text-white/60" />
           <ChangeBadge pct={selectedCoin.change7d} />
-          <span className="text-[11px] text-white/30 ml-1">7d</span>
+          <span className="text-[11px] text-fg-subtle ml-1">7d</span>
         </div>
         <div style={{ flex: 1, position: 'relative' }}>
           <div style={{
@@ -53,7 +53,7 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
                 <XAxis dataKey="i" hide tickCount={7} />
                 <YAxis
                   domain={chartDomain}
-                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }}
+                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
                   axisLine={false} tickLine={false}
                   tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value.toFixed(0)}`}
                 />
@@ -71,7 +71,7 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
       </>
     ) : (
       <div style={{ flex: 1, position: 'relative' }}>
-        <p className="text-[11px] text-white/35 uppercase tracking-widest mb-2">Variação 24h</p>
+        <p className="text-[11px] text-fg-muted uppercase tracking-widest mb-2">Variação 24h</p>
         <div style={{
           position: 'absolute', inset: 0, top: 24,
           background: '#06080f', borderRadius: 10,
@@ -83,8 +83,8 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
               margin={{ top: 16, right: 16, left: -16, bottom: 8 }}
             >
               <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
+              <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.62)', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
               <Tooltip
                 contentStyle={chartTooltipStyle}
                 formatter={(value) => [`${Number(value) > 0 ? '+' : ''}${value}%`, 'Variação']}

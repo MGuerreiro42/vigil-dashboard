@@ -21,7 +21,7 @@ export const CompactCoinRow = memo(function CompactCoinRow({
       <img src={coin.imageUrl} alt={coin.name} className="w-6 h-6 rounded-full flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <span className="text-xs font-semibold text-white/85">{coin.symbol}</span>
-        <span className="text-[10px] text-white/30 ml-1">#{coin.rank}</span>
+        <span className="text-[10px] text-fg-subtle ml-1">#{coin.rank}</span>
       </div>
       <div className="flex items-center gap-1.5">
         <ChangeBadge pct={coin.change24h} />

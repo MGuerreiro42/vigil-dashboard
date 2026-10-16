@@ -120,7 +120,7 @@ export function ISSGlobe({
           <div style="font-size:12px;font-weight:700;color:${ACCENT};margin-bottom:6px">🛸 ISS</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.75);font-family:monospace">${formatCoordinate(position.lat, 'N', 'S')}</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.75);font-family:monospace">${formatCoordinate(position.lng, 'E', 'W')}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.38);margin-top:5px">${formatAltitude(position.altitude)} · ${formatVelocity(position.velocity)}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.62);margin-top:5px">${formatAltitude(position.altitude)} · ${formatVelocity(position.velocity)}</div>
         </div>`
     }
     if (point.id === 'solar' && position) {
@@ -128,7 +128,7 @@ export function ISSGlobe({
         <div style="background:#07090f;border:1px solid #fbbf2445;border-radius:10px;padding:8px 12px;font-family:system-ui">
           <div style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:5px">☀ Ponto Subsolar</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.55)">O Sol está diretamente no zênite aqui</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.38);margin-top:4px;font-family:monospace">${formatCoordinate(position.solarLat, 'N', 'S')} ${formatCoordinate(position.solarLng, 'E', 'W')}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.62);margin-top:4px;font-family:monospace">${formatCoordinate(position.solarLat, 'N', 'S')} ${formatCoordinate(position.solarLng, 'E', 'W')}</div>
         </div>`
     }
     if (point.id.startsWith('future_')) {
@@ -140,8 +140,8 @@ export function ISSGlobe({
       return `
         <div style="background:#07090f;border:1px solid #ffffff20;border-radius:8px;padding:7px 11px;font-family:system-ui">
           <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:4px">+${minsFromNow} min</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.4)">${formatCoordinate(fp.lat, 'N', 'S')} ${formatCoordinate(fp.lng, 'E', 'W')}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px">${vis}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.62)">${formatCoordinate(fp.lat, 'N', 'S')} ${formatCoordinate(fp.lng, 'E', 'W')}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:3px">${vis}</div>
         </div>`
     }
     return ''
@@ -188,7 +188,7 @@ export function ISSGlobe({
           }}
         />
       ) : (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.2)', fontSize: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
           Carregando globo…
         </div>
       )}

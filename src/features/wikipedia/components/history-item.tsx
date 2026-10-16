@@ -38,7 +38,7 @@ export function HistoryItem({
           {article.title}
         </div>
         {article.description && (
-          <div className="text-[11px] text-white/32 leading-tight line-clamp-1 mt-0.5">
+          <div className="text-[11px] text-fg-subtle leading-tight line-clamp-1 mt-0.5">
             {article.description}
           </div>
         )}

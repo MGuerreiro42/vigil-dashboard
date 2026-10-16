@@ -68,7 +68,7 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="text-xs md:text-sm text-white/40 mt-0.5 capitalize"
+                  className="text-xs md:text-sm text-fg-muted mt-0.5 capitalize"
                 >
                   {now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </motion.p>
@@ -102,13 +102,13 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
                   </motion.span>
                 )}
                 {alertCount === 0 && warnCount === 0 && (
-                  <span className="text-xs text-white/30">{insights.length} insights · tudo normal</span>
+                  <span className="text-xs text-fg-subtle">{insights.length} insights · tudo normal</span>
                 )}
               </div>
             </div>
 
             {/* Timestamp */}
-            <span className="text-xs text-white/20 self-start tabular-nums">
+            <span className="text-xs text-fg-subtle self-start tabular-nums">
               {now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
