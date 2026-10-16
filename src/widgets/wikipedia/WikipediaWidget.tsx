@@ -237,7 +237,6 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
 
   return (
     <WidgetShell
-      id="wikipedia"
       title="Wikipedia"
       icon={<WikiW size={isFocused ? 18 : 13} />}
       isLoading={isLoading && history.length === 0}

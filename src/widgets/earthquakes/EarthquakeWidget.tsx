@@ -371,7 +371,6 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
 
   return (
     <WidgetShell
-      id="earthquakes"
       title="Atividade Sísmica"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌍</span>}
       isLoading={isLoading}

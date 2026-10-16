@@ -94,7 +94,6 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   return (
     <WidgetShell
-      id="github"
       title="GitHub Trending"
       icon={<GithubIcon size={isFocused ? 20 : 14} />}
       isLoading={isLoading}

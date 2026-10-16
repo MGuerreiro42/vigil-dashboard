@@ -1,17 +1,12 @@
 import { create } from 'zustand'
 
-export type WidgetId = 'crypto' | 'weather' | 'iss' | 'github' | 'hackernews' | 'wikipedia' | 'earthquakes' | 'naturalevents' | 'news'
-
 interface AppState {
-  activeWidgets: WidgetId[]
   cryptoIds: string[]
   earthquakeMinMag: number
-  toggleWidget: (id: WidgetId) => void
   setCryptoIds: (ids: string[]) => void
   setEarthquakeMinMag: (mag: number) => void
 }
 
-const DEFAULT_WIDGETS: WidgetId[] = ['crypto', 'iss', 'github', 'wikipedia', 'earthquakes', 'naturalevents']
 const DEFAULT_CRYPTO = [
   'bitcoin',       // BTC  — reserva de valor, top 1
   'ethereum',      // ETH  — smart contracts, top 2
@@ -31,16 +26,8 @@ const DEFAULT_CRYPTO = [
 ]
 
 export const useAppStore = create<AppState>((set) => ({
-  activeWidgets: DEFAULT_WIDGETS,
   cryptoIds: DEFAULT_CRYPTO,
   earthquakeMinMag: 2.5,
-
-  toggleWidget: (id) =>
-    set((s) => ({
-      activeWidgets: s.activeWidgets.includes(id)
-        ? s.activeWidgets.filter((w) => w !== id)
-        : [...s.activeWidgets, id],
-    })),
 
   setCryptoIds: (ids) => set({ cryptoIds: ids }),
   setEarthquakeMinMag: (mag) => set({ earthquakeMinMag: mag }),

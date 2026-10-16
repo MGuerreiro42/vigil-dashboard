@@ -722,7 +722,6 @@ export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   return (
     <WidgetShell
-      id="iss"
       title="ISS · Estação Espacial"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🛸</span>}
       isLoading={isLoading && !position}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import type { BinanceTicker, BinanceOrderBook, BinanceTrade } from './types/binance'
+import type { BinanceOrderBook, BinanceTrade } from './types/binance'
 
 /** Maps CoinGecko IDs → Binance USDT pair (lowercase) */
 export const COINGECKO_TO_BINANCE: Record<string, string> = {
@@ -62,42 +62,6 @@ function useWS(url: string | null, onMessage: (data: unknown) => void) {
       wsRef.current = null
     }
   }, [url])
-}
-
-// ─── Multi-symbol mini tickers ────────────────────────────────────────────
-
-/**
- * Subscribes to Binance miniTicker stream for all provided CoinGecko IDs.
- * Returns a map keyed by Binance symbol (lowercase, e.g. 'btcusdt').
- * Updates continuously as prices change.
- */
-export function useBinanceTickers(coinIds: string[]): Record<string, BinanceTicker> {
-  const [tickers, setTickers] = useState<Record<string, BinanceTicker>>({})
-
-  const symbols = coinIds.map((id) => COINGECKO_TO_BINANCE[id]).filter(Boolean)
-  const streams = symbols.map((s) => `${s}@miniTicker`).join('/')
-  const url = symbols.length > 0 ? `${WS_BASE}/stream?streams=${streams}` : null
-
-  useWS(url, (raw) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const d = (raw as any)?.data
-    if (!d?.s) return
-    setTickers((prev) => ({
-      ...prev,
-      [d.s.toLowerCase()]: {
-        symbol: d.s,
-        price: parseFloat(d.c),
-        open: parseFloat(d.o),
-        high: parseFloat(d.h),
-        low: parseFloat(d.l),
-        volume: parseFloat(d.v),
-        quoteVolume: parseFloat(d.q),
-        updatedAt: Date.now(),
-      },
-    }))
-  })
-
-  return tickers
 }
 
 // ─── Order book depth ─────────────────────────────────────────────────────

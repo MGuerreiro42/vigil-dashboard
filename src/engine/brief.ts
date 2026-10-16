@@ -3,10 +3,8 @@ import type { WeatherCurrent, ForecastDay } from '@/api/types/weather'
 import type { AirQuality } from '@/api/types/air'
 import type { Earthquake } from '@/api/types/earthquake'
 import type { GithubRepo } from '@/api/types/github'
-import type { HNStory } from '@/api/types/hackernews'
-import type { CorrelationResult } from './correlation'
 
-export type InsightCategory = 'crypto' | 'weather' | 'seismic' | 'air' | 'tech' | 'correlation'
+export type InsightCategory = 'crypto' | 'weather' | 'seismic' | 'air' | 'tech'
 export type InsightSeverity = 'info' | 'warning' | 'alert'
 
 export interface BriefInsight {
@@ -25,8 +23,6 @@ export interface BriefInput {
   airQuality?: AirQuality | null
   earthquakes?: Earthquake[]
   githubTrending?: GithubRepo[]
-  hnStories?: HNStory[]
-  correlations?: CorrelationResult[]
 }
 
 function uid() {
@@ -165,36 +161,6 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         dataSource: ['GitHub'],
       })
     }
-  }
-
-  // --- HACKERNEWS ---
-  if (input.hnStories && input.hnStories.length > 0) {
-    const top = input.hnStories[0]
-    if (top.score >= 300) {
-      insights.push({
-        id: uid(),
-        category: 'tech',
-        severity: 'info',
-        headline: `HN em destaque: "${top.title.slice(0, 60)}${top.title.length > 60 ? '…' : ''}"`,
-        detail: `${top.score} pontos · ${top.descendants} comentários · por ${top.by}`,
-        dataSource: ['HackerNews'],
-      })
-    }
-  }
-
-  // --- CORRELAÇÕES ---
-  if (input.correlations) {
-    const strong = input.correlations.filter((c) => c.strength === 'strong')
-    strong.forEach((c) => {
-      insights.push({
-        id: uid(),
-        category: 'correlation',
-        severity: 'info',
-        headline: c.interpretation,
-        detail: `Coeficiente de Pearson: r=${c.coefficient.toFixed(2)}. Calculado com dados das últimas horas.`,
-        dataSource: [c.datasetA, c.datasetB],
-      })
-    })
   }
 
   return insights

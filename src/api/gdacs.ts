@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import type { NaturalEvent } from './types/eonet'
+import type { NaturalEvent } from './types/natural-event'
 
 // GDACS event type → EONET-compatible categoryId
 // This keeps the widget category config working without changes

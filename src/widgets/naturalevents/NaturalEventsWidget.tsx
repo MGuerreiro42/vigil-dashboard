@@ -4,7 +4,7 @@ import { WidgetShell } from '@/components/layout/WidgetShell'
 import { useNaturalEvents } from '@/api/gdacs'
 import { useEarthquakes } from '@/api/usgs'
 import { formatRelativeTime } from '@/hooks/useRelativeTime'
-import type { NaturalEvent } from '@/api/types/eonet'
+import type { NaturalEvent } from '@/api/types/natural-event'
 import type { Earthquake } from '@/api/types/earthquake'
 
 const ACCENT = '#10b981'
@@ -954,7 +954,6 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
 
   return (
     <WidgetShell
-      id="naturalevents"
       title="Eventos Naturais"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌿</span>}
       isLoading={isLoading}

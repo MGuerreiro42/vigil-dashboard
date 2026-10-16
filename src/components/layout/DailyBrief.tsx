@@ -9,7 +9,6 @@ import type { WeatherCurrent, ForecastDay } from '@/api/types/weather'
 import type { AirQuality } from '@/api/types/air'
 import type { Earthquake } from '@/api/types/earthquake'
 import type { GithubRepo } from '@/api/types/github'
-import type { HNStory } from '@/api/types/hackernews'
 
 interface Props {
   crypto?: CryptoAsset[]
@@ -18,7 +17,6 @@ interface Props {
   airQuality?: AirQuality | null
   earthquakes?: Earthquake[]
   githubTrending?: GithubRepo[]
-  hnStories?: HNStory[]
 }
 
 const WIKI_ACCENT = '#a78bfa'
@@ -154,7 +152,7 @@ function WikiDiscoverCard() {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  crypto: '₿', weather: '🌤', seismic: '🌍', air: '💨', tech: '💻', correlation: '📊',
+  crypto: '₿', weather: '🌤', seismic: '🌍', air: '💨', tech: '💻',
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -247,10 +245,10 @@ function InsightCard({ insight, index }: { insight: BriefInsight; index: number 
   )
 }
 
-export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending, hnStories }: Props) {
+export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending }: Props) {
   const insights = useMemo(
-    () => generateDailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending, hnStories }),
-    [crypto, weather, forecast, airQuality, earthquakes, githubTrending, hnStories]
+    () => generateDailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending }),
+    [crypto, weather, forecast, airQuality, earthquakes, githubTrending]
   )
 
   // Ordenar: alertas → warnings → info (Gestalt: proximidade e ordem)

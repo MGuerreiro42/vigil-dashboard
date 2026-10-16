@@ -150,7 +150,6 @@ export function NewsWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   return (
     <WidgetShell
-      id="news"
       title="The Guardian"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>📰</span>}
       isLoading={isLoading}
