@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { WidgetShell } from '@/components/layout/WidgetShell'
 import { useISSPosition, useISSCoordinates, useISSFuturePath, useISSTLE } from '@/api/iss'
+import { useGlobe, GLOBE_TEXTURE_URL } from '@/hooks/useGlobe'
 import type { ISSPosition, ISSFuturePosition, ISSTLE } from '@/api/types/iss'
 
 const ACCENT = '#22d3ee'
@@ -40,6 +41,9 @@ function orbitalPeriod(meanMotion: number): number {
 type GlobePt = { id: string; lat: number; lng: number; _opacity: number }
 type GlobePath = { points: [number, number][]; color: string; strokeWidth: number; dashed?: boolean }
 
+const pathDashLength = (path: object) => ((path as GlobePath).dashed ? 0.05 : 1)
+const pathDashGap = (path: object) => ((path as GlobePath).dashed ? 0.03 : 0)
+
 function ISSGlobe({
   position,
   trail,
@@ -53,25 +57,7 @@ function ISSGlobe({
   followISS: boolean
   compact: boolean
 }) {
-  const wrapRef = useRef<HTMLDivElement>(null)
-  const [dims, setDims] = useState({ w: 0, h: 0 })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [Globe, setGlobe] = useState<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const globeRef = useRef<any>(null)
-
-  useEffect(() => {
-    import('react-globe.gl').then((mod) => setGlobe(() => mod.default))
-  }, [])
-
-  useEffect(() => {
-    if (!wrapRef.current) return
-    const ro = new ResizeObserver(([e]) => {
-      setDims({ w: e.contentRect.width, h: e.contentRect.height })
-    })
-    ro.observe(wrapRef.current)
-    return () => ro.disconnect()
-  }, [])
+  const { containerRef, globeRef, Globe, size } = useGlobe()
 
   // Follow ISS whenever position changes (if enabled)
   const lat = position?.lat
@@ -79,7 +65,7 @@ function ISSGlobe({
   useEffect(() => {
     if (lat == null || lng == null || !globeRef.current || !followISS) return
     globeRef.current.pointOfView({ lat, lng, altitude: compact ? 2.4 : 2.0 }, 800)
-  }, [lat, lng, followISS, compact])
+  }, [lat, lng, followISS, compact, globeRef])
 
   // Points: past trail + ISS marker + solar sub-point
   const allPoints: GlobePt[] = useMemo(() => {
@@ -158,6 +144,9 @@ function ISSGlobe({
     })
   }, [trail, compact])
 
+  // A new array each render would make the globe rebuild every path
+  const paths = useMemo(() => [...trailLinePaths, ...futurePaths], [trailLinePaths, futurePaths])
+
   const getTooltip = useCallback((pt: object) => {
     const p = pt as GlobePt
     if (p.id === 'iss' && position) {
@@ -195,16 +184,16 @@ function ISSGlobe({
 
   return (
     <div
-      ref={wrapRef}
+      ref={containerRef}
       style={{ position: 'absolute', inset: 0, borderRadius: 8, overflow: 'hidden', background: '#03050e' }}
     >
-      {Globe && dims.w > 0 ? (
+      {Globe && size.width > 0 ? (
         <Globe
           ref={globeRef}
-          width={dims.w}
-          height={dims.h}
+          width={size.width}
+          height={size.height}
           backgroundColor="rgba(0,0,0,0)"
-          globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
+          globeImageUrl={GLOBE_TEXTURE_URL}
           atmosphereColor="rgba(34,211,238,0.14)"
           atmosphereAltitude={0.16}
           pointsData={allPoints}
@@ -214,13 +203,13 @@ function ISSGlobe({
           pointRadius={getRadius}
           pointAltitude={0.012}
           pointLabel={getTooltip}
-          pathsData={[...trailLinePaths, ...futurePaths]}
+          pathsData={paths}
           pathPoints="points"
           pathColor="color"
           pathStroke="strokeWidth"
-          pathDashLength={(p: object) => (p as GlobePath).dashed ? 0.05 : 1}
-          pathDashGap={(p: object) => (p as GlobePath).dashed ? 0.03 : 0}
-          pathAltitude={0.008}
+          pathDashLength={pathDashLength}
+          pathDashGap={pathDashGap}
+          pathPointAlt={0.008}
           onGlobeReady={() => {
             if (!globeRef.current) return
             globeRef.current.controls().autoRotate = false

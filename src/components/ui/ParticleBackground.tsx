@@ -27,6 +27,8 @@ export function ParticleBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    // Reduced motion: draw one static frame instead of running the loop
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let raf: number
     let w = 0
     let h = 0
@@ -73,21 +75,26 @@ export function ParticleBackground() {
       }
 
       ctx.globalAlpha = 1
-      raf = requestAnimationFrame(draw)
+      if (!reducedMotion) raf = requestAnimationFrame(draw)
     }
 
     const onMouse = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX / w, y: e.clientY / h }
     }
 
-    window.addEventListener('resize', resize, { passive: true })
+    const onResize = () => {
+      resize()
+      if (reducedMotion) draw()
+    }
+
+    window.addEventListener('resize', onResize, { passive: true })
     window.addEventListener('mousemove', onMouse, { passive: true })
     resize()
     draw()
 
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener('resize', resize)
+      window.removeEventListener('resize', onResize)
       window.removeEventListener('mousemove', onMouse)
     }
   }, [])

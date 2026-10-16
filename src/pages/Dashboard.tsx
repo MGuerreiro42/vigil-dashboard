@@ -33,8 +33,8 @@ function WidgetSkeleton({ className = '' }: { className?: string }) {
 
 export function Dashboard() {
   useGeolocation()
-  const { coords } = useGeoStore()
-  const { cryptoIds } = useAppStore()
+  const coords = useGeoStore((state) => state.coords)
+  const cryptoIds = useAppStore((state) => state.cryptoIds)
 
   const { data: crypto } = useCryptoMarket(cryptoIds)
   const { data: weatherData } = useWeather(coords ?? undefined)
