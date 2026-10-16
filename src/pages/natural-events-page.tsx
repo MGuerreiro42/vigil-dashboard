@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react'
 import { PageLayout } from '@/components/layout/page-layout'
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 
-const NaturalEventsWidget = lazy(() => import('@/features/natural-events/components/natural-events-widget').then((m) => ({ default: m.NaturalEventsWidget })))
+const NaturalEventsWidget = lazy(() => import('@/features/natural-events/components/natural-events-widget').then((module) => ({ default: module.NaturalEventsWidget })))
 
 export function NaturalEventsPage() {
   return (

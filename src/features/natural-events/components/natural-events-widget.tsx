@@ -14,6 +14,7 @@ import { EventsGlobe } from './events-globe'
 import { SeismicTab } from './seismic-tab'
 import { TimelineView } from './timeline-view'
 import { ACCENT, alertBadge, categoryStyle } from '@/features/natural-events/lib/event-style'
+import { StatTile } from '@/components/ui/stat-tile'
 
 type RightTab = 'globe' | 'timeline' | 'categories' | 'seismic'
 
@@ -110,51 +111,22 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
       {/* ── Stats header ── */}
       {events.length > 0 && (
         <div className="flex gap-2 mb-3 flex-shrink-0">
-          <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[64px]">
-            <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Ativos</span>
-            <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: ACCENT }}>{totalActive}</span>
-            <span className="text-[10px] text-white/20 mt-1 leading-none">global</span>
-          </div>
+          <StatTile label="Ativos" value={totalActive} caption="global" valueColor={ACCENT} />
 
           {dominantCat && (
-            <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[68px]"
-              style={{ background: dominantCat.cfg.color + '0f', borderColor: dominantCat.cfg.color + '30' }}>
-              <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: dominantCat.cfg.color + 'aa' }}>Maior Freq.</span>
-              <span className="text-[18px] leading-none mt-1.5">{dominantCat.cfg.icon}</span>
-              <span className="text-[10px] mt-1 leading-none" style={{ color: dominantCat.cfg.color + '99' }}>
-                {dominantCat.cfg.label}
-              </span>
-            </div>
+            <StatTile label="Maior Freq." value={dominantCat.cfg.icon} caption={dominantCat.cfg.label} color={dominantCat.cfg.color} valueClassName="text-[18px]" />
           )}
 
           {isFocused && (
-            <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[64px]">
-              <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Países</span>
-              <span className="text-[22px] font-mono font-bold text-white/85 leading-none mt-1.5">{countriesAffected}</span>
-              <span className="text-[10px] text-white/20 mt-1 leading-none">afetados</span>
-            </div>
+            <StatTile label="Países" value={countriesAffected} caption="afetados" />
           )}
 
           {isFocused && highAlertCount > 0 && (
-            <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[64px]"
-              style={{ background: '#f9731610', borderColor: '#f9731640' }}>
-              <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: '#f97316aa' }}>Alerta Alto</span>
-              <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: '#f97316' }}>{highAlertCount}</span>
-              <span className="text-[10px] mt-1 leading-none" style={{ color: '#f9731699' }}>Orange+Red</span>
-            </div>
+            <StatTile label="Alerta Alto" value={highAlertCount} caption="Orange+Red" color="#f97316" />
           )}
 
           {isFocused && maxQuake && (
-            <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[64px]"
-              style={{ background: magnitudeColor(maxQuake.magnitude) + '10', borderColor: magnitudeColor(maxQuake.magnitude) + '35' }}>
-              <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magnitudeColor(maxQuake.magnitude) + 'aa' }}>Maior M</span>
-              <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: magnitudeColor(maxQuake.magnitude) }}>
-                {maxQuake.magnitude.toFixed(1)}
-              </span>
-              <span className="text-[10px] mt-1 leading-none truncate" style={{ color: magnitudeColor(maxQuake.magnitude) + '80' }}>
-                {maxQuake.place.split(',')[0]}
-              </span>
-            </div>
+            <StatTile label="Maior M" value={maxQuake.magnitude.toFixed(1)} caption={maxQuake.place.split(',')[0]} color={magnitudeColor(maxQuake.magnitude)} />
           )}
 
           {lastEvent && (

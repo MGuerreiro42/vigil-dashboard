@@ -5,188 +5,13 @@ import { useRandomWikipedia } from '@/features/wikipedia/api/wikipedia'
 import { WIKI_LANGUAGES } from '@/features/wikipedia/types'
 import type { WikiSummary, WikiLangCode } from '@/features/wikipedia/types'
 import { useAutoAdvance } from '@/hooks/use-auto-advance'
+import { CompactCard } from './compact-card'
+import { HistoryItem } from './history-item'
+import { WikiLogo } from './wiki-logo'
+import { ACCENT, formatDate, readingTime } from '@/features/wikipedia/lib/article-format'
 
-const ACCENT = '#a78bfa'
-
-function WikiW({ size }: { size: number }) {
-  return (
-    <span
-      className="font-serif font-black leading-none select-none"
-      style={{ fontSize: size, color: ACCENT }}
-    >
-      W
-    </span>
-  )
-}
 const AUTO_ADVANCE_MS = 2 * 60 * 1000
 
-function readingTime(text: string): number {
-  return Math.max(1, Math.ceil(text.split(' ').length / 200))
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-// ─── Thumbnail placeholder ──────────────────────────────────────────────────
-function WikiThumb({
-  src,
-  alt,
-  className,
-}: {
-  src?: string
-  alt?: string
-  className?: string
-}) {
-  return src ? (
-    <img src={src} alt={alt ?? ''} className={`object-cover ${className ?? ''}`} />
-  ) : (
-    <div
-      className={`flex items-center justify-center ${className ?? ''}`}
-      style={{
-        background:
-          'linear-gradient(135deg, rgba(167,139,250,0.12) 0%, rgba(167,139,250,0.04) 100%)',
-      }}
-    >
-      <span className="font-serif font-bold text-white/15 select-none" style={{ fontSize: 28 }}>
-        W
-      </span>
-    </div>
-  )
-}
-
-// ─── Compact article card ────────────────────────────────────────────────────
-function CompactCard({
-  article,
-  onNext,
-  isLoading,
-}: {
-  article: WikiSummary | undefined
-  onNext: () => void
-  isLoading: boolean
-}) {
-  if (isLoading && !article) {
-    return (
-      <div className="flex flex-col gap-2 animate-pulse flex-1 min-h-0">
-        <div className="w-full rounded-xl bg-white/5" style={{ height: 88 }} />
-        <div className="h-4 bg-white/5 rounded w-3/4" />
-        <div className="h-3 bg-white/5 rounded w-1/2" />
-        <div className="h-3 bg-white/5 rounded w-full" />
-        <div className="h-3 bg-white/5 rounded w-4/5" />
-        <div className="h-3 bg-white/5 rounded w-2/3" />
-      </div>
-    )
-  }
-
-  if (!article) return null
-
-  return (
-    <div className="flex flex-col gap-2 flex-1 min-h-0">
-      {/* Image */}
-      <div className="w-full flex-shrink-0 rounded-xl overflow-hidden relative" style={{ height: 88 }}>
-        <WikiThumb
-          src={article.thumbnail?.source}
-          alt={article.title}
-          className="w-full h-full"
-        />
-        {article.coordinates && (
-          <span
-            className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-mono"
-            style={{ background: 'rgba(0,0,0,0.72)', color: ACCENT }}
-          >
-            📍 {article.coordinates.lat.toFixed(1)}°
-          </span>
-        )}
-      </div>
-
-      {/* Text */}
-      <div className="flex-1 min-h-0 flex flex-col gap-1 overflow-hidden">
-        <h3 className="text-[13px] font-semibold text-white/90 leading-snug line-clamp-2">
-          {article.title}
-        </h3>
-        {article.description && (
-          <p className="text-[11px] text-white/38 leading-snug line-clamp-1">
-            {article.description}
-          </p>
-        )}
-        <p className="text-[12px] text-white/55 leading-relaxed line-clamp-4">
-          {article.extract}
-        </p>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center justify-between flex-shrink-0 mt-1">
-        <a
-          href={article.content_urls.desktop.page}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[11px] transition-opacity hover:opacity-70"
-          style={{ color: ACCENT + '90' }}
-        >
-          wikipedia ↗
-        </a>
-        <button
-          onClick={onNext}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-opacity hover:opacity-75"
-          style={{ background: ACCENT + '18', color: ACCENT, border: `1px solid ${ACCENT}28` }}
-        >
-          Next →
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ─── History sidebar item ────────────────────────────────────────────────────
-function HistoryItem({
-  article,
-  index,
-  isActive,
-  onClick,
-}: {
-  article: WikiSummary
-  index: number
-  isActive: boolean
-  onClick: () => void
-}) {
-  return (
-    <motion.button
-      initial={{ opacity: 0, x: 10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.03 }}
-      onClick={onClick}
-      className="flex gap-2 p-2 rounded-lg text-left w-full transition-colors hover:bg-white/[0.04] flex-shrink-0"
-      style={{
-        background: isActive ? ACCENT + '12' : undefined,
-        outline: isActive ? `1px solid ${ACCENT}35` : 'none',
-      }}
-    >
-      <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0">
-        <WikiThumb
-          src={article.thumbnail?.source}
-          alt=""
-          className="w-full h-full"
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[12px] font-medium text-white/78 leading-tight line-clamp-1">
-          {article.title}
-        </div>
-        {article.description && (
-          <div className="text-[11px] text-white/32 leading-tight line-clamp-1 mt-0.5">
-            {article.description}
-          </div>
-        )}
-      </div>
-    </motion.button>
-  )
-}
-
-// ─── Main widget ─────────────────────────────────────────────────────────────
 export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   const [lang, setLang] = useState<WikiLangCode>('en')
@@ -223,7 +48,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
   return (
     <WidgetShell
       title="Wikipedia"
-      icon={<WikiW size={isFocused ? 18 : 13} />}
+      icon={<WikiLogo size={isFocused ? 18 : 13} />}
       isLoading={isLoading && history.length === 0}
       error={error}
       onRetry={getNext}
@@ -261,23 +86,23 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
           <div className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto pr-2">
             {/* Controls: lang selector + playback */}
             <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-              {WIKI_LANGUAGES.map((l) => (
+              {WIKI_LANGUAGES.map((language) => (
                 <button
-                  key={l.code}
-                  onClick={() => switchLang(l.code)}
+                  key={language.code}
+                  onClick={() => switchLang(language.code)}
                   className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: lang === l.code ? ACCENT + '22' : 'rgba(255,255,255,0.04)',
-                    color: lang === l.code ? ACCENT : 'rgba(255,255,255,0.32)',
-                    border: `1px solid ${lang === l.code ? ACCENT + '48' : 'transparent'}`,
+                    background: lang === language.code ? ACCENT + '22' : 'rgba(255,255,255,0.04)',
+                    color: lang === language.code ? ACCENT : 'rgba(255,255,255,0.32)',
+                    border: `1px solid ${lang === language.code ? ACCENT + '48' : 'transparent'}`,
                   }}
                 >
-                  {l.label}
+                  {language.label}
                 </button>
               ))}
               <div className="flex-1" />
               <button
-                onClick={() => setPaused((p) => !p)}
+                onClick={() => setPaused((wasPaused) => !wasPaused)}
                 title={paused ? 'Resume auto-advance' : 'Pause auto-advance'}
                 className="px-2.5 py-1 rounded-lg text-xs transition-all text-white/35 hover:text-white/60"
                 style={{

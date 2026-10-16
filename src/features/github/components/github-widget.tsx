@@ -1,46 +1,19 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { WidgetShell } from '@/components/layout/widget-shell'
 import { SegmentedTabs } from '@/components/ui/segmented-tabs'
 import { tabPanel } from '@/components/ui/tab-panel'
 import { useTrendingRepos } from '@/features/github/api/github'
-
-const ACCENT = '#a855f7'
+import { GithubIcon } from './github-icon'
+import { LangBadge } from './lang-badge'
+import { LanguageStarsChart } from './language-stars-chart'
+import { RepoDetail } from './repo-detail'
+import { StarsDistributionChart } from './stars-distribution-chart'
+import { ACCENT, LANG_COLORS, formatStars } from '@/features/github/lib/github-format'
+import { StatTile } from '@/components/ui/stat-tile'
 
 type SortOrder = 'stars-desc' | 'stars-asc' | 'forks' | 'name'
 type RightTab = 'repo' | 'languages' | 'analysis'
-
-const LANG_COLORS: Record<string, string> = {
-  TypeScript: '#3178c6', JavaScript: '#f1e05a', Python: '#3572a5',
-  Rust: '#dea584', Go: '#00add8', Java: '#b07219', 'C++': '#f34b7d',
-  C: '#555555', Swift: '#f05138', Kotlin: '#a97bff', Ruby: '#701516',
-  PHP: '#4f5d95', Dart: '#00b4ab', Zig: '#ec915c', Vue: '#41b883',
-}
-
-function formatStars(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`
-  return String(n)
-}
-
-function LangBadge({ lang }: { lang: string | null }) {
-  if (!lang) return null
-  const color = LANG_COLORS[lang] ?? '#8b8fa8'
-  return (
-    <span className="flex items-center gap-1 text-[11px] text-white/50">
-      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-      {lang}
-    </span>
-  )
-}
-
-function GithubIcon({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-    </svg>
-  )
-}
 
 export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
   const [selectedLangFilter, setSelectedLangFilter] = useState<string | undefined>()
@@ -52,43 +25,24 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
   const { data: repos, isLoading, error, refetch, dataUpdatedAt } = useTrendingRepos(selectedLangFilter)
 
   const languages = repos
-    ? Array.from(new Set(repos.map((r) => r.language).filter(Boolean) as string[])).slice(0, 8)
+    ? Array.from(new Set(repos.map((repo) => repo.language).filter(Boolean) as string[])).slice(0, 8)
     : []
 
-  const totalStars = repos?.reduce((s, r) => s + r.stars, 0) ?? 0
-  const totalForks = repos?.reduce((s, r) => s + r.forks, 0) ?? 0
+  const totalStars = repos?.reduce((total, repo) => total + repo.stars, 0) ?? 0
+  const totalForks = repos?.reduce((total, repo) => total + repo.forks, 0) ?? 0
 
   const langCount: Record<string, number> = {}
-  repos?.forEach((r) => { if (r.language) langCount[r.language] = (langCount[r.language] ?? 0) + 1 })
-  const dominantLang = Object.entries(langCount).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
+  repos?.forEach((repo) => { if (repo.language) langCount[repo.language] = (langCount[repo.language] ?? 0) + 1 })
+  const dominantLang = Object.entries(langCount).sort((first, second) => second[1] - first[1])[0]?.[0] ?? '—'
 
-  const sortedRepos = [...(repos ?? [])].sort((a, b) => {
-    if (sortOrder === 'stars-asc') return a.stars - b.stars
-    if (sortOrder === 'forks')     return b.forks - a.forks
-    if (sortOrder === 'name')      return a.name.localeCompare(b.name)
-    return b.stars - a.stars
+  const sortedRepos = [...(repos ?? [])].sort((first, second) => {
+    if (sortOrder === 'stars-asc') return first.stars - second.stars
+    if (sortOrder === 'forks')     return second.forks - first.forks
+    if (sortOrder === 'name')      return first.name.localeCompare(second.name)
+    return second.stars - first.stars
   })
 
-  const selectedRepo = repos?.find((r) => r.id === selectedId) ?? null
-
-  const langStars = languages.map((lang) => ({
-    lang,
-    stars: repos?.filter((r) => r.language === lang).reduce((s, r) => s + r.stars, 0) ?? 0,
-    color: LANG_COLORS[lang] ?? '#8b8fa8',
-  })).sort((a, b) => b.stars - a.stars)
-
-  // Stars distribution for analysis
-  const starBuckets = [
-    { range: '0–100',  min: 0,    max: 100   },
-    { range: '100–500',min: 100,  max: 500   },
-    { range: '500–1k', min: 500,  max: 1000  },
-    { range: '1k–5k',  min: 1000, max: 5000  },
-    { range: '5k+',    min: 5000, max: Infinity },
-  ]
-  const starsDist = starBuckets.map((b) => ({
-    range: b.range,
-    count: repos?.filter((r) => r.stars >= b.min && r.stars < b.max).length ?? 0,
-  }))
+  const selectedRepo = repos?.find((repo) => repo.id === selectedId) ?? null
 
   const tabs: { id: RightTab; label: string }[] = [
     { id: 'repo',      label: 'Repo' },
@@ -112,33 +66,10 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
       {/* ── Stats header ── */}
       {repos && (
         <div className="flex gap-2 mb-3 flex-shrink-0">
-          <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[68px]">
-            <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Repos</span>
-            <span className="text-[22px] font-mono font-bold text-white/85 leading-none mt-1.5">{repos.length}</span>
-            <span className="text-[10px] text-white/20 mt-1 leading-none">trending</span>
-          </div>
-          <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[68px]"
-            style={{ background: ACCENT + '0d', borderColor: ACCENT + '35' }}>
-            <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: ACCENT + 'aa' }}>⭐ Stars</span>
-            <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: ACCENT }}>
-              {formatStars(totalStars)}
-            </span>
-            <span className="text-[10px] mt-1 leading-none" style={{ color: ACCENT + '70' }}>no trending</span>
-          </div>
-          <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[68px]">
-            <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">Linguagem</span>
-            <span className="text-[15px] font-mono font-bold text-white/85 leading-none mt-1.5 truncate">
-              {dominantLang}
-            </span>
-            <span className="text-[10px] text-white/20 mt-1 leading-none">dominante</span>
-          </div>
-          <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[68px]">
-            <span className="text-[10px] uppercase tracking-widest text-white/25 leading-none">🍴 Forks</span>
-            <span className="text-[22px] font-mono font-bold text-white/85 leading-none mt-1.5">
-              {formatStars(totalForks)}
-            </span>
-            <span className="text-[10px] text-white/20 mt-1 leading-none">total</span>
-          </div>
+          <StatTile label="Repos" value={repos.length} caption="trending" />
+          <StatTile label="⭐ Stars" value={formatStars(totalStars)} caption="no trending" color={ACCENT} />
+          <StatTile label="Linguagem" value={dominantLang} caption="dominante" valueClassName="text-[15px] font-mono font-bold truncate" />
+          <StatTile label="🍴 Forks" value={formatStars(totalForks)} caption="total" />
         </div>
       )}
 
@@ -285,111 +216,17 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
             <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
               {/* Tab: Repo */}
               <div {...tabPanel(rightTab === 'repo', { overflowY: 'auto' })}>
-                {selectedRepo ? (
-                  <div style={{ background: '#06080f', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', padding: 16 }}>
-                    <div className="mb-3">
-                      <div className="text-base font-bold text-white/90">{selectedRepo.name}</div>
-                      <div className="text-[12px] text-white/35 mt-0.5">{selectedRepo.fullName}</div>
-                    </div>
-                    {selectedRepo.description && (
-                      <p className="text-sm text-white/60 leading-relaxed mb-3">{selectedRepo.description}</p>
-                    )}
-                    {selectedRepo.topics.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {selectedRepo.topics.map((topic) => (
-                          <span key={topic} className="text-[11px] px-2 py-0.5 rounded-full"
-                            style={{ background: ACCENT + '18', color: ACCENT + 'cc', border: `1px solid ${ACCENT}30` }}>
-                            #{topic}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-[12px] text-white/60">⭐ {selectedRepo.stars.toLocaleString()}</span>
-                      <span className="text-[12px] text-white/60">🍴 {selectedRepo.forks.toLocaleString()}</span>
-                      <LangBadge lang={selectedRepo.language} />
-                    </div>
-                    <a
-                      href={selectedRepo.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                      style={{ background: ACCENT + '20', color: ACCENT, border: `1px solid ${ACCENT}40` }}
-                    >
-                      Abrir no GitHub ↗
-                    </a>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <p className="text-sm text-white/25">Selecione um repositório</p>
-                  </div>
-                )}
+                <RepoDetail repo={selectedRepo} />
               </div>
 
               {/* Tab: Linguagens */}
               <div {...tabPanel(rightTab === 'languages')}>
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: '#06080f',
-                  borderRadius: 10,
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  backgroundImage: [
-                    'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)',
-                    'linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-                  ].join(','),
-                  backgroundSize: '48px 48px',
-                  overflow: 'hidden',
-                }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={langStars} layout="vertical" margin={{ top: 16, right: 24, left: -10, bottom: 8 }}>
-                      <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false}
-                        tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)} />
-                      <YAxis type="category" dataKey="lang" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} axisLine={false} tickLine={false} width={80} />
-                      <Tooltip
-                        contentStyle={{ background: 'rgba(13,17,23,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
-                        formatter={(v) => [Number(v).toLocaleString(), 'Stars']}
-                        labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
-                      />
-                      <Bar dataKey="stars" radius={[0, 4, 4, 0]}>
-                        {langStars.map((entry, i) => (
-                          <Cell key={i} fill={entry.color} fillOpacity={0.75} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                <LanguageStarsChart repos={repos ?? []} />
               </div>
 
               {/* Tab: Análise */}
               <div {...tabPanel(rightTab === 'analysis', { display: 'flex', flexDirection: 'column', gap: 12 })}>
-                <div style={{ flex: 1, position: 'relative' }}>
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: '#06080f',
-                    borderRadius: 10,
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    backgroundImage: [
-                      'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)',
-                      'linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-                    ].join(','),
-                    backgroundSize: '48px 48px',
-                    overflow: 'hidden',
-                  }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={starsDist} margin={{ top: 16, right: 16, left: -16, bottom: 8 }}>
-                        <XAxis dataKey="range" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                        <Tooltip
-                          contentStyle={{ background: 'rgba(13,17,23,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
-                          formatter={(v) => [Number(v), 'Repos']}
-                          labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
-                        />
-                        <Bar dataKey="count" fill={ACCENT} fillOpacity={0.7} radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-                <p className="text-[10px] text-white/30 uppercase tracking-widest flex-shrink-0">Distribuição de Stars</p>
+                <StarsDistributionChart repos={repos ?? []} />
               </div>
             </div>
           </div>

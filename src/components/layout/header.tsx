@@ -122,7 +122,7 @@ export function Header() {
         {/* Notification bell */}
         <div className="relative">
           <button
-            onClick={() => setShowAlerts((s) => !s)}
+            onClick={() => setShowAlerts((isOpen) => !isOpen)}
             className="relative p-2 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/5 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

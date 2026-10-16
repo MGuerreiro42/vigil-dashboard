@@ -112,7 +112,7 @@ export function WidgetShell({
               to={viewRoute}
               className="text-white/28 hover:text-white/60 transition-colors p-0.5 rounded"
               aria-label="Abrir página completa"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(event) => event.stopPropagation()}
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                 <path d="M7.5 1.5h3v3M4.5 10.5h-3v-3M10.5 1.5L7 5M1.5 10.5L5 7"/>

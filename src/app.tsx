@@ -6,15 +6,15 @@ import { queryClient } from '@/lib/query-client'
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 
 // Pages — each loads its own heavy chunks on demand
-const Dashboard        = lazy(() => import('@/pages/dashboard-page').then((m) => ({ default: m.Dashboard })))
-const CryptoPage       = lazy(() => import('@/pages/crypto-page').then((m) => ({ default: m.CryptoPage })))
-const ISSPage          = lazy(() => import('@/pages/iss-page').then((m) => ({ default: m.ISSPage })))
-const EarthquakePage   = lazy(() => import('@/pages/earthquake-page').then((m) => ({ default: m.EarthquakePage })))
-const NaturalEventsPage = lazy(() => import('@/pages/natural-events-page').then((m) => ({ default: m.NaturalEventsPage })))
-const GithubPage       = lazy(() => import('@/pages/github-page').then((m) => ({ default: m.GithubPage })))
-const WeatherPage      = lazy(() => import('@/pages/weather-page').then((m) => ({ default: m.WeatherPage })))
-const WikipediaPage    = lazy(() => import('@/pages/wikipedia-page').then((m) => ({ default: m.WikipediaPage })))
-const NewsPage         = lazy(() => import('@/pages/news-page').then((m) => ({ default: m.NewsPage })))
+const Dashboard        = lazy(() => import('@/pages/dashboard-page').then((module) => ({ default: module.Dashboard })))
+const CryptoPage       = lazy(() => import('@/pages/crypto-page').then((module) => ({ default: module.CryptoPage })))
+const ISSPage          = lazy(() => import('@/pages/iss-page').then((module) => ({ default: module.ISSPage })))
+const EarthquakePage   = lazy(() => import('@/pages/earthquake-page').then((module) => ({ default: module.EarthquakePage })))
+const NaturalEventsPage = lazy(() => import('@/pages/natural-events-page').then((module) => ({ default: module.NaturalEventsPage })))
+const GithubPage       = lazy(() => import('@/pages/github-page').then((module) => ({ default: module.GithubPage })))
+const WeatherPage      = lazy(() => import('@/pages/weather-page').then((module) => ({ default: module.WeatherPage })))
+const WikipediaPage    = lazy(() => import('@/pages/wikipedia-page').then((module) => ({ default: module.WikipediaPage })))
+const NewsPage         = lazy(() => import('@/pages/news-page').then((module) => ({ default: module.NewsPage })))
 
 export default function App() {
   return (
