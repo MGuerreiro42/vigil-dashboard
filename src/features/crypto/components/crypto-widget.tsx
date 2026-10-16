@@ -60,7 +60,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
       isFocused={isFocused}
       fillHeight={isFocused}
       isLive={connectedCount > 0}
-      viewRoute="/crypto"
+      viewRoute="/markets"
     >
       {coins && coins.length > 0 && <MarketStats coins={coins} />}
 

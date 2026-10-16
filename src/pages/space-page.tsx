@@ -2,13 +2,13 @@ import { Suspense, lazy } from 'react'
 import { PageLayout } from '@/components/layout/page-layout'
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 
-const NaturalEventsWidget = lazy(() => import('@/features/natural-events/components/natural-events-widget').then((module) => ({ default: module.NaturalEventsWidget })))
+const ISSWidget = lazy(() => import('@/features/iss/components/iss-widget').then((module) => ({ default: module.ISSWidget })))
 
-export function NaturalEventsPage() {
+export function SpacePage() {
   return (
     <PageLayout>
       <Suspense fallback={<WidgetSkeleton />}>
-        <NaturalEventsWidget isFocused />
+        <ISSWidget isFocused />
       </Suspense>
     </PageLayout>
   )

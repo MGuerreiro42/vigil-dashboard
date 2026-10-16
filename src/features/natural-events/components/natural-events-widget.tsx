@@ -108,7 +108,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
       accentColor={ACCENT}
       isFocused={isFocused}
       fillHeight={isFocused}
-      viewRoute="/natural-events"
+      viewRoute="/planet#natural-events"
     >
       {/* ── Stats header ── */}
       {events.length > 0 && (

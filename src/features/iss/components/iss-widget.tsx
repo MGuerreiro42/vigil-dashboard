@@ -70,7 +70,7 @@ export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
       isFocused={isFocused}
       fillHeight
       isLive
-      viewRoute="/iss"
+      viewRoute="/space"
     >
       {/* Stats bar + tabs — focused only */}
       {isFocused && (

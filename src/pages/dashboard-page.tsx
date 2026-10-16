@@ -45,7 +45,7 @@ export function Dashboard() {
         <BinanceTickerSync coinIds={cryptoIds} />
         <LiveTickerBar coins={crypto ?? []} />
 
-        <main className="flex-1 min-h-0 px-3 sm:px-4 md:px-6 pb-6 pt-3 md:pt-4 flex flex-col gap-3 md:gap-4 lg:overflow-hidden overflow-y-auto">
+        <main className="flex-1 min-h-0 px-3 sm:px-4 md:px-6 pb-20 lg:pb-6 pt-3 md:pt-4 flex flex-col gap-3 md:gap-4 lg:overflow-hidden overflow-y-auto">
           {/* Hero + Wikipedia */}
           <motion.div
             className="flex-shrink-0"

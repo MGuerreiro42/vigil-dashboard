@@ -63,7 +63,7 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
       accentColor={ACCENT}
       isFocused={isFocused}
       fillHeight={isFocused}
-      viewRoute="/github"
+      viewRoute="/tech"
     >
       {/* ── Stats header ── */}
       {repos && (

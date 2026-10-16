@@ -1,14 +1,14 @@
 import { Suspense, lazy } from 'react'
 import { PageLayout } from '@/components/layout/page-layout'
+import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 import { BinanceTickerSync } from '@/features/crypto/components/binance-ticker-sync'
 import { LiveTickerBar } from '@/features/crypto/components/live-ticker-bar'
-import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
-import { useAppStore } from '@/store/app-store'
 import { useCryptoMarket } from '@/features/crypto/api/coingecko'
+import { useAppStore } from '@/store/app-store'
 
 const CryptoWidget = lazy(() => import('@/features/crypto/components/crypto-widget').then((module) => ({ default: module.CryptoWidget })))
 
-export function CryptoPage() {
+export function MarketsPage() {
   const cryptoIds = useAppStore((state) => state.cryptoIds)
   const { data: coins } = useCryptoMarket(cryptoIds)
 

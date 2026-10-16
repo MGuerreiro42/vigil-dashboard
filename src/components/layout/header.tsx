@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './language-switcher'
+import { MainNav, MobileNav } from './main-nav'
 
 // ─── Weather pill ──────────────────────────────────────────────────────────────
 function WeatherPill() {
@@ -43,7 +44,7 @@ function WeatherPill() {
       initial={{ opacity: 0, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-      onClick={() => navigate('/weather')}
+      onClick={() => navigate('/planet#weather')}
       title={t('header.weatherPill.title')}
       className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-xl transition-all hover:bg-white/[0.07] active:scale-95"
       style={{
@@ -103,6 +104,9 @@ export function Header() {
           <div className="hidden sm:block text-[11px] text-fg-subtle -mt-0.5">{t('header.tagline')}</div>
         </div>
       </div>
+
+      <MainNav />
+      <MobileNav />
 
       {/* Right side */}
       <div className="flex items-center gap-2 md:gap-3">
