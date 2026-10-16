@@ -5,7 +5,7 @@ interface BinanceTickerStore {
   tickers: Record<string, BinanceTicker>
   connectedCount: number
   setTicker: (sym: string, t: BinanceTicker) => void
-  setConnected: (n: number) => void
+  setConnected: (count: number) => void
 }
 
 /**
@@ -19,5 +19,5 @@ export const useBinanceTickerStore = create<BinanceTickerStore>((set) => ({
   connectedCount: 0,
   setTicker: (sym, t) =>
     set((state) => ({ tickers: { ...state.tickers, [sym]: t } })),
-  setConnected: (n) => set({ connectedCount: n }),
+  setConnected: (count) => set({ connectedCount: count }),
 }))
