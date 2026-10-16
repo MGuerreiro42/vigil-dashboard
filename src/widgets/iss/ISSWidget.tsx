@@ -276,9 +276,6 @@ function CompactOverlay({
   timezoneId: string | undefined
   coordsLoading: boolean
 }) {
-  if (!position) return null
-  const daylight = position.visibility === 'daylight'
-
   const locationLabel = useMemo(() => {
     if (coordsLoading) return '…'
     if (countryCode) return `${countryFlag(countryCode)} ${countryCode}`
@@ -290,6 +287,9 @@ function CompactOverlay({
     }
     return '🌊 Alto Mar'
   }, [countryCode, timezoneId, coordsLoading])
+
+  if (!position) return null
+  const daylight = position.visibility === 'daylight'
 
   return (
     <div style={{
@@ -558,7 +558,7 @@ function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFuturePositi
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
           {futurePath.map((fp, i) => {
-            const minsFromNow = Math.round((fp.timestamp - (position?.timestamp ?? Date.now() / 1000)) / 60)
+            const minsFromNow = Math.round((fp.timestamp - (position?.timestamp ?? futurePath[0].timestamp)) / 60)
             const isDaylight = fp.visibility === 'daylight'
             return (
               <motion.div

@@ -1,11 +1,23 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { WidgetShell } from '@/components/layout/WidgetShell'
 import { useRandomWikipedia } from '@/api/wikipedia'
 import { WIKI_LANGUAGES } from '@/api/types/wikipedia'
 import type { WikiSummary, WikiLangCode } from '@/api/types/wikipedia'
+import { useAutoAdvance } from '@/hooks/useAutoAdvance'
 
 const ACCENT = '#a78bfa'
+
+function WikiW({ size }: { size: number }) {
+  return (
+    <span
+      className="font-serif font-black leading-none select-none"
+      style={{ fontSize: size, color: ACCENT }}
+    >
+      W
+    </span>
+  )
+}
 const AUTO_ADVANCE_MS = 2 * 60 * 1000
 
 function readingTime(text: string): number {
@@ -182,58 +194,31 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
   const [history, setHistory] = useState<WikiSummary[]>([])
   const [historyIndex, setHistoryIndex] = useState(0)
   const [paused, setPaused] = useState(false)
-  const [progress, setProgress] = useState(0)
 
   const { data, isLoading, error, dataUpdatedAt } = useRandomWikipedia(lang, seed)
 
-  // Accumulate unique articles into history
-  useEffect(() => {
-    if (data) {
-      setHistory((prev) => {
-        if (prev[0]?.pageid === data.pageid) return prev
-        return [data, ...prev.slice(0, 14)]
-      })
+  // Accumulate unique articles into history (state adjusted during render, not in an effect)
+  const [seenData, setSeenData] = useState(data)
+  if (data !== seenData) {
+    setSeenData(data)
+    if (data && history[0]?.pageid !== data.pageid) {
+      setHistory([data, ...history.slice(0, 14)])
       setHistoryIndex(0)
     }
-  }, [data])
+  }
 
   const getNext = useCallback(() => {
-    setSeed(Date.now())
+    setSeed((s) => s + 1)
   }, [])
 
-  // Auto-advance progress bar — resets whenever seed, lang, or paused changes
-  useEffect(() => {
-    if (paused) return
-    const start = Date.now()
-    setProgress(0)
-
-    const id = setInterval(() => {
-      const p = Math.min((Date.now() - start) / AUTO_ADVANCE_MS, 1)
-      setProgress(p)
-      if (p >= 1) {
-        clearInterval(id)
-        setSeed(Date.now())
-      }
-    }, 500)
-
-    return () => clearInterval(id)
-  }, [seed, lang, paused])
+  const progress = useAutoAdvance(AUTO_ADVANCE_MS, seed, getNext, paused)
 
   const currentArticle = history[historyIndex]
 
   function switchLang(code: WikiLangCode) {
     setLang(code)
-    setSeed(Date.now())
+    setSeed((s) => s + 1)
   }
-
-  const WikiW = ({ size }: { size: number }) => (
-    <span
-      className="font-serif font-black leading-none select-none"
-      style={{ fontSize: size, color: ACCENT }}
-    >
-      W
-    </span>
-  )
 
   return (
     <WidgetShell
