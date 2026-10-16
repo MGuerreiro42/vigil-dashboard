@@ -108,7 +108,6 @@ export function parseGdacsRss(xml: string): NaturalEvent[] {
       magnitude,
       magnitudeUnit,
       description: severity || null,
-      track: [],
       alertLevel: alertLevel as 'Green' | 'Orange' | 'Red',
       country,
     })
