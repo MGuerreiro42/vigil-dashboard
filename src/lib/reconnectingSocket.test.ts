@@ -48,7 +48,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  handles.forEach((h) => h.close())
+  handles.forEach((handle) => handle.close())
   handles = []
   vi.useRealTimers()
   vi.unstubAllGlobals()
