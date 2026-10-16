@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import type { BinanceOrderBook, BinanceTrade } from './types/binance'
 
@@ -64,32 +64,49 @@ const EMPTY_TRADES: BinanceTrade[] = []
  * Subscribes to Binance trade stream for the given CoinGecko ID.
  * Returns the last MAX_TRADES trades in reverse-chronological order.
  * Passes null to disconnect.
+ *
+ * Busy pairs send dozens of trades per second, so messages are buffered
+ * and flushed into state at most once per animation frame.
  */
 export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
   const [trades, setTrades] = useState<{ symbol: string; data: BinanceTrade[] } | null>(null)
+  const bufferRef = useRef<BinanceTrade[]>([])
+  const frameRef = useRef<number | null>(null)
 
   const symbol = coinId ? COINGECKO_TO_BINANCE[coinId] : null
   const url = symbol ? `${WS_BASE}/ws/${symbol}@trade` : null
 
+  // Drop a pending batch when the symbol changes or the hook unmounts
+  useEffect(() => () => {
+    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
+    frameRef.current = null
+    bufferRef.current = []
+  }, [symbol])
+
   useWebSocket(url, { onMessage: (raw) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const t = raw as any
-    if (!t?.t) return
+    if (!t?.t || !symbol) return
     const price = parseFloat(t.p)
     const qty = parseFloat(t.q)
-    if (!symbol) return
-    const trade: BinanceTrade = {
+    bufferRef.current.push({
       id: t.t,
       price,
       qty,
       value: price * qty,
       buyerMaker: t.m,
       timestamp: t.T,
-    }
-    setTrades((prev) => ({
-      symbol,
-      data: [trade, ...(prev?.symbol === symbol ? prev.data.slice(0, MAX_TRADES - 1) : [])],
-    }))
+    })
+    if (frameRef.current !== null) return
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null
+      const batch = bufferRef.current.reverse()
+      bufferRef.current = []
+      setTrades((prev) => ({
+        symbol,
+        data: [...batch, ...(prev?.symbol === symbol ? prev.data : [])].slice(0, MAX_TRADES),
+      }))
+    })
   } })
 
   return trades?.symbol === symbol ? trades.data : EMPTY_TRADES
