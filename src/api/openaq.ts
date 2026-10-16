@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { DEFAULT_COORDS } from './openmeteo'
+import { queryKeys } from './queryKeys'
 import type { AirQuality, AQICategory } from './types/air'
 
-// Open-Meteo Air Quality API — sem chave, sem CORS
+// Open-Meteo Air Quality API: no key, CORS-enabled
 const BASE = 'https://air-quality-api.open-meteo.com/v1/air-quality'
 
 function usAqiToCategory(aqi: number): AQICategory {
@@ -13,34 +16,35 @@ function usAqiToCategory(aqi: number): AQICategory {
   return 'hazardous'
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizeAirMeteo(raw: any, lat: number, lng: number): AirQuality {
+type RawAirQuality = { hourly?: Record<string, (number | null)[] | string[] | undefined> }
+
+export function normalizeAirMeteo(raw: RawAirQuality, lat: number, lng: number, now: number): AirQuality {
   const hourly = raw.hourly ?? {}
-  // Pegar o índice da hora mais recente com dado disponível
-  const times: string[] = hourly.time ?? []
-  const now = Date.now()
-  let bestIdx = times.length - 1
-  for (let i = times.length - 1; i >= 0; i--) {
-    if (new Date(times[i]).getTime() <= now) {
-      bestIdx = i
+  const times = (hourly.time ?? []) as string[]
+  // Latest hour that isn't in the future (the response also includes forecast hours)
+  let currentIndex = times.length - 1
+  for (let index = times.length - 1; index >= 0; index--) {
+    if (new Date(times[index]).getTime() <= now) {
+      currentIndex = index
       break
     }
   }
 
-  const get = (key: string): number => {
-    const arr: number[] = hourly[key] ?? []
-    // Busca para trás o primeiro valor não-nulo
-    for (let i = bestIdx; i >= 0; i--) {
-      if (arr[i] != null) return arr[i]
+  // Sensors report gaps as null: walk back to the most recent reading
+  const latest = (key: string): number => {
+    const values = (hourly[key] ?? []) as (number | null)[]
+    for (let index = currentIndex; index >= 0; index--) {
+      const value = values[index]
+      if (value != null) return value
     }
     return 0
   }
 
-  const pm25 = get('pm2_5')
-  const pm10 = get('pm10')
-  const no2  = get('nitrogen_dioxide')
-  const o3   = get('ozone')
-  const aqi  = get('us_aqi') || get('european_aqi') || 0
+  const pm25 = latest('pm2_5')
+  const pm10 = latest('pm10')
+  const no2  = latest('nitrogen_dioxide')
+  const o3   = latest('ozone')
+  const aqi  = latest('us_aqi') || latest('european_aqi') || 0
 
   return {
     location: { lat, lng },
@@ -50,11 +54,11 @@ function normalizeAirMeteo(raw: any, lat: number, lng: number): AirQuality {
     no2,
     o3,
     category: usAqiToCategory(aqi),
-    updatedAt: Date.now(),
+    updatedAt: now,
   }
 }
 
-async function fetchAirQuality(lat: number, lng: number): Promise<AirQuality> {
+async function fetchAirQuality(lat: number, lng: number, signal: AbortSignal): Promise<AirQuality> {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lng),
@@ -63,18 +67,15 @@ async function fetchAirQuality(lat: number, lng: number): Promise<AirQuality> {
     forecast_days: '1',
     past_days: '1',
   })
-  const res = await fetch(`${BASE}?${params}`)
-  if (!res.ok) throw new Error(`Open-Meteo AQ: ${res.status}`)
-  const raw = await res.json()
-  return normalizeAirMeteo(raw, lat, lng)
+  const response = await fetchOk(`${BASE}?${params}`, 'Open-Meteo AQ', { signal })
+  return normalizeAirMeteo(await response.json(), lat, lng, Date.now())
 }
 
 export function useAirQuality(coords?: { lat: number; lng: number }) {
-  const lat = coords?.lat ?? -23.5505
-  const lng = coords?.lng ?? -46.6333
+  const { lat, lng } = coords ?? DEFAULT_COORDS
   return useQuery({
-    queryKey: ['air', lat, lng],
-    queryFn: () => fetchAirQuality(lat, lng),
+    queryKey: queryKeys.airQuality(lat, lng),
+    queryFn: ({ signal }) => fetchAirQuality(lat, lng, signal),
     staleTime: 10 * 60_000,
     refetchInterval: 20 * 60_000,
   })

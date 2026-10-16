@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { queryKeys } from './queryKeys'
 import type { ISSPosition, ISSCoordinates, ISSFuturePosition, ISSTLE } from './types/iss'
 
 const BASE = 'https://api.wheretheiss.at/v1'
@@ -23,7 +25,7 @@ function normalizePosition(raw: any): ISSPosition {
 
 /** Parse key orbital elements from TLE Line 1 and Line 2.
  *  Field positions follow the standard two-line element set format. */
-function parseTLE(line1: string, line2: string): Partial<ISSTLE> {
+export function parseTLE(line1: string, line2: string): Partial<ISSTLE> {
   // --- Line 1 ---
   // Epoch: positions 18–32  → "YYDDD.FFFFFFFF"
   const epochRaw = line1.substring(18, 32).trim()
@@ -56,30 +58,30 @@ function parseTLE(line1: string, line2: string): Partial<ISSTLE> {
 /** Current ISS position — polls every 5 s. */
 export function useISSPosition() {
   return useQuery({
-    queryKey: ['iss', 'position'],
-    queryFn: async (): Promise<ISSPosition> => {
-      const res = await fetch(`${BASE}/satellites/25544`)
-      if (!res.ok) throw new Error(`ISS API: ${res.status}`)
-      return normalizePosition(await res.json())
+    queryKey: queryKeys.iss.position(),
+    queryFn: async ({ signal }): Promise<ISSPosition> => {
+      const response = await fetchOk(`${BASE}/satellites/25544`, 'ISS', { signal })
+      return normalizePosition(await response.json())
     },
     staleTime: 4_000,
     refetchInterval: 5_000,
-    placeholderData: (prev) => prev,
+    placeholderData: (previous) => previous,
   })
 }
 
-/** Country / timezone at the ISS position — refreshes every 25 s.
- *  Query key uses 1-decimal precision so it re-runs when the ISS moves ~0.1°. */
-export function useISSCoordinates(lat: number | undefined, lng: number | undefined) {
-  const latKey = lat != null ? lat.toFixed(1) : null
-  const lngKey = lng != null ? lng.toFixed(1) : null
+const COORDINATES_WINDOW_S = 25
+
+/** Country / timezone under the ISS, looked up once per 25 s window of its position. */
+export function useISSCoordinates(position: ISSPosition | undefined) {
+  // Keyed by time, not lat/lng: the ISS moves ~0.35° per 5 s poll, so a coordinate key changed every poll
+  const timeWindow = position ? Math.floor(position.timestamp / COORDINATES_WINDOW_S) : null
 
   return useQuery({
-    queryKey: ['iss', 'coordinates', latKey, lngKey],
-    queryFn: async (): Promise<ISSCoordinates> => {
-      const res = await fetch(`${BASE}/coordinates/${lat!.toFixed(4)},${lng!.toFixed(4)}`)
-      if (!res.ok) throw new Error(`ISS Coords: ${res.status}`)
-      const raw = await res.json()
+    queryKey: queryKeys.iss.coordinates(timeWindow),
+    queryFn: async ({ signal }): Promise<ISSCoordinates> => {
+      const { lat, lng } = position!
+      const response = await fetchOk(`${BASE}/coordinates/${lat.toFixed(4)},${lng.toFixed(4)}`, 'ISS coordinates', { signal })
+      const raw = await response.json()
       return {
         lat: raw.latitude,
         lng: raw.longitude,
@@ -89,10 +91,10 @@ export function useISSCoordinates(lat: number | undefined, lng: number | undefin
         mapUrl: raw.map_url,
       }
     },
-    enabled: lat != null && lng != null,
-    staleTime: 25_000,
-    refetchInterval: 25_000,
-    placeholderData: (prev) => prev,
+    enabled: position != null,
+    staleTime: Infinity,
+    gcTime: 60_000,
+    placeholderData: (previous) => previous,
   })
 }
 
@@ -100,38 +102,36 @@ export function useISSCoordinates(lat: number | undefined, lng: number | undefin
  *  Refreshes every 5 min (orbit prediction doesn't change quickly). */
 export function useISSFuturePath(currentTimestamp: number | undefined) {
   return useQuery({
-    queryKey: ['iss', 'future-path', currentTimestamp ? Math.floor(currentTimestamp / 300) : null],
-    queryFn: async (): Promise<ISSFuturePosition[]> => {
+    queryKey: queryKeys.iss.futurePath(currentTimestamp ? Math.floor(currentTimestamp / 300) : null),
+    queryFn: async ({ signal }): Promise<ISSFuturePosition[]> => {
       const now = currentTimestamp ?? Math.floor(Date.now() / 1000)
       // 10 points every 9 min → covers 90 min (≈ 1 full orbit)
       const timestamps = Array.from({ length: 10 }, (_, i) => now + (i + 1) * 540)
       const params = new URLSearchParams({ timestamps: timestamps.join(','), units: 'kilometers' })
-      const res = await fetch(`${BASE}/satellites/25544/positions?${params}`)
-      if (!res.ok) throw new Error(`ISS FuturePath: ${res.status}`)
+      const response = await fetchOk(`${BASE}/satellites/25544/positions?${params}`, 'ISS future path', { signal })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (await res.json()).map((p: any): ISSFuturePosition => ({
-        lat: p.latitude,
-        lng: p.longitude,
-        altitude: p.altitude,
-        timestamp: p.timestamp,
-        visibility: p.visibility,
+      return (await response.json()).map((point: any): ISSFuturePosition => ({
+        lat: point.latitude,
+        lng: point.longitude,
+        altitude: point.altitude,
+        timestamp: point.timestamp,
+        visibility: point.visibility,
       }))
     },
     enabled: currentTimestamp != null,
     staleTime: 5 * 60_000,
     refetchInterval: 5 * 60_000,
-    placeholderData: (prev) => prev,
+    placeholderData: (previous) => previous,
   })
 }
 
 /** TLE (Two-Line Element) data — refreshes every hour. */
 export function useISSTLE() {
   return useQuery({
-    queryKey: ['iss', 'tle'],
-    queryFn: async (): Promise<ISSTLE> => {
-      const res = await fetch(`${BASE}/satellites/25544/tles`)
-      if (!res.ok) throw new Error(`ISS TLE: ${res.status}`)
-      const raw = await res.json()
+    queryKey: queryKeys.iss.tle(),
+    queryFn: async ({ signal }): Promise<ISSTLE> => {
+      const response = await fetchOk(`${BASE}/satellites/25544/tles`, 'ISS TLE', { signal })
+      const raw = await response.json()
       const parsed = parseTLE(raw.line1 as string, raw.line2 as string)
       return {
         requestedTimestamp: raw.requested_timestamp,

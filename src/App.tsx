@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '@/lib/queryClient'
 import { WidgetSkeleton } from '@/components/ui/WidgetSkeleton'
 
 // Pages — each loads its own heavy chunks on demand
@@ -13,15 +14,6 @@ const GithubPage       = lazy(() => import('@/pages/GithubPage').then((m) => ({ 
 const WeatherPage      = lazy(() => import('@/pages/WeatherPage').then((m) => ({ default: m.WeatherPage })))
 const WikipediaPage    = lazy(() => import('@/pages/WikipediaPage').then((m) => ({ default: m.WikipediaPage })))
 const NewsPage         = lazy(() => import('@/pages/NewsPage').then((m) => ({ default: m.NewsPage })))
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
 
 export default function App() {
   return (

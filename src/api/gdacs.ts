@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { queryKeys } from './queryKeys'
 import type { NaturalEvent } from './types/natural-event'
 
 // GDACS event type → EONET-compatible categoryId
@@ -115,19 +117,16 @@ function parseGdacsRss(xml: string): NaturalEvent[] {
   return events
 }
 
-async function fetchGdacsEvents(): Promise<NaturalEvent[]> {
-  // In dev: Vite proxies /api/gdacs → https://www.gdacs.org
-  // In prod: Netlify _redirects / Vercel rewrites handle the proxy
-  const res = await fetch('/api/gdacs/xml/rss.xml')
-  if (!res.ok) throw new Error(`GDACS: ${res.status}`)
-  const xml = await res.text()
-  return parseGdacsRss(xml)
+async function fetchGdacsEvents(signal: AbortSignal): Promise<NaturalEvent[]> {
+  // Proxied to gdacs.org (no CORS): Vite server.proxy in dev, Vercel rewrite in prod
+  const response = await fetchOk('/api/gdacs/xml/rss.xml', 'GDACS', { signal })
+  return parseGdacsRss(await response.text())
 }
 
 export function useNaturalEvents() {
   return useQuery({
-    queryKey: ['gdacs', 'events'],
-    queryFn: fetchGdacsEvents,
+    queryKey: queryKeys.naturalEvents(),
+    queryFn: ({ signal }) => fetchGdacsEvents(signal),
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
   })
