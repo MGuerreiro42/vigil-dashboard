@@ -136,6 +136,8 @@ export const en: typeof pt = {
     tabs: { hourly: '24h', air: 'Air quality', details: 'Details' },
     stats: { temperature: 'Temperature', feelsLike: 'Feels like', thermal: 'apparent', aqi: 'AQI', wind: 'Wind', notAvailable: 'N/A' },
     uvShort: 'UV {{value}}',
+    search: { placeholder: 'Search city…', noResults: 'No city found', myLocation: 'Your location', default: 'São Paulo' },
+    radar: { title: 'Rain radar', play: 'Play', pause: 'Pause', timeline: 'Radar time', source: 'Radar for the last 2 hours · RainViewer' },
     chart: { temperature: 'Temp. (°C)', rain: 'Rain (%)' },
     air: { unavailable: 'Air quality data unavailable.', index: 'Air Quality Index', badge: 'AQI · {{label}}' },
     aqi: { good: 'Good', moderate: 'Moderate', 'unhealthy-sensitive': 'Unhealthy for sensitive groups', unhealthy: 'Unhealthy', 'very-unhealthy': 'Very unhealthy', hazardous: 'Hazardous' },

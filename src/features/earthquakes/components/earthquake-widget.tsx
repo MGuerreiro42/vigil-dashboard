@@ -10,6 +10,7 @@ import { formatRelativeTime } from '@/lib/format-relative-time'
 import { useAlertsStore } from '@/store/alerts-store'
 import { escapeHtml } from '@/lib/escape-html'
 import type * as Leaflet from 'leaflet'
+import { DARK_BASEMAP_ATTRIBUTION, DARK_BASEMAP_MAX_ZOOM, DARK_BASEMAP_URL } from '@/lib/map-tiles'
 import i18n from '@/i18n'
 import { useTranslation } from 'react-i18next'
 
@@ -147,12 +148,9 @@ function LeafletMap({
         center: [20, 0],
         zoom: 2,
         zoomControl: false,
-        attributionControl: false,
       })
 
-      leaflet.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 18,
-      }).addTo(map)
+      leaflet.tileLayer(DARK_BASEMAP_URL, { maxZoom: DARK_BASEMAP_MAX_ZOOM, attribution: DARK_BASEMAP_ATTRIBUTION }).addTo(map)
 
       leafletRef.current = leaflet
       layerRef.current = leaflet.layerGroup().addTo(map)
