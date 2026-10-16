@@ -15,11 +15,11 @@ import { useEarthquakes } from '@/features/earthquakes/api/usgs'
 import { useTrendingRepos } from '@/features/github/api/github'
 import { motion } from 'framer-motion'
 
-const CryptoWidget        = lazy(() => import('@/features/crypto/components/crypto-widget').then(m => ({ default: m.CryptoWidget })))
-const NaturalEventsWidget = lazy(() => import('@/features/natural-events/components/natural-events-widget').then(m => ({ default: m.NaturalEventsWidget })))
-const NewsWidget          = lazy(() => import('@/features/news/components/news-widget').then(m => ({ default: m.NewsWidget })))
-const GithubWidget        = lazy(() => import('@/features/github/components/github-widget').then(m => ({ default: m.GithubWidget })))
-const ISSWidget           = lazy(() => import('@/features/iss/components/iss-widget').then(m => ({ default: m.ISSWidget })))
+const CryptoWidget        = lazy(() => import('@/features/crypto/components/crypto-widget').then((module) => ({ default: module.CryptoWidget })))
+const NaturalEventsWidget = lazy(() => import('@/features/natural-events/components/natural-events-widget').then((module) => ({ default: module.NaturalEventsWidget })))
+const NewsWidget          = lazy(() => import('@/features/news/components/news-widget').then((module) => ({ default: module.NewsWidget })))
+const GithubWidget        = lazy(() => import('@/features/github/components/github-widget').then((module) => ({ default: module.GithubWidget })))
+const ISSWidget           = lazy(() => import('@/features/iss/components/iss-widget').then((module) => ({ default: module.ISSWidget })))
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 

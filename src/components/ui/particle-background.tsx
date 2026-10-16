@@ -30,17 +30,17 @@ export function ParticleBackground() {
     // Reduced motion: draw one static frame instead of running the loop
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let raf: number
-    let w = 0
-    let h = 0
+    let width = 0
+    let height = 0
     let particles: Particle[] = []
 
     function resize() {
       if (!canvas) return
-      w = canvas.width  = window.innerWidth
-      h = canvas.height = window.innerHeight
+      width = canvas.width  = window.innerWidth
+      height = canvas.height = window.innerHeight
       particles = Array.from({ length: PARTICLE_COUNT }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
+        x: Math.random() * width,
+        y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.18,
         vy: (Math.random() - 0.5) * 0.18,
         size: Math.random() * 1.2 + 0.4,
@@ -51,26 +51,26 @@ export function ParticleBackground() {
 
     function draw() {
       if (!ctx) return
-      ctx.clearRect(0, 0, w, h)
+      ctx.clearRect(0, 0, width, height)
 
       // Subtle parallax offset from mouse
       const ox = (mouseRef.current.x - 0.5) * 12
       const oy = (mouseRef.current.y - 0.5) * 8
 
-      for (const p of particles) {
-        p.x += p.vx
-        p.y += p.vy
+      for (const particle of particles) {
+        particle.x += particle.vx
+        particle.y += particle.vy
 
         // Wrap around edges
-        if (p.x < -4) p.x = w + 4
-        else if (p.x > w + 4) p.x = -4
-        if (p.y < -4) p.y = h + 4
-        else if (p.y > h + 4) p.y = -4
+        if (particle.x < -4) particle.x = width + 4
+        else if (particle.x > width + 4) particle.x = -4
+        if (particle.y < -4) particle.y = height + 4
+        else if (particle.y > height + 4) particle.y = -4
 
         ctx.beginPath()
-        ctx.arc(p.x + ox * p.size * 0.4, p.y + oy * p.size * 0.4, p.size, 0, Math.PI * 2)
-        ctx.fillStyle = p.color
-        ctx.globalAlpha = p.opacity
+        ctx.arc(particle.x + ox * particle.size * 0.4, particle.y + oy * particle.size * 0.4, particle.size, 0, Math.PI * 2)
+        ctx.fillStyle = particle.color
+        ctx.globalAlpha = particle.opacity
         ctx.fill()
       }
 
@@ -78,8 +78,8 @@ export function ParticleBackground() {
       if (!reducedMotion) raf = requestAnimationFrame(draw)
     }
 
-    const onMouse = (e: MouseEvent) => {
-      mouseRef.current = { x: e.clientX / w, y: e.clientY / h }
+    const onMouse = (event: MouseEvent) => {
+      mouseRef.current = { x: event.clientX / width, y: event.clientY / height }
     }
 
     const onResize = () => {

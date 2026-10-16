@@ -30,9 +30,9 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
 
   // --- CRYPTO ---
   if (input.crypto && input.crypto.length > 0) {
-    const bigMovers = input.crypto.filter((c) => Math.abs(c.change24h) >= 8)
+    const bigMovers = input.crypto.filter((coin) => Math.abs(coin.change24h) >= 8)
     if (bigMovers.length > 0) {
-      const top = bigMovers.sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h))[0]
+      const top = bigMovers.sort((first, second) => Math.abs(second.change24h) - Math.abs(first.change24h))[0]
       const dir = top.change24h > 0 ? 'alta' : 'queda'
       insights.push({
         id: 'crypto-top-mover',
@@ -43,7 +43,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         dataSource: ['CoinGecko'],
       })
     } else {
-      const btc = input.crypto.find((c) => c.id === 'bitcoin')
+      const btc = input.crypto.find((coin) => coin.id === 'bitcoin')
       if (btc) {
         insights.push({
           id: 'crypto-stable',
@@ -115,7 +115,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
 
   // --- TERREMOTOS ---
   if (input.earthquakes && input.earthquakes.length > 0) {
-    const significant = input.earthquakes.filter((e) => e.magnitude >= 5.0)
+    const significant = input.earthquakes.filter((quake) => quake.magnitude >= 5.0)
     if (significant.length > 0) {
       const top = significant[0]
       insights.push({
@@ -133,7 +133,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         category: 'seismic',
         severity: 'info',
         headline: `${count} evento(s) sísmico(s) registrados nos últimos 7 dias`,
-        detail: `Maior: M${Math.max(...input.earthquakes.map((e) => e.magnitude)).toFixed(1)}. Nenhum evento significativo (≥M5.0).`,
+        detail: `Maior: M${Math.max(...input.earthquakes.map((quake) => quake.magnitude)).toFixed(1)}. Nenhum evento significativo (≥M5.0).`,
         dataSource: ['USGS'],
       })
     }
@@ -141,10 +141,10 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
 
   // --- GITHUB TRENDING ---
   if (input.githubTrending && input.githubTrending.length > 0) {
-    const languages = input.githubTrending.map((r) => r.language).filter(Boolean) as string[]
+    const languages = input.githubTrending.map((repo) => repo.language).filter(Boolean) as string[]
     const langCount: Record<string, number> = {}
-    languages.forEach((l) => { langCount[l] = (langCount[l] ?? 0) + 1 })
-    const topLang = Object.entries(langCount).sort((a, b) => b[1] - a[1])[0]
+    languages.forEach((language) => { langCount[language] = (langCount[language] ?? 0) + 1 })
+    const topLang = Object.entries(langCount).sort((first, second) => second[1] - first[1])[0]
 
     if (topLang) {
       const topRepo = input.githubTrending[0]

@@ -6,7 +6,7 @@ import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 import { useAppStore } from '@/store/app-store'
 import { useCryptoMarket } from '@/features/crypto/api/coingecko'
 
-const CryptoWidget = lazy(() => import('@/features/crypto/components/crypto-widget').then((m) => ({ default: m.CryptoWidget })))
+const CryptoWidget = lazy(() => import('@/features/crypto/components/crypto-widget').then((module) => ({ default: module.CryptoWidget })))
 
 export function CryptoPage() {
   const cryptoIds = useAppStore((state) => state.cryptoIds)
