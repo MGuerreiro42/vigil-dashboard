@@ -4,7 +4,7 @@ import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 
 const GithubWidget = lazy(() => import('@/features/github/components/github-widget').then((module) => ({ default: module.GithubWidget })))
 
-export function GithubPage() {
+export function TechPage() {
   return (
     <PageLayout>
       <Suspense fallback={<WidgetSkeleton />}>

@@ -25,7 +25,7 @@ export function WikiDiscoverCard() {
           <span className="text-[10px] uppercase tracking-widest text-fg-subtle">{t('brief.discover')}</span>
         </div>
         <button
-          onClick={() => navigate('/wikipedia')}
+          onClick={() => navigate('/news#discover')}
           className="text-[10px] text-fg-subtle hover:text-white/50 transition-colors"
         >
           {t('brief.expand')}

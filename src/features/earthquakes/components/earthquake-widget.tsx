@@ -384,7 +384,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
       accentColor={ACCENT}
       isFocused={isFocused}
       fillHeight={isFocused}
-      viewRoute="/earthquakes"
+      viewRoute="/planet#earthquakes"
     >
       {/* ── Stats header ── */}
       {quakes && (
