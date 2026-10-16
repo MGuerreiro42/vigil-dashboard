@@ -52,25 +52,25 @@ export function ISSGlobe({
     return pts
   }, [trail, position, futurePath])
 
-  const getColor = useCallback((pt: object) => {
-    const p = pt as GlobePt
-    if (p.id === 'iss') return '#ffffff'
-    if (p.id === 'solar') return '#fbbf24'
-    if (p.id.startsWith('future_')) {
-      const idx = parseInt(p.id.split('_')[1])
+  const getColor = useCallback((datum: object) => {
+    const point = datum as GlobePt
+    if (point.id === 'iss') return '#ffffff'
+    if (point.id === 'solar') return '#fbbf24'
+    if (point.id.startsWith('future_')) {
+      const idx = parseInt(point.id.split('_')[1])
       const fp = futurePath[idx]
       return fp?.visibility === 'daylight' ? '#f59e0b88' : '#818cf888'
     }
-    const a = Math.round(p._opacity * 255).toString(16).padStart(2, '0')
-    return `${ACCENT}${a}`
+    const alpha = Math.round(point._opacity * 255).toString(16).padStart(2, '0')
+    return `${ACCENT}${alpha}`
   }, [futurePath])
 
-  const getRadius = useCallback((pt: object) => {
-    const p = pt as GlobePt
-    if (p.id === 'iss') return 0.55
-    if (p.id === 'solar') return 0.9
-    if (p.id.startsWith('future_')) return 0.22
-    return 0.18 + p._opacity * 0.18
+  const getRadius = useCallback((datum: object) => {
+    const point = datum as GlobePt
+    if (point.id === 'iss') return 0.55
+    if (point.id === 'solar') return 0.9
+    if (point.id.startsWith('future_')) return 0.22
+    return 0.18 + point._opacity * 0.18
   }, [])
 
   // Future path arcs (line segments between waypoints, colored by day/night)
@@ -112,9 +112,9 @@ export function ISSGlobe({
   // A new array each render would make the globe rebuild every path
   const paths = useMemo(() => [...trailLinePaths, ...futurePaths], [trailLinePaths, futurePaths])
 
-  const getTooltip = useCallback((pt: object) => {
-    const p = pt as GlobePt
-    if (p.id === 'iss' && position) {
+  const getTooltip = useCallback((datum: object) => {
+    const point = datum as GlobePt
+    if (point.id === 'iss' && position) {
       return `
         <div style="background:#07090f;border:1px solid ${ACCENT}45;border-radius:10px;padding:9px 13px;font-family:system-ui;min-width:155px">
           <div style="font-size:12px;font-weight:700;color:${ACCENT};margin-bottom:6px">🛸 ISS</div>
@@ -123,7 +123,7 @@ export function ISSGlobe({
           <div style="font-size:10px;color:rgba(255,255,255,0.38);margin-top:5px">${formatAltitude(position.altitude)} · ${formatVelocity(position.velocity)}</div>
         </div>`
     }
-    if (p.id === 'solar' && position) {
+    if (point.id === 'solar' && position) {
       return `
         <div style="background:#07090f;border:1px solid #fbbf2445;border-radius:10px;padding:8px 12px;font-family:system-ui">
           <div style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:5px">☀ Ponto Subsolar</div>
@@ -131,8 +131,8 @@ export function ISSGlobe({
           <div style="font-size:10px;color:rgba(255,255,255,0.38);margin-top:4px;font-family:monospace">${formatCoordinate(position.solarLat, 'N', 'S')} ${formatCoordinate(position.solarLng, 'E', 'W')}</div>
         </div>`
     }
-    if (p.id.startsWith('future_')) {
-      const idx = parseInt(p.id.split('_')[1])
+    if (point.id.startsWith('future_')) {
+      const idx = parseInt(point.id.split('_')[1])
       const fp = futurePath[idx]
       if (!fp) return ''
       const minsFromNow = Math.round((fp.timestamp - Date.now() / 1000) / 60)

@@ -12,24 +12,24 @@ export function TimelineView({ events }: { events: NaturalEvent[] }) {
   const startMs = nowMs - 20 * 24 * 60 * 60 * 1000
 
   const categories = useMemo(() => {
-    const ids = Array.from(new Set(events.map(e => e.categoryId)))
-    return ids.filter(id => CATEGORIES[id]).sort((a, b) => {
-      const ca = events.filter(e => e.categoryId === a).length
-      const cb = events.filter(e => e.categoryId === b).length
-      return cb - ca
+    const ids = Array.from(new Set(events.map(event => event.categoryId)))
+    return ids.filter(id => CATEGORIES[id]).sort((first, second) => {
+      const firstCount = events.filter(event => event.categoryId === first).length
+      const secondCount = events.filter(event => event.categoryId === second).length
+      return secondCount - firstCount
     })
   }, [events])
 
   const toXPct = (dateStr: string) => {
-    const t = Math.max(startMs, Math.min(nowMs, new Date(dateStr).getTime()))
-    return ((t - startMs) / (nowMs - startMs)) * 100
+    const timestamp = Math.max(startMs, Math.min(nowMs, new Date(dateStr).getTime()))
+    return ((timestamp - startMs) / (nowMs - startMs)) * 100
   }
 
   const dayLabels = useMemo(() => {
     return Array.from({ length: 5 }, (_, i) => {
-      const t = startMs + ((i + 1) / 5) * (nowMs - startMs)
-      const d = new Date(t)
-      return { label: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), pct: ((i + 1) / 5) * 100 }
+      const timestamp = startMs + ((i + 1) / 5) * (nowMs - startMs)
+      const date = new Date(timestamp)
+      return { label: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), pct: ((i + 1) / 5) * 100 }
     })
   }, [startMs, nowMs])
 
@@ -45,12 +45,12 @@ export function TimelineView({ events }: { events: NaturalEvent[] }) {
         overflow: 'hidden',
         padding: '12px 16px 32px 128px',
       }}
-      onMouseMove={e => setMousePos({ x: e.clientX, y: e.clientY })}
+      onMouseMove={event => setMousePos({ x: event.clientX, y: event.clientY })}
     >
       {/* Category rows */}
       {categories.map((catId, idx) => {
         const cfg = categoryStyle(catId)
-        const catEvents = events.filter(e => e.categoryId === catId)
+        const catEvents = events.filter(event => event.categoryId === catId)
         const rowPct = ((idx + 0.5) / categories.length) * 100
 
         return (

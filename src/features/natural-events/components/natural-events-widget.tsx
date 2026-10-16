@@ -27,7 +27,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
 
   const selectedEvent = useMemo(
-    () => events.find(e => e.id === selectedEventId) ?? null,
+    () => events.find(event => event.id === selectedEventId) ?? null,
     [events, selectedEventId],
   )
 
@@ -43,20 +43,20 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
   const dominantCat = useMemo(() => {
     if (!events.length) return null
     const counts: Record<string, number> = {}
-    events.forEach(e => { counts[e.categoryId] = (counts[e.categoryId] ?? 0) + 1 })
-    const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]
+    events.forEach(event => { counts[event.categoryId] = (counts[event.categoryId] ?? 0) + 1 })
+    const top = Object.entries(counts).sort((first, second) => second[1] - first[1])[0]
     return top ? { id: top[0], count: top[1], cfg: categoryStyle(top[0]) } : null
   }, [events])
 
   // Countries from GDACS country field (more accurate than title parsing)
   const countriesAffected = useMemo(() => {
     const names = new Set<string>()
-    events.forEach(e => {
-      if (e.country) {
+    events.forEach(event => {
+      if (event.country) {
         // GDACS sometimes has "Country1, Country2"
-        e.country.split(',').forEach(c => names.add(c.trim()))
+        event.country.split(',').forEach(country => names.add(country.trim()))
       } else {
-        const parts = e.title.split(',')
+        const parts = event.title.split(',')
         if (parts.length > 1) names.add(parts[parts.length - 1].trim())
       }
     })
@@ -65,18 +65,18 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
 
   // High-alert count (Orange + Red)
   const highAlertCount = useMemo(
-    () => events.filter(e => e.alertLevel === 'Orange' || e.alertLevel === 'Red').length,
+    () => events.filter(event => event.alertLevel === 'Orange' || event.alertLevel === 'Red').length,
     [events],
   )
 
   // Highest magnitude quake from USGS
   const maxQuake = useMemo(
-    () => quakes.length ? quakes.reduce((a, b) => b.magnitude > a.magnitude ? b : a) : null,
+    () => quakes.length ? quakes.reduce((strongest, quake) => quake.magnitude > strongest.magnitude ? quake : strongest) : null,
     [quakes],
   )
 
   const lastEvent = events.length
-    ? [...events].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+    ? [...events].sort((first, second) => new Date(second.date).getTime() - new Date(first.date).getTime())[0]
     : null
 
   const tabs: { id: RightTab; label: string }[] = [
@@ -173,13 +173,13 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
       {!isFocused && (
         <div className="flex flex-col gap-0.5 overflow-hidden">
           {[...events]
-            .sort((a, b) => {
+            .sort((first, second) => {
               // Sort by alert severity first (Red > Orange > Green), then by date
               const alertOrder: Record<string, number> = { Red: 3, Orange: 2, Green: 1 }
-              const aScore = alertOrder[a.alertLevel ?? 'Green'] ?? 0
-              const bScore = alertOrder[b.alertLevel ?? 'Green'] ?? 0
-              if (bScore !== aScore) return bScore - aScore
-              return new Date(b.date).getTime() - new Date(a.date).getTime()
+              const firstScore = alertOrder[first.alertLevel ?? 'Green'] ?? 0
+              const secondScore = alertOrder[second.alertLevel ?? 'Green'] ?? 0
+              if (secondScore !== firstScore) return secondScore - firstScore
+              return new Date(second.date).getTime() - new Date(first.date).getTime()
             })
             .slice(0, 8)
             .map((evt, i) => {

@@ -10,26 +10,26 @@ export function SeismicTab({ quakes }: { quakes: Earthquake[] }) {
   const sorted = useMemo(() => {
     const list = [...quakes]
     return sort === 'mag'
-      ? list.sort((a, b) => b.magnitude - a.magnitude)
-      : list.sort((a, b) => b.time - a.time)
+      ? list.sort((first, second) => second.magnitude - first.magnitude)
+      : list.sort((first, second) => second.time - first.time)
   }, [quakes, sort])
 
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Sort controls + count */}
       <div className="flex items-center gap-1 mb-2 flex-shrink-0">
-        {(['mag', 'recent'] as const).map(s => (
+        {(['mag', 'recent'] as const).map(option => (
           <button
-            key={s}
-            onClick={() => setSort(s)}
+            key={option}
+            onClick={() => setSort(option)}
             className="px-2.5 py-1 rounded-md text-[11px] font-medium transition-all"
             style={{
-              background: sort === s ? 'rgba(255,255,255,0.08)' : 'transparent',
-              color: sort === s ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
-              border: `1px solid ${sort === s ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
+              background: sort === option ? 'rgba(255,255,255,0.08)' : 'transparent',
+              color: sort === option ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
+              border: `1px solid ${sort === option ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
             }}
           >
-            {s === 'mag' ? 'Magnitude ↓' : 'Recente'}
+            {option === 'mag' ? 'Magnitude ↓' : 'Recente'}
           </button>
         ))}
         <span className="ml-auto text-[10px] text-white/20">{quakes.length} eventos</span>

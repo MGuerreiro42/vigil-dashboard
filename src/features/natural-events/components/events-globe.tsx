@@ -32,22 +32,22 @@ export function EventsGlobe({ events, selectedEvent, onEventClick, onClearSelect
 
   // Main event points — magnitude-scaled radius
   const points: GlobePoint[] = useMemo(
-    () => events.map(e => {
-      const isSelected = selectedEvent?.id === e.id
+    () => events.map(event => {
+      const isSelected = selectedEvent?.id === event.id
       return {
-        id: e.id,
-        lat: e.lat,
-        lng: e.lng,
-        color: isSelected ? '#ffffff' : categoryStyle(e.categoryId).color,
-        radius: isSelected ? magnitudeRadius(e) * 1.4 : magnitudeRadius(e),
+        id: event.id,
+        lat: event.lat,
+        lng: event.lng,
+        color: isSelected ? '#ffffff' : categoryStyle(event.categoryId).color,
+        radius: isSelected ? magnitudeRadius(event) * 1.4 : magnitudeRadius(event),
       }
     }),
     [events, selectedEvent],
   )
 
   const handlePointClick = useCallback((point: object) => {
-    const p = point as GlobePoint
-    const evt = events.find(e => e.id === p.id)
+    const globePoint = point as GlobePoint
+    const evt = events.find(event => event.id === globePoint.id)
     if (evt) onEventClick(evt)
   }, [events, onEventClick])
 
@@ -58,9 +58,9 @@ export function EventsGlobe({ events, selectedEvent, onEventClick, onClearSelect
   }, [globeRef])
 
   const getTooltip = useCallback((point: object) => {
-    const p = point as GlobePoint
-    if (p.id === selectedEvent?.id) return ''
-    const evt = events.find(e => e.id === p.id)
+    const globePoint = point as GlobePoint
+    if (globePoint.id === selectedEvent?.id) return ''
+    const evt = events.find(event => event.id === globePoint.id)
     return evt ? buildGlobeTooltip(evt) : ''
   }, [events, selectedEvent])
 

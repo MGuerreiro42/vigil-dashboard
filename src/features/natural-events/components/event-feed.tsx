@@ -10,7 +10,7 @@ export function EventFeed({ events, selectedEventId, onEventClick }: {
   onEventClick: (e: NaturalEvent) => void
 }) {
   const sorted = useMemo(
-    () => [...events].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    () => [...events].sort((first, second) => new Date(second.date).getTime() - new Date(first.date).getTime()),
     [events],
   )
 
@@ -56,7 +56,7 @@ export function EventFeed({ events, selectedEventId, onEventClick }: {
                     href={evt.sourceUrl}
                     target="_blank"
                     rel="noopener"
-                    onClick={e => e.stopPropagation()}
+                    onClick={event => event.stopPropagation()}
                     className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"
                     style={{ color: cfg.color + '99', fontSize: 10 }}
                   >↗</a>

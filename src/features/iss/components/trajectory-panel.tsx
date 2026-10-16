@@ -12,7 +12,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
   }
 
   const period = 92 // minutes (approximate ISS orbital period)
-  const dayCount = futurePath.filter(p => p.visibility === 'daylight').length
+  const dayCount = futurePath.filter(point => point.visibility === 'daylight').length
   const dayPct = Math.round((dayCount / futurePath.length) * 100)
 
   return (

@@ -34,12 +34,12 @@ export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
     lastTsRef.current = position.timestamp
     trailRef.current = [...trailRef.current.slice(-(TRAIL_MAX - 1)), { lat: position.lat, lng: position.lng }]
     setTrail([...trailRef.current])
-    setUpdateCount((c) => c + 1)
+    setUpdateCount((count) => count + 1)
   }, [position])
 
   useEffect(() => () => { trailRef.current = []; setTrail([]) }, [])
 
-  const handleToggleFollow = useCallback(() => setFollowISS((f) => !f), [])
+  const handleToggleFollow = useCallback(() => setFollowISS((following) => !following), [])
 
   const sidePanel = useMemo(() => {
     if (activeTab === 'tle') return <TLEPanel tle={tle} />
