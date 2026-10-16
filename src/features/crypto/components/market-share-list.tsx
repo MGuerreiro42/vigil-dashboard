@@ -1,6 +1,7 @@
 import { ACCENT, formatMarketCap } from '@/features/crypto/lib/crypto-format'
 import type { CryptoAsset } from '@/features/crypto/types'
 import { ChangeBadge } from './change-badge'
+import { CoinIcon } from './coin-icon'
 
 export function MarketShareList({ coins }: { coins: CryptoAsset[] }) {
   const totalMarketCap = coins.reduce((total, coin) => total + coin.marketCap, 0) || 1
@@ -13,7 +14,7 @@ export function MarketShareList({ coins }: { coins: CryptoAsset[] }) {
           <div key={coin.id} className="px-3 py-2 rounded-lg hover:bg-white/4 transition-colors"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
             <div className="flex items-center gap-2 mb-1.5">
-              <img src={coin.imageUrl} alt={coin.name} className="w-5 h-5 rounded-full flex-shrink-0" />
+              <CoinIcon coin={coin} size={20} />
               <span className="text-[12px] font-semibold text-white/80">{coin.symbol}</span>
               <span className="flex-1" />
               <span className="text-[12px] font-mono text-white/55">{formatMarketCap(coin.marketCap)}</span>

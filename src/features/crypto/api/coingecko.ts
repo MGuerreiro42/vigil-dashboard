@@ -1,12 +1,26 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchOk } from '@/lib/http'
 import { queryKeys } from '@/lib/query-keys'
-import type { CryptoAsset, ExchangeRates } from '@/features/crypto/types'
+import { COINGECKO_TO_BINANCE } from '@/features/crypto/api/binance'
+import type { CryptoAsset } from '@/features/crypto/types'
 
 const BASE = 'https://api.coingecko.com/api/v3'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizeCoin(raw: any): CryptoAsset {
+type RawCoin = {
+  id: string
+  symbol?: string
+  name?: string
+  current_price?: number
+  market_cap?: number
+  total_volume?: number
+  price_change_percentage_24h?: number
+  price_change_percentage_7d_in_currency?: number
+  sparkline_in_7d?: { price?: number[] }
+  market_cap_rank?: number
+  image?: string
+}
+
+function normalizeCoin(raw: RawCoin): CryptoAsset {
   return {
     id: raw.id,
     symbol: raw.symbol?.toUpperCase() ?? '',
@@ -19,10 +33,36 @@ function normalizeCoin(raw: any): CryptoAsset {
     sparkline: raw.sparkline_in_7d?.price ?? [],
     rank: raw.market_cap_rank ?? 0,
     imageUrl: raw.image ?? '',
+    source: 'coingecko',
   }
 }
 
-async function fetchCryptoMarket(ids: string[], signal: AbortSignal): Promise<CryptoAsset[]> {
+type RawBinanceTicker = { symbol: string; lastPrice: string; priceChangePercent: string; quoteVolume: string }
+
+/** Binance 24h tickers shaped like CoinGecko rows: no market cap, logo, 7d change or sparkline. */
+export function binanceTickersToAssets(ids: string[], tickers: RawBinanceTicker[]): CryptoAsset[] {
+  const bySymbol = new Map(tickers.map((ticker) => [ticker.symbol.toLowerCase(), ticker]))
+  return ids.flatMap((id, index) => {
+    const ticker = bySymbol.get(COINGECKO_TO_BINANCE[id])
+    if (!ticker) return []
+    return [{
+      id,
+      symbol: ticker.symbol.replace(/USDT$/, ''),
+      name: id.replace(/-\d+$/, '').replace(/^\w/, (letter) => letter.toUpperCase()),
+      price: Number(ticker.lastPrice),
+      marketCap: 0,
+      volume24h: Number(ticker.quoteVolume),
+      change24h: Number(ticker.priceChangePercent),
+      change7d: 0,
+      sparkline: [],
+      rank: index + 1,
+      imageUrl: '',
+      source: 'binance' as const,
+    }]
+  })
+}
+
+async function fetchFromCoinGecko(ids: string[], signal: AbortSignal): Promise<CryptoAsset[]> {
   const params = new URLSearchParams({
     vs_currency: 'usd',
     ids: ids.join(','),
@@ -31,19 +71,23 @@ async function fetchCryptoMarket(ids: string[], signal: AbortSignal): Promise<Cr
     order: 'market_cap_desc',
   })
   const response = await fetchOk(`${BASE}/coins/markets?${params}`, 'CoinGecko', { signal })
-  return (await response.json()).map(normalizeCoin)
+  return ((await response.json()) as RawCoin[]).map(normalizeCoin)
 }
 
-async function fetchExchangeRates(signal: AbortSignal): Promise<ExchangeRates> {
-  // open.er-api.com: free tier, CORS-enabled, no API key required
-  const response = await fetchOk('https://open.er-api.com/v6/latest/USD', 'ExchangeRate', { signal })
-  const raw = await response.json()
-  const { EUR, BRL, GBP, JPY } = raw.rates as Record<string, number>
-  return {
-    base: raw.base_code,
-    date: new Date(raw.time_last_update_unix * 1000).toISOString().slice(0, 10),
-    rates: { EUR, BRL, GBP, JPY },
-    updatedAt: Date.now(),
+async function fetchFromBinance(ids: string[], signal: AbortSignal): Promise<CryptoAsset[]> {
+  const symbols = ids.map((id) => COINGECKO_TO_BINANCE[id]?.toUpperCase()).filter(Boolean)
+  const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(symbols))}&type=MINI`
+  const response = await fetchOk(url, 'Binance', { signal })
+  return binanceTickersToAssets(ids, await response.json())
+}
+
+/** CoinGecko market data, falling back to Binance 24h tickers when CoinGecko is down or rate-limited. */
+async function fetchCryptoMarket(ids: string[], signal: AbortSignal): Promise<CryptoAsset[]> {
+  try {
+    return await fetchFromCoinGecko(ids, signal)
+  } catch (error) {
+    if (signal.aborted) throw error
+    return fetchFromBinance(ids, signal)
   }
 }
 
@@ -53,14 +97,5 @@ export function useCryptoMarket(ids: string[]) {
     queryFn: ({ signal }) => fetchCryptoMarket(ids, signal),
     staleTime: 60_000,
     refetchInterval: 90_000,
-  })
-}
-
-export function useExchangeRates() {
-  return useQuery({
-    queryKey: queryKeys.crypto.exchangeRates(),
-    queryFn: ({ signal }) => fetchExchangeRates(signal),
-    staleTime: 5 * 60_000,
-    refetchInterval: 10 * 60_000,
   })
 }

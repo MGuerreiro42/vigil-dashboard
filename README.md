@@ -22,7 +22,8 @@ The dashboard is split into a **summary view** (home page with all widgets in mi
 
 | Widget | Source | Type |
 |---|---|---|
-| **Crypto** | CoinGecko + Binance | REST + WebSocket |
+| **Crypto** | CoinGecko (Binance REST fallback) + Binance streams | REST + WebSocket |
+| **Economy** | Frankfurter (ECB rates), Banco Central do Brasil SGS, alternative.me Fear & Greed, Coinpaprika, mempool.space | REST |
 | **ISS** | Where the ISS at | REST polling |
 | **Space** | Launch Library 2, NOAA SWPC, NASA NeoWs, Spaceflight News | REST |
 | **Natural Events** | GDACS (UN/EU) event API | GeoJSON REST |

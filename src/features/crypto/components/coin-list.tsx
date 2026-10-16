@@ -8,6 +8,7 @@ import type { CryptoAsset } from '@/features/crypto/types'
 import { ChangeBadge } from './change-badge'
 import { LivePrice } from './live-price'
 import { useTranslation } from 'react-i18next'
+import { CoinIcon } from './coin-icon'
 
 type SortOrder = 'rank' | 'gain' | 'loss' | 'cap'
 
@@ -70,7 +71,7 @@ export function CoinList({ coins, selectedId, onSelect }: {
               }}
             >
               <div className="relative flex-shrink-0">
-                <img src={coin.imageUrl} alt={coin.name} className="w-7 h-7 rounded-full" />
+                <CoinIcon coin={coin} size={28} />
                 {hasLive && (
                   <motion.div
                     className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-black"

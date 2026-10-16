@@ -11,14 +11,13 @@ import { CompactCoinRow } from './compact-coin-row'
 import { DepthChart } from './depth-chart'
 import { TradesFeed } from './trades-feed'
 import { CoinList } from './coin-list'
-import { ForexRates } from './forex-rates'
 import { MarketShareList } from './market-share-list'
 import { MarketStats } from './market-stats'
 import { PriceChart } from './price-chart'
 import { ACCENT } from '@/features/crypto/lib/crypto-format'
 import { useTranslation } from 'react-i18next'
 
-type RightTab = 'chart' | 'market' | 'forex' | 'trades' | 'depth'
+type RightTab = 'chart' | 'market' | 'trades' | 'depth'
 
 export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
   const { t } = useTranslation()
@@ -43,7 +42,6 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
   const tabs: TabOption<RightTab>[] = [
     { id: 'chart',  label: t('crypto.tabs.chart') },
     { id: 'market', label: t('crypto.tabs.market') },
-    { id: 'forex',  label: t('crypto.tabs.forex') },
     { id: 'trades', label: t('crypto.tabs.trades'), disabled: !selectedId },
     { id: 'depth',  label: t('crypto.tabs.depth'),  disabled: !selectedId },
   ]
@@ -63,6 +61,9 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
       viewRoute="/markets"
     >
       {coins && coins.length > 0 && <MarketStats coins={coins} />}
+      {coins?.[0]?.source === 'binance' && (
+        <p className="text-[11px] text-amber-300/90 mb-2 -mt-1">{t('crypto.fallbackSource')}</p>
+      )}
 
       {/* ── COMPACT MODE ── */}
       {!isFocused && (
@@ -103,11 +104,6 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
               {/* ── Tab: Mercado ── */}
               <div {...tabPanel(rightTab === 'market', { overflowY: 'auto' })}>
                 <MarketShareList coins={coins ?? []} />
-              </div>
-
-              {/* ── Tab: Forex ── */}
-              <div {...tabPanel(rightTab === 'forex')}>
-                <ForexRates />
               </div>
 
               {/* ── Tab: ⚡ Trades ── */}

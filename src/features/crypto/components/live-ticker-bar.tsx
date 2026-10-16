@@ -4,6 +4,7 @@ import { COINGECKO_TO_BINANCE } from '@/features/crypto/api/binance'
 import { usePriceFlash, flashColor } from '@/features/crypto/hooks/use-price-flash'
 import type { CryptoAsset } from '@/features/crypto/types'
 import { useTranslation } from 'react-i18next'
+import { CoinIcon } from './coin-icon'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -29,7 +30,7 @@ const TickerItem = memo(function TickerItem({ coin }: { coin: CryptoAsset }) {
 
   return (
     <div className="flex items-center gap-2 px-5 flex-shrink-0 select-none">
-      <img src={coin.imageUrl} alt={coin.symbol} className="w-4 h-4 rounded-full flex-shrink-0" />
+      <CoinIcon coin={coin} size={16} />
       <span className="text-[12px] font-semibold text-white/55 tracking-wide">{coin.symbol}</span>
       <span
         className="text-[12px] font-mono font-bold tabular-nums transition-colors duration-200"
