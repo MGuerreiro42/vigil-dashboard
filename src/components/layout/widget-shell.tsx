@@ -75,19 +75,19 @@ export function WidgetShell({
       whileHover={isFocused ? undefined : { y: -2, transition: { type: 'spring' as const, stiffness: 400, damping: 25 } }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
-        <div className="flex items-center gap-2.5">
+      <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2 flex-shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           <span
             className="flex items-center justify-center"
             style={{ color: accentColor ?? 'rgba(255,255,255,0.5)', minWidth: isFocused ? 28 : 22 }}
           >
             {icon}
           </span>
-          <span className={`font-medium text-white/80 tracking-wide ${isFocused ? 'text-base' : 'text-sm'}`}>
+          <span className={`font-medium text-white/80 tracking-wide truncate ${isFocused ? 'text-base' : 'text-sm'}`}>
             {title}
           </span>
         </div>
-        <div className={`flex items-center gap-2 ${isFocused ? 'pr-10' : ''}`}>
+        <div className={`flex items-center gap-2 flex-shrink-0 whitespace-nowrap ${isFocused ? 'lg:pr-10' : ''}`}>
           {/* LIVE indicator for real-time widgets */}
           {isLive && (
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full"

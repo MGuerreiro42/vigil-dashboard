@@ -63,7 +63,7 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
             </div>
           )}
           {/* ── Stats header ── */}
-          <div className="flex gap-2 mb-3 flex-shrink-0">
+          <div className="grid grid-cols-2 sm:flex gap-2 mb-3 flex-shrink-0">
             <StatTile label={t('weather.stats.temperature')} value={`${current.temp.toFixed(0)}°`} caption={wmo.label} color={ACCENT} />
 
             <StatTile label={t('weather.stats.feelsLike')} value={`${current.feelsLike.toFixed(0)}°`} caption={t('weather.stats.thermal')} />
@@ -110,10 +110,10 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
-              className="flex gap-4 flex-1 min-h-0"
+              className="flex flex-col md:flex-row gap-4 flex-1 min-h-0"
             >
               {/* Coluna esquerda — previsão 7 dias */}
-              <div className="w-64 flex-shrink-0 flex flex-col min-h-0">
+              <div className="w-full h-[38%] md:h-auto md:w-64 flex-shrink-0 flex flex-col min-h-0">
                 <div className="flex flex-col gap-0.5 overflow-y-auto flex-1 min-h-0 pr-0.5">
                   {forecast.slice(0, 7).map((day, i) => {
                     const date = new Date(day.date)
@@ -154,7 +154,7 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
               </div>
 
               {/* Divisor */}
-              <div className="w-px bg-white/6 flex-shrink-0" />
+              <div className="h-px w-full md:h-auto md:w-px bg-white/6 flex-shrink-0" />
 
               {/* Coluna direita */}
               <div className="flex-1 min-w-0 flex flex-col gap-3">

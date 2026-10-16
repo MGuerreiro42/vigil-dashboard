@@ -12,6 +12,7 @@ export const en: typeof pt = {
     today: 'Today',
   },
   nav: {
+    home: 'Home',
     label: 'Sections',
     overview: 'Overview',
     markets: 'Markets',

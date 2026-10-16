@@ -45,7 +45,7 @@ export function NowPanel({
   ] as const
 
   return (
-    <div style={{ width: 185, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
+    <div className="w-full md:w-[185px]" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
       {/* Visibility */}
       <motion.div
         key={String(daylight)}

@@ -25,7 +25,7 @@ export function MarketsPage() {
       <PageSection id="crypto">
         <Suspense fallback={<WidgetSkeleton />}><CryptoWidget isFocused /></Suspense>
       </PageSection>
-      <section id="economy" className="scroll-mt-4 grid lg:grid-cols-3 gap-4 md:gap-6 lg:h-[60vh] lg:min-h-[480px]">
+      <section id="economy" className="scroll-mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:h-[60vh] lg:min-h-[480px]">
         <div className="h-[60vh] min-h-[440px] lg:h-full"><Suspense fallback={<WidgetSkeleton />}><CurrencyWidget /></Suspense></div>
         <div id="brazil" className="scroll-mt-4 h-[60vh] min-h-[440px] lg:h-full"><Suspense fallback={<WidgetSkeleton />}><BrazilMacroWidget /></Suspense></div>
         <div id="crypto-pulse" className="scroll-mt-4 h-[60vh] min-h-[440px] lg:h-full"><Suspense fallback={<WidgetSkeleton />}><CryptoPulseWidget /></Suspense></div>

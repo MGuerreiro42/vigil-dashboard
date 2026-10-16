@@ -6,7 +6,7 @@ export function TLEPanel({ tle }: { tle: ISSTLE | undefined }) {
   const { t } = useTranslation()
   if (!tle) {
     return (
-      <div style={{ width: 185, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="w-full md:w-[185px]" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{t('iss.tle.loading')}</div>
       </div>
     )
@@ -25,7 +25,7 @@ export function TLEPanel({ tle }: { tle: ISSTLE | undefined }) {
   ] as const
 
   return (
-    <div style={{ width: 185, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
+    <div className="w-full md:w-[185px]" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
       {/* Header */}
       <div style={{
         padding: '9px 12px', borderRadius: 10,

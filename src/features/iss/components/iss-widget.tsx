@@ -84,8 +84,8 @@ export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
       )}
 
       {/* Globe + side panel */}
-      <div className="flex-1 min-h-0 flex gap-3">
-        <div className="flex-1 min-w-0 relative">
+      <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-3">
+        <div className="flex-1 min-w-0 min-h-0 relative">
           <ISSGlobe
             position={position ?? null}
             trail={trail}
@@ -113,7 +113,7 @@ export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.15 }}
-              style={{ display: 'flex' }}
+              className="flex h-[42%] md:h-auto min-h-0"
             >
               {sidePanel}
             </motion.div>

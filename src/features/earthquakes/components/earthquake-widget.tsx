@@ -386,7 +386,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
     >
       {/* ── Stats header ── */}
       {quakes && (
-        <div className="flex gap-2 mb-3 flex-shrink-0">
+        <div className="flex flex-wrap gap-2 mb-3 flex-shrink-0">
 
           {/* Total de eventos */}
           <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[68px]">
@@ -411,7 +411,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
 
           {/* Distribuição de severidade — só no modo expandido */}
           {isFocused && (
-            <div className="flex-1 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
+            <div className="flex-1 basis-full sm:basis-0 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
               <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('earthquakes.stats.distribution')}</span>
 
               {/* Barra proporcional */}
@@ -441,7 +441,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           )}
 
           {/* Filtro de magnitude */}
-          <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[110px]">
+          <div className="flex-1 sm:flex-none flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[110px]">
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('earthquakes.stats.filter')}</span>
               <span className="text-[11px] font-mono text-white/55 leading-none">M≥{minMag}</span>
@@ -502,10 +502,10 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="flex gap-4 flex-1 min-h-0"
+          className="flex flex-col md:flex-row gap-4 flex-1 min-h-0"
         >
           {/* Coluna esquerda — lista */}
-          <div className="w-64 flex-shrink-0 flex flex-col min-h-0">
+          <div className="w-full h-[38%] md:h-auto md:w-64 flex-shrink-0 flex flex-col min-h-0">
             {/* Ordenação */}
             <div className="flex gap-1 mb-2 flex-shrink-0">
               {([
@@ -587,10 +587,10 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           </div>
 
           {/* Divisor */}
-          <div className="w-px bg-white/6 flex-shrink-0" />
+          <div className="h-px w-full md:h-auto md:w-px bg-white/6 flex-shrink-0" />
 
           {/* Coluna direita */}
-          <div className="flex-1 min-w-0 flex flex-col gap-3">
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-3">
             {/* Tabs */}
             <SegmentedTabs tabs={tabs} active={rightTab} onChange={setRightTab} accent={ACCENT} />
 

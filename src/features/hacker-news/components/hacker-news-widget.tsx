@@ -23,7 +23,7 @@ export function HackerNewsWidget() {
     >
       {stories && (
         <div className="flex flex-col gap-2 flex-1 min-h-0">
-          <ol className="flex-1 min-h-0 overflow-y-auto grid md:grid-cols-2 gap-x-6 content-start">
+          <ol className="flex-1 min-h-0 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-x-6 content-start">
             {stories.map((story, index) => (
               <li key={story.id} className="flex gap-3 py-2 border-b border-white/[0.04]">
                 <span className="w-5 flex-shrink-0 text-right font-mono text-[12px] text-fg-subtle">{index + 1}</span>

@@ -13,7 +13,7 @@ export function NewsPage() {
       <PageSection id="headlines">
         <Suspense fallback={<WidgetSkeleton />}><NewsWidget isFocused /></Suspense>
       </PageSection>
-      <section id="pulse" className="scroll-mt-4 grid lg:grid-cols-2 gap-4 md:gap-6 lg:h-[70vh] lg:min-h-[520px]">
+      <section id="pulse" className="scroll-mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:h-[70vh] lg:min-h-[520px]">
         <div className="h-[70vh] min-h-[480px] lg:h-full"><Suspense fallback={<WidgetSkeleton />}><LiveEditsWidget /></Suspense></div>
         <div id="bluesky" className="scroll-mt-4 h-[70vh] min-h-[480px] lg:h-full"><Suspense fallback={<WidgetSkeleton />}><BlueskyTrendsWidget /></Suspense></div>
       </section>
