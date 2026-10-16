@@ -8,6 +8,7 @@ import { useAirQuality } from '@/features/weather/api/air-quality'
 import { useGeoStore } from '@/store/geo-store'
 import { getWMO } from '@/features/weather/lib/wmo-icons'
 import { AirQualityPanel } from './air-quality-panel'
+import { CitySearch } from './city-search'
 import { HourlyForecastChart } from './hourly-forecast-chart'
 import { WeatherDetails } from './weather-details'
 import { ACCENT, describeAqi } from '@/features/weather/lib/weather-format'
@@ -20,6 +21,7 @@ type RightTab = '24h' | 'air' | 'details'
 export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
   const { t } = useTranslation()
   const coords = useGeoStore((state) => state.coords)
+  const placeName = useGeoStore((state) => state.placeName)
 
   const [selectedDayIdx, setSelectedDayIdx] = useState<number>(0)
   const [rightTab, setRightTab] = useState<RightTab>('24h')
@@ -54,6 +56,12 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
     >
       {current && wmo && (
         <>
+          {isFocused && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 flex-shrink-0">
+              <span className="text-sm text-white/75">📍 {placeName ?? (coords ? t('weather.search.myLocation') : t('weather.search.default'))}</span>
+              <CitySearch />
+            </div>
+          )}
           {/* ── Stats header ── */}
           <div className="flex gap-2 mb-3 flex-shrink-0">
             <StatTile label={t('weather.stats.temperature')} value={`${current.temp.toFixed(0)}°`} caption={wmo.label} color={ACCENT} />

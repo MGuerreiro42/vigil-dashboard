@@ -12,6 +12,8 @@ export const queryKeys = {
     cryptoGlobal: () => ['economy', 'crypto-global'] as const,
     bitcoinFees: () => ['economy', 'bitcoin-fees'] as const,
   },
+  citySearch: (query: string, language: string) => ['city-search', language, query] as const,
+  radarFrames: () => ['radar-frames'] as const,
   weather: (lat: number, lng: number) => ['weather', lat, lng] as const,
   airQuality: (lat: number, lng: number) => ['air-quality', lat, lng] as const,
   earthquakes: (minMagnitude: number) => ['earthquakes', minMagnitude] as const,

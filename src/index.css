@@ -74,8 +74,13 @@ body {
 .leaflet-tile-pane {
   filter: brightness(0.65) saturate(0.75);
 }
-.leaflet-control-attribution {
-  display: none !important;
+.leaflet-container .leaflet-control-attribution {
+  background: rgba(8, 11, 18, 0.7);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+}
+.leaflet-container .leaflet-control-attribution a {
+  color: rgba(255, 255, 255, 0.62);
 }
 
 /* Popup dark theme */

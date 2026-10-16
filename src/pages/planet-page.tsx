@@ -4,6 +4,7 @@ import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 
 const NaturalEventsWidget = lazy(() => import('@/features/natural-events/components/natural-events-widget').then((module) => ({ default: module.NaturalEventsWidget })))
 const EarthquakeWidget = lazy(() => import('@/features/earthquakes/components/earthquake-widget').then((module) => ({ default: module.EarthquakeWidget })))
+const RadarWidget = lazy(() => import('@/features/weather/components/radar-widget').then((module) => ({ default: module.RadarWidget })))
 const WeatherWidget = lazy(() => import('@/features/weather/components/weather-widget').then((module) => ({ default: module.WeatherWidget })))
 
 export function PlanetPage() {
@@ -17,6 +18,9 @@ export function PlanetPage() {
       </PageSection>
       <PageSection id="weather">
         <Suspense fallback={<WidgetSkeleton />}><WeatherWidget isFocused /></Suspense>
+      </PageSection>
+      <PageSection id="radar">
+        <Suspense fallback={<WidgetSkeleton />}><RadarWidget /></Suspense>
       </PageSection>
     </PageLayout>
   )

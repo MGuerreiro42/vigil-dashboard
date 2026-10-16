@@ -44,3 +44,18 @@ export interface AirQuality {
   category: AQICategory
   updatedAt: number
 }
+
+export interface Place {
+  id: number
+  name: string
+  /** State and country, e.g. "Paraná, Brasil" */
+  region: string
+  lat: number
+  lng: number
+}
+
+export interface RadarFrame {
+  /** Unix seconds */
+  time: number
+  tileUrl: string
+}

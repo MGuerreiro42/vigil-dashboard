@@ -134,6 +134,8 @@ export const pt = {
     tabs: { hourly: '24h', air: 'Qualidade do ar', details: 'Detalhes' },
     stats: { temperature: 'Temperatura', feelsLike: 'Sensação', thermal: 'térmica', aqi: 'IQA', wind: 'Vento', notAvailable: 'N/D' },
     uvShort: 'UV {{value}}',
+    search: { placeholder: 'Buscar cidade…', noResults: 'Nenhuma cidade encontrada', myLocation: 'Sua localização', default: 'São Paulo' },
+    radar: { title: 'Radar de chuva', play: 'Reproduzir', pause: 'Pausar', timeline: 'Horário do radar', source: 'Radar das últimas 2 horas · RainViewer' },
     chart: { temperature: 'Temp. (°C)', rain: 'Chuva (%)' },
     air: { unavailable: 'Dados de qualidade do ar indisponíveis.', index: 'Índice de Qualidade do Ar', badge: 'IQA · {{label}}' },
     aqi: { good: 'Boa', moderate: 'Moderada', 'unhealthy-sensitive': 'Ruim p/ sensíveis', unhealthy: 'Ruim', 'very-unhealthy': 'Muito ruim', hazardous: 'Perigosa' },
