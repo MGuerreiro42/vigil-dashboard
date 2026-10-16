@@ -344,4 +344,10 @@ export const en: typeof pt = {
       source: 'Bluesky · global trends',
     },
   },
+  hackerNews: {
+    title: 'Hacker News',
+    comments_one: '{{count}} comment',
+    comments_other: '{{count}} comments',
+    source: 'Hacker News front page via Algolia',
+  },
 }
