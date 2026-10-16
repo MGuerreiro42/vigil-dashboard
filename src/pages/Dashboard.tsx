@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/app.store'
 import { ParticleBackground } from '@/components/ui/ParticleBackground'
 import { Header } from '@/components/layout/Header'
 import { DailyBrief } from '@/components/layout/DailyBrief'
+import { BinanceTickerSync } from '@/components/layout/BinanceTickerSync'
 import { LiveTickerBar } from '@/components/ui/LiveTickerBar'
 import { useCryptoMarket } from '@/api/coingecko'
 import { useWeather } from '@/api/openmeteo'
@@ -55,6 +56,7 @@ export function Dashboard() {
       <div className="relative z-[2] lg:h-full flex flex-col">
         <div className="flex-shrink-0"><Header /></div>
 
+        <BinanceTickerSync coinIds={cryptoIds} />
         <LiveTickerBar coins={crypto ?? []} />
 
         <main className="flex-1 min-h-0 px-3 sm:px-4 md:px-6 pb-6 pt-3 md:pt-4 flex flex-col gap-3 md:gap-4 lg:overflow-hidden overflow-y-auto">

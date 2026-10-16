@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
+import { useWebSocket } from '@/hooks/useWebSocket'
 import type { BinanceOrderBook, BinanceTrade } from './types/binance'
 
 /** Maps CoinGecko IDs → Binance USDT pair (lowercase) */
@@ -20,47 +21,7 @@ export const COINGECKO_TO_BINANCE: Record<string, string> = {
   monero: 'xmrusdt',
 }
 
-const WS_BASE = 'wss://stream.binance.com:9443'
-
-// ─── Internal utility ─────────────────────────────────────────────────────
-
-/**
- * Low-level hook that manages a single WebSocket connection with
- * auto-reconnect on close/error. Uses a ref for the callback so the
- * connection is only recreated when `url` changes.
- */
-function useWS(url: string | null, onMessage: (data: unknown) => void) {
-  const cbRef = useRef(onMessage)
-  useEffect(() => { cbRef.current = onMessage })
-
-  useEffect(() => {
-    if (!url) return
-    // Per-connection state: a closing socket from a previous url can't reconnect or touch the new one
-    let active = true
-    let socket: WebSocket | null = null
-    let retry: ReturnType<typeof setTimeout> | undefined
-
-    function connect() {
-      const ws = new WebSocket(url as string)
-      socket = ws
-      ws.onmessage = (ev) => {
-        try { cbRef.current(JSON.parse(ev.data as string)) } catch { /* ignore */ }
-      }
-      ws.onerror = () => ws.close()
-      ws.onclose = () => {
-        if (active) retry = setTimeout(connect, 3_000)
-      }
-    }
-
-    connect()
-
-    return () => {
-      active = false
-      clearTimeout(retry)
-      socket?.close()
-    }
-  }, [url])
-}
+export const WS_BASE = 'wss://stream.binance.com:9443'
 
 // ─── Order book depth ─────────────────────────────────────────────────────
 
@@ -75,7 +36,7 @@ export function useBinanceOrderBook(coinId: string | null): BinanceOrderBook | n
   const symbol = coinId ? COINGECKO_TO_BINANCE[coinId] : null
   const url = symbol ? `${WS_BASE}/ws/${symbol}@depth20` : null
 
-  useWS(url, (raw) => {
+  useWebSocket(url, { onMessage: (raw) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const d = raw as any
     if (!Array.isArray(d?.bids)) return
@@ -88,7 +49,7 @@ export function useBinanceOrderBook(coinId: string | null): BinanceOrderBook | n
         updatedAt: Date.now(),
       },
     })
-  })
+  } })
 
   // State from a previous symbol reads as empty, so switching coins needs no reset
   return book?.symbol === symbol ? book.data : null
@@ -110,7 +71,7 @@ export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
   const symbol = coinId ? COINGECKO_TO_BINANCE[coinId] : null
   const url = symbol ? `${WS_BASE}/ws/${symbol}@trade` : null
 
-  useWS(url, (raw) => {
+  useWebSocket(url, { onMessage: (raw) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const t = raw as any
     if (!t?.t) return
@@ -129,7 +90,7 @@ export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
       symbol,
       data: [trade, ...(prev?.symbol === symbol ? prev.data.slice(0, MAX_TRADES - 1) : [])],
     }))
-  })
+  } })
 
   return trades?.symbol === symbol ? trades.data : EMPTY_TRADES
 }
