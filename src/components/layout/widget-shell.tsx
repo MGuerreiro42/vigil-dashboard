@@ -22,6 +22,8 @@ interface WidgetShellProps {
   /** When true the content wrapper fills height and does not scroll.
    *  Use for widgets that need a flex-1 chain down to fixed-size panels (e.g. maps). */
   fillHeight?: boolean
+  /** Extra line under the error message, e.g. why the source failed */
+  errorHint?: string
 }
 
 
@@ -63,6 +65,7 @@ export function WidgetShell({
   isLive = false,
   viewRoute,
   fillHeight = false,
+  errorHint,
 }: WidgetShellProps) {
   const { t } = useTranslation()
   return (
@@ -143,6 +146,7 @@ export function WidgetShell({
               className="flex flex-col items-center justify-center h-full gap-3 py-8"
             >
               <span className="text-fg-subtle text-sm">{t('common.loadError')}</span>
+              {errorHint && <span className="text-fg-subtle text-xs text-center max-w-xs">{errorHint}</span>}
               {onRetry && (
                 <button
                   onClick={onRetry}

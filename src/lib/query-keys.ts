@@ -18,6 +18,13 @@ export const queryKeys = {
   wikipedia: {
     random: (lang: WikiLangCode, seed: number) => ['wikipedia', 'random', lang, seed] as const,
   },
+  space: {
+    launches: () => ['space', 'launches'] as const,
+    kpIndex: () => ['space', 'kp-index'] as const,
+    alerts: () => ['space', 'alerts'] as const,
+    asteroids: (date: string) => ['space', 'asteroids', date] as const,
+    news: () => ['space', 'news'] as const,
+  },
   iss: {
     position: () => ['iss', 'position'] as const,
     coordinates: (timeWindow: number | null) => ['iss', 'coordinates', timeWindow] as const,
