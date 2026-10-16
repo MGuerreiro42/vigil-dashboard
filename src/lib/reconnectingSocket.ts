@@ -13,11 +13,7 @@ export interface SocketHandlers {
   onClose?: () => void
 }
 
-/**
- * A WebSocket that reconnects with backoff and stays closed while the tab
- * is hidden, reopening when it becomes visible. Framework-free; call
- * `close()` to stop for good.
- */
+/** Reconnects with backoff; stays closed while the tab is hidden. */
 export function createReconnectingSocket(url: string, handlers: SocketHandlers) {
   let socket: WebSocket | null = null
   let retry: ReturnType<typeof setTimeout> | undefined

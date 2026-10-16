@@ -64,12 +64,10 @@ const EMPTY_TRADES: BinanceTrade[] = []
  * Subscribes to Binance trade stream for the given CoinGecko ID.
  * Returns the last MAX_TRADES trades in reverse-chronological order.
  * Passes null to disconnect.
- *
- * Busy pairs send dozens of trades per second, so messages are buffered
- * and flushed into state at most once per animation frame.
  */
 export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
   const [trades, setTrades] = useState<{ symbol: string; data: BinanceTrade[] } | null>(null)
+  // Busy pairs send dozens of trades/s: buffer them and flush once per frame
   const bufferRef = useRef<BinanceTrade[]>([])
   const frameRef = useRef<number | null>(null)
 
