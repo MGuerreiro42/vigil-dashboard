@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { queryKeys } from './queryKeys'
 import type { Earthquake } from './types/earthquake'
 
 const BASE = 'https://earthquake.usgs.gov/fdsnws/event/1/query'
@@ -20,7 +22,7 @@ function normalizeQuake(feature: any): Earthquake {
   }
 }
 
-async function fetchEarthquakes(minMag = 2.5, limitDays = 7): Promise<Earthquake[]> {
+async function fetchEarthquakes(minMag: number, signal: AbortSignal, limitDays = 7): Promise<Earthquake[]> {
   const startTime = new Date(Date.now() - limitDays * 24 * 60 * 60 * 1000)
     .toISOString()
     .split('T')[0]
@@ -32,16 +34,14 @@ async function fetchEarthquakes(minMag = 2.5, limitDays = 7): Promise<Earthquake
     orderby: 'time',
     limit: '100',
   })
-  const res = await fetch(`${BASE}?${params}`)
-  if (!res.ok) throw new Error(`USGS: ${res.status}`)
-  const raw = await res.json()
-  return (raw.features ?? []).map(normalizeQuake)
+  const response = await fetchOk(`${BASE}?${params}`, 'USGS', { signal })
+  return ((await response.json()).features ?? []).map(normalizeQuake)
 }
 
 export function useEarthquakes(minMag = 2.5) {
   return useQuery({
-    queryKey: ['earthquakes', minMag],
-    queryFn: () => fetchEarthquakes(minMag),
+    queryKey: queryKeys.earthquakes(minMag),
+    queryFn: ({ signal }) => fetchEarthquakes(minMag, signal),
     staleTime: 2 * 60_000,
     refetchInterval: 5 * 60_000,
   })

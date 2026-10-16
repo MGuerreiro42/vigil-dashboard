@@ -1,9 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { queryKeys } from './queryKeys'
 import type { WeatherData, HourlyPoint } from './types/weather'
 
 const BASE = 'https://api.open-meteo.com/v1/forecast'
 
-const DEFAULT_COORDS = { lat: -23.5505, lng: -46.6333 }
+// São Paulo, shown until (or instead of) the user's location
+export const DEFAULT_COORDS = { lat: -23.5505, lng: -46.6333 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeWeather(raw: any, coords: { lat: number; lng: number }): WeatherData {
@@ -47,7 +50,7 @@ function normalizeWeather(raw: any, coords: { lat: number; lng: number }): Weath
   }
 }
 
-async function fetchWeather(lat: number, lng: number): Promise<WeatherData> {
+async function fetchWeather(lat: number, lng: number, signal: AbortSignal): Promise<WeatherData> {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lng),
@@ -57,17 +60,15 @@ async function fetchWeather(lat: number, lng: number): Promise<WeatherData> {
     timezone: 'auto',
     forecast_days: '7',
   })
-  const res = await fetch(`${BASE}?${params}`)
-  if (!res.ok) throw new Error(`Open-Meteo: ${res.status}`)
-  const raw = await res.json()
-  return normalizeWeather(raw, { lat, lng })
+  const response = await fetchOk(`${BASE}?${params}`, 'Open-Meteo', { signal })
+  return normalizeWeather(await response.json(), { lat, lng })
 }
 
 export function useWeather(coords?: { lat: number; lng: number }) {
   const { lat, lng } = coords ?? DEFAULT_COORDS
   return useQuery({
-    queryKey: ['weather', lat, lng],
-    queryFn: () => fetchWeather(lat, lng),
+    queryKey: queryKeys.weather(lat, lng),
+    queryFn: ({ signal }) => fetchWeather(lat, lng, signal),
     staleTime: 10 * 60_000,
     refetchInterval: 15 * 60_000,
   })

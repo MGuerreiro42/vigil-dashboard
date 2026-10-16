@@ -1,13 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { queryKeys } from './queryKeys'
 import type { CryptoAsset, ExchangeRates } from './types/crypto'
 
 const BASE = 'https://api.coingecko.com/api/v3'
-
-const DEFAULT_IDS = [
-  'bitcoin', 'ethereum', 'binancecoin', 'ripple', 'solana',
-  'cardano', 'avalanche-2', 'chainlink', 'polkadot', 'litecoin',
-  'cosmos', 'near', 'uniswap', 'stellar', 'monero',
-]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeCoin(raw: any): CryptoAsset {
@@ -26,7 +22,7 @@ function normalizeCoin(raw: any): CryptoAsset {
   }
 }
 
-async function fetchCryptoMarket(ids: string[]): Promise<CryptoAsset[]> {
+async function fetchCryptoMarket(ids: string[], signal: AbortSignal): Promise<CryptoAsset[]> {
   const params = new URLSearchParams({
     vs_currency: 'usd',
     ids: ids.join(','),
@@ -34,17 +30,14 @@ async function fetchCryptoMarket(ids: string[]): Promise<CryptoAsset[]> {
     price_change_percentage: '24h,7d',
     order: 'market_cap_desc',
   })
-  const res = await fetch(`${BASE}/coins/markets?${params}`)
-  if (!res.ok) throw new Error(`CoinGecko: ${res.status}`)
-  const raw = await res.json()
-  return raw.map(normalizeCoin)
+  const response = await fetchOk(`${BASE}/coins/markets?${params}`, 'CoinGecko', { signal })
+  return (await response.json()).map(normalizeCoin)
 }
 
-async function fetchExchangeRates(): Promise<ExchangeRates> {
+async function fetchExchangeRates(signal: AbortSignal): Promise<ExchangeRates> {
   // open.er-api.com: free tier, CORS-enabled, no API key required
-  const res = await fetch('https://open.er-api.com/v6/latest/USD')
-  if (!res.ok) throw new Error(`ExchangeRate: ${res.status}`)
-  const raw = await res.json()
+  const response = await fetchOk('https://open.er-api.com/v6/latest/USD', 'ExchangeRate', { signal })
+  const raw = await response.json()
   const { EUR, BRL, GBP, JPY } = raw.rates as Record<string, number>
   return {
     base: raw.base_code,
@@ -54,10 +47,10 @@ async function fetchExchangeRates(): Promise<ExchangeRates> {
   }
 }
 
-export function useCryptoMarket(ids: string[] = DEFAULT_IDS) {
+export function useCryptoMarket(ids: string[]) {
   return useQuery({
-    queryKey: ['crypto', 'market', ids],
-    queryFn: () => fetchCryptoMarket(ids),
+    queryKey: queryKeys.crypto.market(ids),
+    queryFn: ({ signal }) => fetchCryptoMarket(ids, signal),
     staleTime: 60_000,
     refetchInterval: 90_000,
   })
@@ -65,8 +58,8 @@ export function useCryptoMarket(ids: string[] = DEFAULT_IDS) {
 
 export function useExchangeRates() {
   return useQuery({
-    queryKey: ['forex', 'rates'],
-    queryFn: fetchExchangeRates,
+    queryKey: queryKeys.crypto.exchangeRates(),
+    queryFn: ({ signal }) => fetchExchangeRates(signal),
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
   })

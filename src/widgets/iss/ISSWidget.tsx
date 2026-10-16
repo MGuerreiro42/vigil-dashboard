@@ -681,7 +681,7 @@ function TLEPanel({ tle }: { tle: ISSTLE | undefined }) {
 export function ISSWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   const { data: position, isLoading, error, refetch, dataUpdatedAt } = useISSPosition()
-  const { data: coords, isLoading: coordsLoading } = useISSCoordinates(position?.lat, position?.lng)
+  const { data: coords, isLoading: coordsLoading } = useISSCoordinates(position)
   const { data: futurePath = [] } = useISSFuturePath(position?.timestamp)
   const { data: tle } = useISSTLE()
 

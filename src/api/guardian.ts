@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { queryKeys } from './queryKeys'
 import type { GuardianArticle, GuardianSection } from './types/guardian'
 
 // The Guardian Open Platform — free developer key ('test') is officially supported
@@ -27,7 +29,7 @@ function normalizeArticle(raw: any): GuardianArticle {
   }
 }
 
-async function fetchGuardianNews(section: GuardianSection): Promise<GuardianArticle[]> {
+async function fetchGuardianNews(section: GuardianSection, signal: AbortSignal): Promise<GuardianArticle[]> {
   const params = new URLSearchParams({
     section,
     'page-size': '20',
@@ -35,16 +37,14 @@ async function fetchGuardianNews(section: GuardianSection): Promise<GuardianArti
     'order-by': 'newest',
     'api-key': API_KEY,
   })
-  const res = await fetch(`${BASE}/search?${params}`)
-  if (!res.ok) throw new Error(`Guardian API: ${res.status}`)
-  const data = await res.json()
-  return (data.response?.results ?? []).map(normalizeArticle)
+  const response = await fetchOk(`${BASE}/search?${params}`, 'Guardian', { signal })
+  return ((await response.json()).response?.results ?? []).map(normalizeArticle)
 }
 
 export function useGuardianNews(section: GuardianSection) {
   return useQuery({
-    queryKey: ['guardian', section],
-    queryFn: () => fetchGuardianNews(section),
+    queryKey: queryKeys.news(section),
+    queryFn: ({ signal }) => fetchGuardianNews(section, signal),
     staleTime: 10 * 60_000,
     refetchInterval: 15 * 60_000,
   })

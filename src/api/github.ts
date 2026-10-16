@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { fetchOk } from '@/lib/http'
+import { queryKeys } from './queryKeys'
 import type { GithubRepo } from './types/github'
 
 const BASE = 'https://api.github.com'
@@ -18,27 +20,26 @@ function normalizeRepo(raw: any): GithubRepo {
   }
 }
 
-async function fetchTrendingRepos(language?: string): Promise<GithubRepo[]> {
+async function fetchTrendingRepos(signal: AbortSignal, language?: string): Promise<GithubRepo[]> {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  const q = language ? `created:>${since} language:${language}` : `created:>${since}`
+  const query = language ? `created:>${since} language:${language}` : `created:>${since}`
   const params = new URLSearchParams({
-    q,
+    q: query,
     sort: 'stars',
     order: 'desc',
     per_page: '15',
   })
-  const res = await fetch(`${BASE}/search/repositories?${params}`, {
+  const response = await fetchOk(`${BASE}/search/repositories?${params}`, 'GitHub', {
     headers: { Accept: 'application/vnd.github.v3+json' },
+    signal,
   })
-  if (!res.ok) throw new Error(`GitHub: ${res.status}`)
-  const raw = await res.json()
-  return (raw.items ?? []).map(normalizeRepo)
+  return ((await response.json()).items ?? []).map(normalizeRepo)
 }
 
 export function useTrendingRepos(language?: string) {
   return useQuery({
-    queryKey: ['github', 'trending', language],
-    queryFn: () => fetchTrendingRepos(language),
+    queryKey: queryKeys.github.trending(language),
+    queryFn: ({ signal }) => fetchTrendingRepos(signal, language),
     staleTime: 15 * 60_000,
     refetchInterval: 30 * 60_000,
   })
