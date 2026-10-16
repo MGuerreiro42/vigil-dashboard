@@ -4,6 +4,7 @@ import { ACCENT, formatPrice } from '@/features/crypto/lib/crypto-format'
 import type { CryptoAsset } from '@/features/crypto/types'
 import { ChangeBadge } from './change-badge'
 import { LivePrice } from './live-price'
+import { chartTooltipStyle } from '@/lib/chart-styles'
 
 const SPARKLINE_HOURS = 168
 
@@ -57,7 +58,7 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
                   tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value.toFixed(0)}`}
                 />
                 <Tooltip
-                  contentStyle={{ background: 'rgba(13,17,23,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
+                  contentStyle={chartTooltipStyle}
                   formatter={(value) => [formatPrice(Number(value)), selectedCoin.symbol]}
                   labelFormatter={() => ''}
                   labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
@@ -85,7 +86,7 @@ export function PriceChart({ coins, selectedCoin }: { coins: CryptoAsset[]; sele
               <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
               <Tooltip
-                contentStyle={{ background: 'rgba(13,17,23,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
+                contentStyle={chartTooltipStyle}
                 formatter={(value) => [`${Number(value) > 0 ? '+' : ''}${value}%`, 'Variação']}
                 labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
               />
