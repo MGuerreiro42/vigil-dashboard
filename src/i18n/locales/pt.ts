@@ -342,4 +342,10 @@ export const pt = {
       source: 'Bluesky · tendências globais (em inglês)',
     },
   },
+  hackerNews: {
+    title: 'Hacker News',
+    comments_one: '{{count}} comentário',
+    comments_other: '{{count}} comentários',
+    source: 'Página inicial do Hacker News via Algolia',
+  },
 }

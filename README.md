@@ -33,6 +33,7 @@ The dashboard is split into a **summary view** (home page with all widgets in mi
 | **Weather** | Open-Meteo forecast, air quality and geocoding (city search) | REST |
 | **Rain radar** | RainViewer radar tiles on an Esri dark basemap | REST + map tiles |
 | **GitHub Trending** | GitHub Search API | REST |
+| **Hacker News** | HN front page via the Algolia API | REST |
 | **Wikipedia** | Wikipedia REST API | REST |
 
 ---
