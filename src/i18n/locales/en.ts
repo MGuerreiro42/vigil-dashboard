@@ -325,4 +325,23 @@ export const en: typeof pt = {
       source: 'alternative.me · Coinpaprika · mempool.space',
     },
   },
+  pulse: {
+    edits: {
+      title: 'Wikipedia live',
+      perMinute: 'Edits/min',
+      allLanguages: 'all languages',
+      bots: 'Bots',
+      ofEdits: 'of edits',
+      newArticles: 'New articles',
+      lastMinute: 'last minute',
+      feed: 'Human edits in real time',
+      source: 'Wikimedia EventStreams · articles on every Wikipedia',
+      reconnecting: 'Reconnecting to the stream…',
+    },
+    bluesky: {
+      title: 'Trending on Bluesky',
+      empty: 'Nothing trending right now.',
+      source: 'Bluesky · global trends',
+    },
+  },
 }

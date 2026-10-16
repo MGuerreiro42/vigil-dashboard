@@ -14,6 +14,7 @@ export const queryKeys = {
   },
   citySearch: (query: string, language: string) => ['city-search', language, query] as const,
   radarFrames: () => ['radar-frames'] as const,
+  blueskyTrends: () => ['bluesky-trends'] as const,
   weather: (lat: number, lng: number) => ['weather', lat, lng] as const,
   airQuality: (lat: number, lng: number) => ['air-quality', lat, lng] as const,
   earthquakes: (minMagnitude: number) => ['earthquakes', minMagnitude] as const,
