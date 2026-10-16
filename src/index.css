@@ -18,10 +18,11 @@
   --color-accent-emerald: #10b981;
   --color-accent-rose: #f43f5e;
 
-  /* Text */
-  --color-text-primary: rgba(255, 255, 255, 0.92);
-  --color-text-secondary: rgba(255, 255, 255, 0.54);
-  --color-text-muted: rgba(255, 255, 255, 0.32);
+  /* Text on the dark surfaces. Floors chosen for WCAG AA (4.5:1) against #080b12:
+     white at 50% is 5.3:1, at 62% about 8:1. Anything dimmer fails for body text. */
+  --color-fg: rgba(255, 255, 255, 0.92);
+  --color-fg-muted: rgba(255, 255, 255, 0.62);
+  --color-fg-subtle: rgba(255, 255, 255, 0.5);
 
   /* Radius */
   --radius-widget: 1rem;
@@ -97,7 +98,7 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 .leaflet-popup-close-button {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
   font-size: 18px !important;
   top: 8px !important;
   right: 10px !important;
