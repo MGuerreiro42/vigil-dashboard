@@ -25,10 +25,6 @@ export interface BriefInput {
   githubTrending?: GithubRepo[]
 }
 
-function uid() {
-  return Math.random().toString(36).slice(2)
-}
-
 export function generateDailyBrief(input: BriefInput): BriefInsight[] {
   const insights: BriefInsight[] = []
 
@@ -39,7 +35,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
       const top = bigMovers.sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h))[0]
       const dir = top.change24h > 0 ? 'alta' : 'queda'
       insights.push({
-        id: uid(),
+        id: 'crypto-top-mover',
         category: 'crypto',
         severity: Math.abs(top.change24h) >= 15 ? 'alert' : 'warning',
         headline: `${top.symbol} em ${dir} de ${Math.abs(top.change24h).toFixed(1)}% nas últimas 24h`,
@@ -50,7 +46,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
       const btc = input.crypto.find((c) => c.id === 'bitcoin')
       if (btc) {
         insights.push({
-          id: uid(),
+          id: 'crypto-stable',
           category: 'crypto',
           severity: 'info',
           headline: `Mercado cripto estável — BTC a $${btc.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
@@ -66,7 +62,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
     const { temp, humidity } = input.weather
     if (temp >= 35) {
       insights.push({
-        id: uid(),
+        id: 'weather-heat',
         category: 'weather',
         severity: input.airQuality && input.airQuality.aqi > 100 ? 'alert' : 'warning',
         headline: `Calor intenso: ${temp.toFixed(0)}°C na sua região`,
@@ -78,7 +74,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
       })
     } else if (temp <= 5) {
       insights.push({
-        id: uid(),
+        id: 'weather-cold',
         category: 'weather',
         severity: 'warning',
         headline: `Frio intenso: ${temp.toFixed(0)}°C na sua região`,
@@ -91,7 +87,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
       const rainToday = input.forecast[0]?.precipitationProb ?? 0
       if (rainToday >= 70) {
         insights.push({
-          id: uid(),
+          id: 'weather-rain',
           category: 'weather',
           severity: 'info',
           headline: `Alta chance de chuva hoje — ${rainToday}% de probabilidade`,
@@ -107,7 +103,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
     const { aqi, category } = input.airQuality
     if (category === 'unhealthy' || category === 'very-unhealthy' || category === 'hazardous') {
       insights.push({
-        id: uid(),
+        id: 'air-quality',
         category: 'air',
         severity: category === 'hazardous' ? 'alert' : 'warning',
         headline: `Qualidade do ar ${category === 'hazardous' ? 'perigosa' : 'prejudicial'} — AQI ${aqi}`,
@@ -123,7 +119,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
     if (significant.length > 0) {
       const top = significant[0]
       insights.push({
-        id: uid(),
+        id: 'seismic-strongest',
         category: 'seismic',
         severity: top.magnitude >= 6.5 ? 'alert' : 'warning',
         headline: `Terremoto M${top.magnitude.toFixed(1)} em ${top.place}`,
@@ -133,7 +129,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
     } else {
       const count = input.earthquakes.length
       insights.push({
-        id: uid(),
+        id: 'seismic-count',
         category: 'seismic',
         severity: 'info',
         headline: `${count} evento(s) sísmico(s) registrados nos últimos 7 dias`,
@@ -153,7 +149,7 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
     if (topLang) {
       const topRepo = input.githubTrending[0]
       insights.push({
-        id: uid(),
+        id: 'github-trending',
         category: 'tech',
         severity: 'info',
         headline: `${topLang[0]} domina o trending do GitHub — ${topLang[1]} repos no top`,

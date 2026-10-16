@@ -21,7 +21,7 @@ const ALERT_MAG: Record<string, number> = {
   Red: 6,
 }
 
-function parseGdacsRss(xml: string): NaturalEvent[] {
+export function parseGdacsRss(xml: string): NaturalEvent[] {
   const parser = new DOMParser()
   const doc = parser.parseFromString(xml, 'application/xml')
 
