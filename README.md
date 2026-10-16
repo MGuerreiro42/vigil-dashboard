@@ -24,6 +24,7 @@ The dashboard is split into a **summary view** (home page with all widgets in mi
 |---|---|---|
 | **Crypto** | CoinGecko + Binance | REST + WebSocket |
 | **ISS** | Where the ISS at | REST polling |
+| **Space** | Launch Library 2, NOAA SWPC, NASA NeoWs, Spaceflight News | REST |
 | **Natural Events** | GDACS (UN/EU) event API | GeoJSON REST |
 | **Seismic** | USGS Earthquake Catalog | REST |
 | **News** | Wikimedia Feed API (headlines, most read, on this day — PT/EN) | REST |
@@ -126,7 +127,12 @@ pnpm lint
 pnpm build
 ```
 
-No API keys are needed: every source is free and keyless.
+No API keys are needed: every source is free. NASA's asteroid feed runs on its shared `DEMO_KEY`
+(about 10 requests/hour per IP); for a deploy, set a free key from [api.nasa.gov](https://api.nasa.gov):
+
+```
+VITE_NASA_API_KEY=your_key
+```
 
 ---
 
