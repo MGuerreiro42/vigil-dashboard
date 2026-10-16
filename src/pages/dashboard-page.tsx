@@ -2,7 +2,8 @@ import { lazy, Suspense } from 'react'
 import { useGeolocation } from '@/hooks/use-geolocation'
 import { useGeoStore } from '@/store/geo-store'
 import { useAppStore } from '@/store/app-store'
-import { ParticleBackground } from '@/components/ui/particle-background'
+import { AppBackground } from '@/components/layout/app-background'
+import { WidgetSkeleton } from '@/components/ui/widget-skeleton'
 import { Header } from '@/components/layout/header'
 import { DailyBrief } from '@/features/brief/components/daily-brief'
 import { BinanceTickerSync } from '@/features/crypto/components/binance-ticker-sync'
@@ -20,15 +21,6 @@ const NewsWidget          = lazy(() => import('@/features/news/components/news-w
 const GithubWidget        = lazy(() => import('@/features/github/components/github-widget').then(m => ({ default: m.GithubWidget })))
 const ISSWidget           = lazy(() => import('@/features/iss/components/iss-widget').then(m => ({ default: m.ISSWidget })))
 
-function WidgetSkeleton({ className = '' }: { className?: string }) {
-  return (
-    <div
-      className={`rounded-2xl animate-pulse ${className}`}
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
-    />
-  )
-}
-
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export function Dashboard() {
@@ -45,13 +37,7 @@ export function Dashboard() {
   return (
     <div className="relative min-h-screen lg:h-screen lg:overflow-hidden" style={{ background: '#080b12' }}>
 
-      <ParticleBackground />
-      <div className="fixed inset-0 pointer-events-none z-[1]"
-        style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34,211,238,0.06) 0%, transparent 60%)' }}
-      />
-      <div className="fixed inset-0 pointer-events-none z-[1]"
-        style={{ background: 'radial-gradient(ellipse 60% 40% at 100% 100%, rgba(168,85,247,0.05) 0%, transparent 50%)' }}
-      />
+      <AppBackground />
 
       <div className="relative z-[2] lg:h-full flex flex-col">
         <div className="flex-shrink-0"><Header /></div>
