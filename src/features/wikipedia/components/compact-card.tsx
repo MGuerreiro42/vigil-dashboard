@@ -1,6 +1,7 @@
 import type { WikiSummary } from '@/features/wikipedia/types'
 import { WikiThumb } from './wiki-thumb'
 import { ACCENT } from '@/features/wikipedia/lib/article-format'
+import { useTranslation } from 'react-i18next'
 
 export function CompactCard({
   article,
@@ -11,6 +12,7 @@ export function CompactCard({
   onNext: () => void
   isLoading: boolean
 }) {
+  const { t } = useTranslation()
   if (isLoading && !article) {
     return (
       <div className="flex flex-col gap-2 animate-pulse flex-1 min-h-0">
@@ -69,14 +71,14 @@ export function CompactCard({
           className="text-[11px] transition-opacity hover:opacity-70"
           style={{ color: ACCENT }}
         >
-          wikipedia ↗
+          {t('wikipedia.shortLink')}
         </a>
         <button
           onClick={onNext}
           className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-opacity hover:opacity-75"
           style={{ background: ACCENT + '18', color: ACCENT, border: `1px solid ${ACCENT}28` }}
         >
-          Next →
+          {t('wikipedia.next')}
         </button>
       </div>
     </div>

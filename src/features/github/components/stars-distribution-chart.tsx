@@ -2,6 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { ACCENT } from '@/features/github/lib/github-format'
 import type { GithubRepo } from '@/features/github/types'
 import { chartFrameStyle, chartTooltipStyle } from '@/lib/chart-styles'
+import { useTranslation } from 'react-i18next'
 
 const STAR_BUCKETS = [
   { range: '0–100',   min: 0,    max: 100 },
@@ -12,6 +13,7 @@ const STAR_BUCKETS = [
 ]
 
 export function StarsDistributionChart({ repos }: { repos: GithubRepo[] }) {
+  const { t } = useTranslation()
   const starsDist = STAR_BUCKETS.map((bucket) => ({
     range: bucket.range,
     count: repos.filter((repo) => repo.stars >= bucket.min && repo.stars < bucket.max).length,
@@ -27,7 +29,7 @@ export function StarsDistributionChart({ repos }: { repos: GithubRepo[] }) {
               <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={chartTooltipStyle}
-                formatter={(value) => [Number(value), 'Repos']}
+                formatter={(value) => [Number(value), t('github.reposSeries')]}
                 labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
               />
               <Bar dataKey="count" fill={ACCENT} fillOpacity={0.7} radius={[4, 4, 0, 0]} />
@@ -35,7 +37,7 @@ export function StarsDistributionChart({ repos }: { repos: GithubRepo[] }) {
           </ResponsiveContainer>
         </div>
       </div>
-      <p className="text-[10px] text-fg-subtle uppercase tracking-widest flex-shrink-0">Distribuição de Stars</p>
+      <p className="text-[10px] text-fg-subtle uppercase tracking-widest flex-shrink-0">{t('github.starsDistribution')}</p>
     </>
   )
 }

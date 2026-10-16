@@ -11,11 +11,13 @@ import { RepoDetail } from './repo-detail'
 import { StarsDistributionChart } from './stars-distribution-chart'
 import { ACCENT, LANG_COLORS, formatStars } from '@/features/github/lib/github-format'
 import { StatTile } from '@/components/ui/stat-tile'
+import { useTranslation } from 'react-i18next'
 
 type SortOrder = 'stars-desc' | 'stars-asc' | 'forks' | 'name'
 type RightTab = 'repo' | 'languages' | 'analysis'
 
 export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t } = useTranslation()
   const [selectedLangFilter, setSelectedLangFilter] = useState<string | undefined>()
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [sortOrder, setSortOrder] = useState<SortOrder>('stars-desc')
@@ -45,14 +47,14 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
   const selectedRepo = repos?.find((repo) => repo.id === selectedId) ?? null
 
   const tabs: { id: RightTab; label: string }[] = [
-    { id: 'repo',      label: 'Repo' },
-    { id: 'languages', label: 'Linguagens' },
-    { id: 'analysis',  label: 'Análise' },
+    { id: 'repo',      label: t('github.tabs.repo') },
+    { id: 'languages', label: t('github.tabs.languages') },
+    { id: 'analysis',  label: t('github.tabs.analysis') },
   ]
 
   return (
     <WidgetShell
-      title="GitHub Trending"
+      title={t('github.title')}
       icon={<GithubIcon size={isFocused ? 20 : 14} />}
       isLoading={isLoading}
       error={error}
@@ -66,10 +68,10 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
       {/* ── Stats header ── */}
       {repos && (
         <div className="flex gap-2 mb-3 flex-shrink-0">
-          <StatTile label="Repos" value={repos.length} caption="trending" />
-          <StatTile label="⭐ Stars" value={formatStars(totalStars)} caption="no trending" color={ACCENT} />
-          <StatTile label="Linguagem" value={dominantLang} caption="dominante" valueClassName="text-[15px] font-mono font-bold truncate" />
-          <StatTile label="🍴 Forks" value={formatStars(totalForks)} caption="total" />
+          <StatTile label={t('github.stats.repos')} value={repos.length} caption={t('github.stats.trending')} />
+          <StatTile label={t('github.stats.stars')} value={formatStars(totalStars)} caption={t('github.stats.inTrending')} color={ACCENT} />
+          <StatTile label={t('github.stats.language')} value={dominantLang} caption={t('github.stats.dominant')} valueClassName="text-[15px] font-mono font-bold truncate" />
+          <StatTile label={t('github.stats.forks')} value={formatStars(totalForks)} caption={t('common.total')} />
         </div>
       )}
 
@@ -126,7 +128,7 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
                     background: !selectedLangFilter ? ACCENT + '15' : 'transparent',
                   }}
                 >
-                  All
+                  {t('github.allLanguages')}
                 </button>
                 {languages.map((lang) => (
                   <button
@@ -147,23 +149,18 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
 
             {/* Sort buttons */}
             <div className="flex gap-1 mb-2 flex-shrink-0">
-              {([
-                { id: 'stars-desc', label: 'Stars↓' },
-                { id: 'stars-asc',  label: 'Stars↑' },
-                { id: 'forks',      label: 'Forks↓' },
-                { id: 'name',       label: 'Nome' },
-              ] as { id: SortOrder; label: string }[]).map((opt) => (
+              {(['stars-desc', 'stars-asc', 'forks', 'name'] as const).map((option) => (
                 <button
-                  key={opt.id}
-                  onClick={() => setSortOrder(opt.id)}
+                  key={option}
+                  onClick={() => setSortOrder(option)}
                   className="px-2 py-1 rounded-md text-[11px] font-medium transition-all"
                   style={{
-                    background: sortOrder === opt.id ? 'rgba(255,255,255,0.08)' : 'transparent',
-                    color: sortOrder === opt.id ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
-                    border: `1px solid ${sortOrder === opt.id ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
+                    background: sortOrder === option ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    color: sortOrder === option ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
+                    border: `1px solid ${sortOrder === option ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
                   }}
                 >
-                  {opt.label}
+                  {t(`github.sort.${option}`)}
                 </button>
               ))}
             </div>

@@ -4,13 +4,14 @@ import { WidgetShell } from '@/components/layout/widget-shell'
 import { useGuardianNews } from '@/features/news/api/guardian'
 import { formatRelativeTime } from '@/lib/format-relative-time'
 import type { GuardianSection } from '@/features/news/types'
+import { useTranslation } from 'react-i18next'
 
-const SECTIONS: { id: GuardianSection; label: string; icon: string; color: string }[] = [
-  { id: 'technology', label: 'Tech',       icon: '💻', color: '#6366f1' },
-  { id: 'science',    label: 'Ciência',    icon: '🔬', color: '#06b6d4' },
-  { id: 'world',      label: 'Mundo',      icon: '🌐', color: '#10b981' },
-  { id: 'environment',label: 'Ambiente',   icon: '🌿', color: '#84cc16' },
-  { id: 'business',   label: 'Economia',   icon: '📈', color: '#f59e0b' },
+const SECTIONS: { id: GuardianSection; icon: string; color: string }[] = [
+  { id: 'technology', icon: '💻', color: '#6366f1' },
+  { id: 'science',    icon: '🔬', color: '#06b6d4' },
+  { id: 'world',      icon: '🌐', color: '#10b981' },
+  { id: 'environment',icon: '🌿', color: '#84cc16' },
+  { id: 'business',   icon: '📈', color: '#f59e0b' },
 ]
 
 function relativeDate(iso: string): string {
@@ -75,6 +76,7 @@ function ArticleCard({ article, section }: {
   article: { id: string; webTitle: string; webUrl: string; webPublicationDate: string; thumbnail: string | null; trailText: string | null; byline: string | null }
   section: typeof SECTIONS[number]
 }) {
+  const { t } = useTranslation()
   return (
     <motion.a
       href={article.webUrl}
@@ -113,7 +115,7 @@ function ArticleCard({ article, section }: {
           className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
           style={{ background: section.color + '30', color: section.color, border: `1px solid ${section.color}40`, backdropFilter: 'blur(4px)' }}
         >
-          {section.icon} {section.label}
+          {section.icon} {t(`news.sections.${section.id}`)}
         </div>
 
         {/* Headline — bottom right, aligned to right */}
@@ -143,6 +145,7 @@ function ArticleCard({ article, section }: {
 
 // ── Main widget ────────────────────────────────────────────────────────────
 export function NewsWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t } = useTranslation()
   const [activeSection, setActiveSection] = useState<GuardianSection>('technology')
   const section = SECTIONS.find(s => s.id === activeSection) ?? SECTIONS[0]
 
@@ -174,7 +177,7 @@ export function NewsWidget({ isFocused = false }: { isFocused?: boolean }) {
               border: `1px solid ${activeSection === s.id ? s.color + '50' : 'transparent'}`,
             }}
           >
-            {s.icon} {s.label}
+            {s.icon} {t(`news.sections.${s.id}`)}
           </button>
         ))}
       </div>
@@ -183,12 +186,12 @@ export function NewsWidget({ isFocused = false }: { isFocused?: boolean }) {
       {isFocused && articles.length > 0 && (
         <div className="flex gap-2 mb-3 flex-shrink-0">
           <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[60px]">
-            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Artigos</span>
+            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('news.stats.articles')}</span>
             <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: section.color }}>{articles.length}</span>
-            <span className="text-[10px] text-fg-subtle mt-1 leading-none">{section.label}</span>
+            <span className="text-[10px] text-fg-subtle mt-1 leading-none">{t(`news.sections.${section.id}`)}</span>
           </div>
           <div className="flex-1 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
-            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Mais Recente</span>
+            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('news.stats.latest')}</span>
             <span className="text-[12px] text-white/70 leading-tight mt-1.5 line-clamp-2">{articles[0]?.webTitle}</span>
             <span className="text-[10px] text-fg-subtle mt-1" style={{ color: section.color }}>
               {articles[0] && relativeDate(articles[0].webPublicationDate)}

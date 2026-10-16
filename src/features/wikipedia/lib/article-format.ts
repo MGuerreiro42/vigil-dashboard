@@ -1,3 +1,5 @@
+import { intlLocale } from '@/i18n'
+
 
 
 export const ACCENT = '#a78bfa'
@@ -7,7 +9,7 @@ export function readingTime(text: string): number {
 }
 
 export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
+  return new Date(iso).toLocaleDateString(intlLocale(), {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

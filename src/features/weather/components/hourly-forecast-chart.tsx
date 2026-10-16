@@ -2,8 +2,10 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { chartFrameStyle, chartTooltipStyle } from '@/lib/chart-styles'
 import { ACCENT, formatHour } from '@/features/weather/lib/weather-format'
 import type { HourlyPoint } from '@/features/weather/types'
+import { useTranslation } from 'react-i18next'
 
 export function HourlyForecastChart({ hourly }: { hourly: HourlyPoint[] }) {
+  const { t } = useTranslation()
   const hourlyChart = hourly.slice(0, 24).map((point) => ({
     hora: formatHour(point.time),
     Temp: Math.round(point.temp),
@@ -34,8 +36,8 @@ export function HourlyForecastChart({ hourly }: { hourly: HourlyPoint[] }) {
             labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
             itemStyle={{ color: 'rgba(255,255,255,0.8)' }}
           />
-          <Area yAxisId="temp" type="monotone" dataKey="Temp" stroke={ACCENT} strokeWidth={2} fill="url(#tempGrad)" dot={false} name="Temp (°C)" />
-          <Area yAxisId="rain" type="monotone" dataKey="Chuva" stroke="#a855f7" strokeWidth={1.5} fill="url(#rainGrad)" dot={false} name="Chuva (%)" />
+          <Area yAxisId="temp" type="monotone" dataKey="Temp" stroke={ACCENT} strokeWidth={2} fill="url(#tempGrad)" dot={false} name={t('weather.chart.temperature')} />
+          <Area yAxisId="rain" type="monotone" dataKey="Chuva" stroke="#a855f7" strokeWidth={1.5} fill="url(#rainGrad)" dot={false} name={t('weather.chart.rain')} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

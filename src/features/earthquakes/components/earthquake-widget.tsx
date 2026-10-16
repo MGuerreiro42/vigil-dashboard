@@ -10,6 +10,8 @@ import { formatRelativeTime } from '@/lib/format-relative-time'
 import { useAlertsStore } from '@/store/alerts-store'
 import { escapeHtml } from '@/lib/escape-html'
 import type * as Leaflet from 'leaflet'
+import i18n from '@/i18n'
+import { useTranslation } from 'react-i18next'
 
 
 const ACCENT = '#f43f5e'
@@ -80,7 +82,7 @@ function buildPopupHTML(quake: QuakeForMap): string {
   const tsunamiRow = quake.tsunamiRisk
     ? `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;margin:8px -14px -2px;background:rgba(245,158,11,0.08);border-top:1px solid rgba(245,158,11,0.15)">
         <span style="font-size:13px">⚠️</span>
-        <span style="font-size:11px;color:#f59e0b;font-weight:500">Risco de tsunami</span>
+        <span style="font-size:11px;color:#f59e0b;font-weight:500">${i18n.t('earthquakes.tsunamiRisk')}</span>
        </div>`
     : ''
   return `
@@ -92,22 +94,22 @@ function buildPopupHTML(quake: QuakeForMap): string {
       <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.45;margin-bottom:10px;max-width:220px">${escapeHtml(quake.place)}</div>
       <div style="display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px">
         <div style="display:flex;justify-content:space-between;gap:16px">
-          <span style="font-size:11px;color:rgba(255,255,255,0.62)">Profundidade</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.62)">${i18n.t('earthquakes.depth')}</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${quake.depth.toFixed(0)} km</span>
         </div>
         <div style="display:flex;justify-content:space-between;gap:16px">
-          <span style="font-size:11px;color:rgba(255,255,255,0.62)">Ocorreu</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.62)">${i18n.t('earthquakes.occurred')}</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.65)">${relTime}</span>
         </div>
         <div style="display:flex;justify-content:space-between;gap:16px">
-          <span style="font-size:11px;color:rgba(255,255,255,0.62)">Significância</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.62)">${i18n.t('earthquakes.significance')}</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${quake.significance}</span>
         </div>
       </div>
       ${tsunamiRow}
       <a href="${escapeHtml(quake.url)}" target="_blank" rel="noopener noreferrer" class="eq-popup-link"
         style="display:inline-block;margin-top:12px;font-size:11px;color:${color};opacity:0.65;text-decoration:none;transition:opacity 0.15s">
-        Ver no USGS ↗
+        ${i18n.t('earthquakes.viewOnUsgs')}
       </a>
     </div>
   `
@@ -257,6 +259,7 @@ type ScatterPoint = {
 }
 
 function ScatterTooltip({ active, payload }: { active?: boolean; payload?: { payload: ScatterPoint }[] }) {
+  const { t } = useTranslation()
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   const color = magnitudeColor(d.mag)
@@ -290,11 +293,11 @@ function ScatterTooltip({ active, payload }: { active?: boolean; payload?: { pay
       {/* Métricas */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Profundidade</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{t('earthquakes.depth')}</span>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>{d.depth} km</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Ocorreu</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{t('earthquakes.occurred')}</span>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{formatRelativeTime(Math.floor(d.time / 1000))}</span>
         </div>
       </div>
@@ -303,7 +306,7 @@ function ScatterTooltip({ active, payload }: { active?: boolean; payload?: { pay
       {d.tsunamiRisk && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '5px 8px', background: 'rgba(245,158,11,0.08)', borderRadius: 6, border: '1px solid rgba(245,158,11,0.2)' }}>
           <span style={{ fontSize: 12 }}>⚠️</span>
-          <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 500 }}>Risco de tsunami</span>
+          <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 500 }}>{t('earthquakes.tsunamiRisk')}</span>
         </div>
       )}
     </div>
@@ -311,6 +314,7 @@ function ScatterTooltip({ active, payload }: { active?: boolean; payload?: { pay
 }
 
 export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t } = useTranslation()
   const [minMag, setMinMag] = useState(2.5)
   const [rightTab, setRightTab] = useState<RightTab>('map')
   const [selectedQuakeId, setSelectedQuakeId] = useState<string | null>(null)
@@ -328,13 +332,13 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
         addAlert({
           id: `earthquake-${q.id}`,
           type: 'earthquake',
-          title: `Terremoto M${q.magnitude.toFixed(1)}`,
+          title: t('earthquakes.alertTitle', { magnitude: q.magnitude.toFixed(1) }),
           body: q.place,
           severity: q.magnitude >= 6.5 ? 'critical' : 'warning',
           sourceWidget: 'earthquakes',
         })
       )
-  }, [quakes, addAlert])
+  }, [quakes, addAlert, t])
 
   const maxMag = quakes?.length ? Math.max(...quakes.map((q) => q.magnitude)) : 0
   const compactList = quakes?.slice(0, 10) ?? []
@@ -346,10 +350,10 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
 
   const severities = quakes
     ? [
-        { label: 'Severos',   color: '#f43f5e', count: quakes.filter(q => q.magnitude >= 6.5).length },
-        { label: 'Fortes',    color: '#f97316', count: quakes.filter(q => q.magnitude >= 5.0 && q.magnitude < 6.5).length },
-        { label: 'Moderados', color: '#f59e0b', count: quakes.filter(q => q.magnitude >= 3.5 && q.magnitude < 5.0).length },
-        { label: 'Menores',   color: '#8b93a1', count: quakes.filter(q => q.magnitude < 3.5).length },
+        { label: t('earthquakes.bands.severe'),   color: '#f43f5e', count: quakes.filter(q => q.magnitude >= 6.5).length },
+        { label: t('earthquakes.bands.strong'),    color: '#f97316', count: quakes.filter(q => q.magnitude >= 5.0 && q.magnitude < 6.5).length },
+        { label: t('earthquakes.bands.moderate'), color: '#f59e0b', count: quakes.filter(q => q.magnitude >= 3.5 && q.magnitude < 5.0).length },
+        { label: t('earthquakes.bands.minor'),   color: '#8b93a1', count: quakes.filter(q => q.magnitude < 3.5).length },
       ]
     : []
   const tsunamiCount = quakes?.filter(q => q.tsunamiRisk).length ?? 0
@@ -365,13 +369,13 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
     })) ?? []
 
   const tabs: { id: RightTab; label: string }[] = [
-    { id: 'map', label: 'Mapa' },
-    { id: 'analysis', label: 'Análise' },
+    { id: 'map', label: t('earthquakes.tabs.map') },
+    { id: 'analysis', label: t('earthquakes.tabs.analysis') },
   ]
 
   return (
     <WidgetShell
-      title="Atividade Sísmica"
+      title={t('earthquakes.title')}
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌍</span>}
       isLoading={isLoading}
       error={error}
@@ -388,9 +392,9 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
 
           {/* Total de eventos */}
           <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[68px]">
-            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Eventos</span>
+            <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('earthquakes.stats.events')}</span>
             <span className="text-[22px] font-mono font-bold text-white/85 leading-none mt-1.5">{quakes.length}</span>
-            <span className="text-[10px] text-fg-subtle mt-1 leading-none">7 dias</span>
+            <span className="text-[10px] text-fg-subtle mt-1 leading-none">{t('earthquakes.stats.sevenDays')}</span>
           </div>
 
           {/* Maior magnitude */}
@@ -398,7 +402,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
             className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[68px]"
             style={{ background: magnitudeColor(maxMag) + '0f', borderColor: magnitudeColor(maxMag) + '35' }}
           >
-            <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magnitudeColor(maxMag) }}>Maior</span>
+            <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magnitudeColor(maxMag) }}>{t('earthquakes.stats.strongest')}</span>
             <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: magnitudeColor(maxMag) }}>
               M{maxMag.toFixed(1)}
             </span>
@@ -410,7 +414,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           {/* Distribuição de severidade — só no modo expandido */}
           {isFocused && (
             <div className="flex-1 flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-0">
-              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Distribuição</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('earthquakes.stats.distribution')}</span>
 
               {/* Barra proporcional */}
               <div className="flex h-1.5 rounded-full overflow-hidden gap-px mt-2">
@@ -441,7 +445,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           {/* Filtro de magnitude */}
           <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] min-w-[110px]">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">Filtro</span>
+              <span className="text-[10px] uppercase tracking-widest text-fg-subtle leading-none">{t('earthquakes.stats.filter')}</span>
               <span className="text-[11px] font-mono text-white/55 leading-none">M≥{minMag}</span>
             </div>
             <input
@@ -507,9 +511,9 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
             {/* Ordenação */}
             <div className="flex gap-1 mb-2 flex-shrink-0">
               {([
-                { id: 'recent',   label: 'Recente' },
-                { id: 'mag-desc', label: 'M↓' },
-                { id: 'mag-asc',  label: 'M↑' },
+                { id: 'recent',   label: t('earthquakes.sort.recent') },
+                { id: 'mag-desc', label: t('earthquakes.sort.mag-desc') },
+                { id: 'mag-asc',  label: t('earthquakes.sort.mag-asc') },
               ] as { id: SortOrder; label: string }[]).map((opt) => (
                 <button
                   key={opt.id}
@@ -574,7 +578,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       className="flex-shrink-0 opacity-0 group-hover:opacity-40 hover:!opacity-80 transition-opacity text-white text-[13px] px-1"
-                      title="Ver no USGS"
+                      title={t('earthquakes.viewOnUsgsTitle')}
                     >
                       ↗
                     </a>
@@ -604,7 +608,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
               <div {...tabPanel(rightTab === 'analysis', { display: 'flex', flexDirection: 'column', gap: 16 })}>
                 <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
                   <p className="text-xs text-fg-muted uppercase tracking-widest" style={{ position: 'absolute', top: 0, left: 0 }}>
-                    Magnitude × Profundidade
+                    {t('earthquakes.magnitudeVsDepth')}
                   </p>
                 <div style={{
                   position: 'absolute', inset: 0, top: 22,
@@ -622,14 +626,14 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                     <ScatterChart margin={{ top: 16, right: 20, left: -12, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="0" stroke="transparent" />
                       <XAxis
-                        dataKey="depth" name="Profundidade" unit=" km"
+                        dataKey="depth" name={t('earthquakes.depth')} unit=" km"
                         type="number" domain={[0, 'dataMax']}
                         tickCount={6} allowDecimals={false}
                         tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
                         axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false}
                       />
                       <YAxis
-                        dataKey="mag" name="Magnitude"
+                        dataKey="mag" name={t('earthquakes.magnitudeAxis')}
                         type="number" domain={[0, 'dataMax']}
                         tickCount={5} allowDecimals={false}
                         tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}

@@ -10,12 +10,15 @@ import { getWMO } from '@/features/weather/lib/wmo-icons'
 import { AirQualityPanel } from './air-quality-panel'
 import { HourlyForecastChart } from './hourly-forecast-chart'
 import { WeatherDetails } from './weather-details'
-import { ACCENT, AQI_LABELS } from '@/features/weather/lib/weather-format'
+import { ACCENT, describeAqi } from '@/features/weather/lib/weather-format'
 import { StatTile } from '@/components/ui/stat-tile'
+import { useTranslation } from 'react-i18next'
+import { intlLocale } from '@/i18n'
 
 type RightTab = '24h' | 'air' | 'details'
 
 export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t } = useTranslation()
   const coords = useGeoStore((state) => state.coords)
 
   const [selectedDayIdx, setSelectedDayIdx] = useState<number>(0)
@@ -28,18 +31,18 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
   const forecast = weather?.forecast ?? []
   const hourly   = weather?.hourly ?? []
   const wmo      = current ? getWMO(current.weatherCode) : null
-  const aqiInfo  = air ? AQI_LABELS[air.category] : null
+  const aqiInfo  = air ? describeAqi(air.category) : null
   const selectedDay = forecast[selectedDayIdx] ?? forecast[0]
 
   const tabs: { id: RightTab; label: string }[] = [
-    { id: '24h',     label: '24h' },
-    { id: 'air',     label: 'Qualidade do Ar' },
-    { id: 'details', label: 'Detalhes' },
+    { id: '24h',     label: t('weather.tabs.hourly') },
+    { id: 'air',     label: t('weather.tabs.air') },
+    { id: 'details', label: t('weather.tabs.details') },
   ]
 
   return (
     <WidgetShell
-      title="Clima & Qualidade do Ar"
+      title={t('weather.title')}
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌤</span>}
       isLoading={isLoading}
       error={error}
@@ -53,15 +56,15 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
         <>
           {/* ── Stats header ── */}
           <div className="flex gap-2 mb-3 flex-shrink-0">
-            <StatTile label="Temperatura" value={`${current.temp.toFixed(0)}°`} caption={wmo.label} color={ACCENT} />
+            <StatTile label={t('weather.stats.temperature')} value={`${current.temp.toFixed(0)}°`} caption={wmo.label} color={ACCENT} />
 
-            <StatTile label="Sensação" value={`${current.feelsLike.toFixed(0)}°`} caption="térmica" />
+            <StatTile label={t('weather.stats.feelsLike')} value={`${current.feelsLike.toFixed(0)}°`} caption={t('weather.stats.thermal')} />
 
             {air && aqiInfo
-              ? <StatTile label="AQI" value={air.aqi} caption={aqiInfo.label} color={aqiInfo.color} />
-              : <StatTile label="AQI" value="N/D" caption="—" />}
+              ? <StatTile label={t('weather.stats.aqi')} value={air.aqi} caption={aqiInfo.label} color={aqiInfo.color} />
+              : <StatTile label={t('weather.stats.aqi')} value={t('weather.stats.notAvailable')} caption="—" />}
 
-            <StatTile label="Vento" value={current.windSpeed.toFixed(0)} caption="km/h" />
+            <StatTile label={t('weather.stats.wind')} value={current.windSpeed.toFixed(0)} caption="km/h" />
           </div>
 
           {/* ── MODO COMPACTO ── */}
@@ -69,7 +72,7 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
             <div className="flex flex-col gap-0.5">
               {forecast.slice(0, 7).map((day, i) => {
                 const date = new Date(day.date)
-                const dayName = i === 0 ? 'Hoje' : date.toLocaleDateString('pt-BR', { weekday: 'short' })
+                const dayName = i === 0 ? t('common.today') : date.toLocaleDateString(intlLocale(), { weekday: 'short' })
                 const icon = getWMO(day.weatherCode).icon
                 return (
                   <motion.div
@@ -106,7 +109,7 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
                 <div className="flex flex-col gap-0.5 overflow-y-auto flex-1 min-h-0 pr-0.5">
                   {forecast.slice(0, 7).map((day, i) => {
                     const date = new Date(day.date)
-                    const dayName = i === 0 ? 'Hoje' : date.toLocaleDateString('pt-BR', { weekday: 'long' })
+                    const dayName = i === 0 ? t('common.today') : date.toLocaleDateString(intlLocale(), { weekday: 'long' })
                     const icon = getWMO(day.weatherCode).icon
                     const isSelected = selectedDayIdx === i
                     return (
@@ -129,7 +132,7 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
                             {day.precipitationProb > 20 && (
                               <span className="text-[11px]" style={{ color: ACCENT }}>💧{day.precipitationProb}%</span>
                             )}
-                            <span className="text-[11px] text-fg-subtle">UV {day.uvIndexMax.toFixed(0)}</span>
+                            <span className="text-[11px] text-fg-subtle">{t('weather.uvShort', { value: day.uvIndexMax.toFixed(0) })}</span>
                           </div>
                         </div>
                         <div className="text-right flex-shrink-0">

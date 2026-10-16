@@ -9,6 +9,8 @@ import type { Earthquake } from '@/features/earthquakes/types'
 import type { GithubRepo } from '@/features/github/types'
 import { InsightCard } from './insight-card'
 import { WikiDiscoverCard } from './wiki-discover-card'
+import { useTranslation } from 'react-i18next'
+import { intlLocale } from '@/i18n'
 
 interface Props {
   crypto?: CryptoAsset[]
@@ -20,9 +22,10 @@ interface Props {
 }
 
 export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending }: Props) {
+  const { t } = useTranslation()
   const insights = useMemo(
-    () => generateDailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending }),
-    [crypto, weather, forecast, airQuality, earthquakes, githubTrending]
+    () => generateDailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending }, t),
+    [crypto, weather, forecast, airQuality, earthquakes, githubTrending, t]
   )
 
   // Ordenar: alertas → warnings → info (Gestalt: proximidade e ordem)
@@ -36,7 +39,7 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
 
   const now = new Date()
   const hour = now.getHours()
-  const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite'
+  const greeting = t(hour < 12 ? 'brief.greeting.morning' : hour < 18 ? 'brief.greeting.afternoon' : 'brief.greeting.evening')
   const alertCount = insights.filter((insight) => insight.severity === 'alert').length
   const warnCount = insights.filter((insight) => insight.severity === 'warning').length
 
@@ -70,7 +73,7 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
                   transition={{ delay: 0.1 }}
                   className="text-xs md:text-sm text-fg-muted mt-0.5 capitalize"
                 >
-                  {now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  {now.toLocaleDateString(intlLocale(), { weekday: 'long', day: 'numeric', month: 'long' })}
                 </motion.p>
               </div>
 
@@ -79,7 +82,7 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
 
               {/* Status sumário */}
               <div className="flex items-center gap-2 md:gap-3 self-center flex-wrap">
-                <span className="text-xs md:text-sm font-medium text-white/50">Vigil Brief</span>
+                <span className="text-xs md:text-sm font-medium text-white/50">{t('brief.title')}</span>
                 {alertCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
@@ -87,7 +90,7 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
                     className="text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: '#f43f5e22', color: '#f43f5e', border: '1px solid #f43f5e40' }}
                   >
-                    {alertCount} alerta{alertCount > 1 ? 's' : ''}
+                    {t('brief.alerts', { count: alertCount })}
                   </motion.span>
                 )}
                 {warnCount > 0 && (
@@ -98,18 +101,18 @@ export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, 
                     className="text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: '#f59e0b22', color: '#f59e0b', border: '1px solid #f59e0b40' }}
                   >
-                    {warnCount} aviso{warnCount > 1 ? 's' : ''}
+                    {t('brief.warnings', { count: warnCount })}
                   </motion.span>
                 )}
                 {alertCount === 0 && warnCount === 0 && (
-                  <span className="text-xs text-fg-subtle">{insights.length} insights · tudo normal</span>
+                  <span className="text-xs text-fg-subtle">{t('brief.allClear', { count: insights.length })}</span>
                 )}
               </div>
             </div>
 
             {/* Timestamp */}
             <span className="text-xs text-fg-subtle self-start tabular-nums">
-              {now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              {now.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
 

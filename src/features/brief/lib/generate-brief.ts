@@ -3,6 +3,8 @@ import type { WeatherCurrent, ForecastDay } from '@/features/weather/types'
 import type { AirQuality } from '@/features/weather/types'
 import type { Earthquake } from '@/features/earthquakes/types'
 import type { GithubRepo } from '@/features/github/types'
+import type { TFunction } from 'i18next'
+import i18n, { intlLocale } from '@/i18n'
 
 export type InsightCategory = 'crypto' | 'weather' | 'seismic' | 'air' | 'tech'
 export type InsightSeverity = 'info' | 'warning' | 'alert'
@@ -25,7 +27,11 @@ export interface BriefInput {
   githubTrending?: GithubRepo[]
 }
 
-export function generateDailyBrief(input: BriefInput): BriefInsight[] {
+const usd = (value: number, maximumFractionDigits: number) =>
+  `$${value.toLocaleString('en-US', { maximumFractionDigits })}`
+
+/** Rule-based insights, written with the given translate function (defaults to the active language). */
+export function generateDailyBrief(input: BriefInput, t: TFunction = i18n.t): BriefInsight[] {
   const insights: BriefInsight[] = []
 
   // --- CRYPTO ---
@@ -33,13 +39,15 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
     const bigMovers = input.crypto.filter((coin) => Math.abs(coin.change24h) >= 8)
     if (bigMovers.length > 0) {
       const top = bigMovers.sort((first, second) => Math.abs(second.change24h) - Math.abs(first.change24h))[0]
-      const dir = top.change24h > 0 ? 'alta' : 'queda'
       insights.push({
         id: 'crypto-top-mover',
         category: 'crypto',
         severity: Math.abs(top.change24h) >= 15 ? 'alert' : 'warning',
-        headline: `${top.symbol} em ${dir} de ${Math.abs(top.change24h).toFixed(1)}% nas últimas 24h`,
-        detail: `${top.name} negociado a $${top.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}. ${bigMovers.length > 1 ? `Mais ${bigMovers.length - 1} ativo(s) com variação significativa.` : ''}`,
+        headline: t(top.change24h > 0 ? 'brief.cryptoTopMover.up' : 'brief.cryptoTopMover.down', { symbol: top.symbol, percent: Math.abs(top.change24h).toFixed(1) }),
+        detail: [
+          t('brief.cryptoTopMover.detail', { name: top.name, price: usd(top.price, 2) }),
+          bigMovers.length > 1 ? t('brief.cryptoTopMover.others', { count: bigMovers.length - 1 }) : '',
+        ].join(' ').trim(),
         dataSource: ['CoinGecko'],
       })
     } else {
@@ -49,8 +57,8 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
           id: 'crypto-stable',
           category: 'crypto',
           severity: 'info',
-          headline: `Mercado cripto estável — BTC a $${btc.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
-          detail: `Variação de ${btc.change24h.toFixed(2)}% em 24h. Baixa volatilidade pode indicar consolidação.`,
+          headline: t('brief.cryptoStable.headline', { price: usd(btc.price, 0) }),
+          detail: t('brief.cryptoStable.detail', { percent: btc.change24h.toFixed(2) }),
           dataSource: ['CoinGecko'],
         })
       }
@@ -65,11 +73,11 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         id: 'weather-heat',
         category: 'weather',
         severity: input.airQuality && input.airQuality.aqi > 100 ? 'alert' : 'warning',
-        headline: `Calor intenso: ${temp.toFixed(0)}°C na sua região`,
+        headline: t('brief.heat.headline', { temperature: temp.toFixed(0) }),
         detail:
           input.airQuality && input.airQuality.aqi > 100
-            ? `Combinação crítica: temperatura elevada e qualidade do ar degradada (AQI ${input.airQuality.aqi}).`
-            : `Hidratação recomendada. Umidade em ${humidity}%.`,
+            ? t('brief.heat.critical', { aqi: input.airQuality.aqi })
+            : t('brief.heat.detail', { humidity }),
         dataSource: ['Open-Meteo'],
       })
     } else if (temp <= 5) {
@@ -77,8 +85,8 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         id: 'weather-cold',
         category: 'weather',
         severity: 'warning',
-        headline: `Frio intenso: ${temp.toFixed(0)}°C na sua região`,
-        detail: `Sensação térmica de ${input.weather.feelsLike.toFixed(0)}°C. Atenção ao agasalho.`,
+        headline: t('brief.cold.headline', { temperature: temp.toFixed(0) }),
+        detail: t('brief.cold.detail', { temperature: input.weather.feelsLike.toFixed(0) }),
         dataSource: ['Open-Meteo'],
       })
     }
@@ -90,8 +98,8 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
           id: 'weather-rain',
           category: 'weather',
           severity: 'info',
-          headline: `Alta chance de chuva hoje — ${rainToday}% de probabilidade`,
-          detail: `Prepare-se: previsão de precipitação significativa nas próximas horas.`,
+          headline: t('brief.rain.headline', { percent: rainToday }),
+          detail: t('brief.rain.detail'),
           dataSource: ['Open-Meteo'],
         })
       }
@@ -106,9 +114,9 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         id: 'air-quality',
         category: 'air',
         severity: category === 'hazardous' ? 'alert' : 'warning',
-        headline: `Qualidade do ar ${category === 'hazardous' ? 'perigosa' : 'prejudicial'} — AQI ${aqi}`,
-        detail: `PM2.5: ${input.airQuality.pm25.toFixed(1)} µg/m³. Evite atividades ao ar livre prolongadas.`,
-        dataSource: ['OpenAQ'],
+        headline: t(category === 'hazardous' ? 'brief.air.hazardous' : 'brief.air.unhealthy', { aqi }),
+        detail: t('brief.air.detail', { pm25: input.airQuality.pm25.toFixed(1) }),
+        dataSource: ['Open-Meteo'],
       })
     }
   }
@@ -122,8 +130,12 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         id: 'seismic-strongest',
         category: 'seismic',
         severity: top.magnitude >= 6.5 ? 'alert' : 'warning',
-        headline: `Terremoto M${top.magnitude.toFixed(1)} em ${top.place}`,
-        detail: `${significant.length > 1 ? `${significant.length} terremotos ≥ M5.0 nas últimas 7 dias. ` : ''}Profundidade: ${top.depth.toFixed(0)} km. ${top.tsunamiRisk ? 'Risco de tsunami reportado.' : ''}`,
+        headline: t('brief.quake.headline', { magnitude: top.magnitude.toFixed(1), place: top.place }),
+        detail: [
+          significant.length > 1 ? t('brief.quake.count', { count: significant.length }) : '',
+          t('brief.quake.depth', { depth: top.depth.toFixed(0) }),
+          top.tsunamiRisk ? t('brief.quake.tsunami') : '',
+        ].filter(Boolean).join(' '),
         dataSource: ['USGS'],
       })
     } else {
@@ -132,8 +144,8 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         id: 'seismic-count',
         category: 'seismic',
         severity: 'info',
-        headline: `${count} evento(s) sísmico(s) registrados nos últimos 7 dias`,
-        detail: `Maior: M${Math.max(...input.earthquakes.map((quake) => quake.magnitude)).toFixed(1)}. Nenhum evento significativo (≥M5.0).`,
+        headline: t('brief.quakeCount.headline', { count }),
+        detail: t('brief.quakeCount.detail', { magnitude: Math.max(...input.earthquakes.map((quake) => quake.magnitude)).toFixed(1) }),
         dataSource: ['USGS'],
       })
     }
@@ -152,8 +164,8 @@ export function generateDailyBrief(input: BriefInput): BriefInsight[] {
         id: 'github-trending',
         category: 'tech',
         severity: 'info',
-        headline: `${topLang[0]} domina o trending do GitHub — ${topLang[1]} repos no top`,
-        detail: `Repo em destaque: "${topRepo.name}" com ${topRepo.stars.toLocaleString()} ⭐. ${topRepo.description?.slice(0, 80) ?? ''}`,
+        headline: t('brief.github.headline', { language: topLang[0], count: topLang[1] }),
+        detail: t('brief.github.detail', { name: topRepo.name, stars: topRepo.stars.toLocaleString(intlLocale()), description: topRepo.description?.slice(0, 80) ?? '' }).trim(),
         dataSource: ['GitHub'],
       })
     }

@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRandomWikipedia } from '@/features/wikipedia/api/wikipedia'
 import { useAutoAdvance } from '@/hooks/use-auto-advance'
+import { useTranslation } from 'react-i18next'
 
 
 const WIKI_ACCENT = '#a78bfa'
 const WIKI_AUTO_MS = 3 * 60 * 1000
 
 export function WikiDiscoverCard() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [seed, setSeed] = useState(() => Date.now())
   const { data: article, isLoading } = useRandomWikipedia('en', seed)
@@ -20,13 +22,13 @@ export function WikiDiscoverCard() {
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-1.5">
           <span className="font-serif font-black leading-none" style={{ fontSize: 14, color: WIKI_ACCENT }}>W</span>
-          <span className="text-[10px] uppercase tracking-widest text-fg-subtle">Descobrir</span>
+          <span className="text-[10px] uppercase tracking-widest text-fg-subtle">{t('brief.discover')}</span>
         </div>
         <button
           onClick={() => navigate('/wikipedia')}
           className="text-[10px] text-fg-subtle hover:text-white/50 transition-colors"
         >
-          expandir ↗
+          {t('brief.expand')}
         </button>
       </div>
 
@@ -93,7 +95,7 @@ export function WikiDiscoverCard() {
                 className="text-[10px] transition-opacity hover:opacity-70"
                 style={{ color: WIKI_ACCENT }}
               >
-                wikipedia ↗
+                {t('wikipedia.shortLink')}
               </a>
               <button
                 onClick={() => setSeed(Date.now())}
@@ -104,7 +106,7 @@ export function WikiDiscoverCard() {
                   border: `1px solid ${WIKI_ACCENT}22`,
                 }}
               >
-                Next →
+                {t('wikipedia.next')}
               </button>
             </div>
 

@@ -2,10 +2,12 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { LANG_COLORS } from '@/features/github/lib/github-format'
 import type { GithubRepo } from '@/features/github/types'
 import { chartFrameStyle, chartTooltipStyle } from '@/lib/chart-styles'
+import { useTranslation } from 'react-i18next'
 
 const MAX_LANGUAGES = 8
 
 export function LanguageStarsChart({ repos }: { repos: GithubRepo[] }) {
+  const { t } = useTranslation()
   const languages = Array.from(new Set(repos.map((repo) => repo.language).filter(Boolean) as string[])).slice(0, MAX_LANGUAGES)
   const langStars = languages.map((lang) => ({
     lang,
@@ -22,7 +24,7 @@ export function LanguageStarsChart({ repos }: { repos: GithubRepo[] }) {
           <YAxis type="category" dataKey="lang" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} axisLine={false} tickLine={false} width={80} />
           <Tooltip
             contentStyle={chartTooltipStyle}
-            formatter={(value) => [Number(value).toLocaleString(), 'Stars']}
+            formatter={(value) => [Number(value).toLocaleString(), t('github.starsSeries')]}
             labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
           />
           <Bar dataKey="stars" radius={[0, 4, 4, 0]}>

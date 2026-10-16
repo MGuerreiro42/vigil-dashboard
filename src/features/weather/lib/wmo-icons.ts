@@ -1,30 +1,35 @@
-export const WMO_ICONS: Record<number, { icon: string; label: string }> = {
-  0:  { icon: '☀️', label: 'Clear sky' },
-  1:  { icon: '🌤️', label: 'Mainly clear' },
-  2:  { icon: '⛅', label: 'Partly cloudy' },
-  3:  { icon: '☁️', label: 'Overcast' },
-  45: { icon: '🌫️', label: 'Fog' },
-  48: { icon: '🌫️', label: 'Icy fog' },
-  51: { icon: '🌦️', label: 'Light drizzle' },
-  53: { icon: '🌦️', label: 'Drizzle' },
-  55: { icon: '🌧️', label: 'Heavy drizzle' },
-  61: { icon: '🌧️', label: 'Slight rain' },
-  63: { icon: '🌧️', label: 'Rain' },
-  65: { icon: '🌧️', label: 'Heavy rain' },
-  71: { icon: '❄️', label: 'Slight snow' },
-  73: { icon: '❄️', label: 'Snow' },
-  75: { icon: '❄️', label: 'Heavy snow' },
-  77: { icon: '🌨️', label: 'Snow grains' },
-  80: { icon: '🌦️', label: 'Slight showers' },
-  81: { icon: '🌧️', label: 'Showers' },
-  82: { icon: '⛈️', label: 'Heavy showers' },
-  85: { icon: '🌨️', label: 'Snow showers' },
-  86: { icon: '🌨️', label: 'Heavy snow showers' },
-  95: { icon: '⛈️', label: 'Thunderstorm' },
-  96: { icon: '⛈️', label: 'Thunderstorm w/ hail' },
-  99: { icon: '⛈️', label: 'Heavy thunderstorm' },
+import i18n from '@/i18n'
+
+export const WMO_ICONS: Record<number, string> = {
+  0:  '☀️',
+  1:  '🌤️',
+  2:  '⛅',
+  3:  '☁️',
+  45: '🌫️',
+  48: '🌫️',
+  51: '🌦️',
+  53: '🌦️',
+  55: '🌧️',
+  61: '🌧️',
+  63: '🌧️',
+  65: '🌧️',
+  71: '❄️',
+  73: '❄️',
+  75: '❄️',
+  77: '🌨️',
+  80: '🌦️',
+  81: '🌧️',
+  82: '⛈️',
+  85: '🌨️',
+  86: '🌨️',
+  95: '⛈️',
+  96: '⛈️',
+  99: '⛈️',
 }
 
-export function getWMO(code: number) {
-  return WMO_ICONS[code] ?? { icon: '🌡️', label: 'Unknown' }
+/** Icon and translated description for a WMO weather code (label read at call time). */
+export function getWMO(code: number): { icon: string; label: string } {
+  const icon = WMO_ICONS[code]
+  if (!icon) return { icon: '🌡️', label: i18n.t('weather.conditions.unknown') }
+  return { icon, label: i18n.t(`weather.conditions.c${code}` as 'weather.conditions.c0') }
 }

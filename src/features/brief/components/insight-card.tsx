@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { type BriefInsight } from '@/features/brief/lib/generate-brief'
+import { useTranslation } from 'react-i18next'
 
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -10,12 +11,10 @@ const SEVERITY_COLORS: Record<string, string> = {
   info: '#22d3ee', warning: '#f59e0b', alert: '#f43f5e',
 }
 
-const SEVERITY_LABELS: Record<string, string> = {
-  info: 'Info', warning: 'Atenção', alert: 'Alerta',
-}
 
 // Insight card — cards de alerta/warning são maiores e mais proeminentes
 export function InsightCard({ insight, index }: { insight: BriefInsight; index: number }) {
+  const { t } = useTranslation()
   const color = SEVERITY_COLORS[insight.severity]
   const icon = CATEGORY_ICONS[insight.category]
   const isUrgent = insight.severity !== 'info'
@@ -53,7 +52,7 @@ export function InsightCard({ insight, index }: { insight: BriefInsight; index: 
               className="text-[11px] font-semibold uppercase tracking-wider"
               style={{ color }}
             >
-              {SEVERITY_LABELS[insight.severity]}
+              {t(`brief.severity.${insight.severity}`)}
             </span>
           </div>
           {/* Pulse dot apenas em alertas */}

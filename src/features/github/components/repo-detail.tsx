@@ -1,12 +1,14 @@
 import { ACCENT } from '@/features/github/lib/github-format'
 import type { GithubRepo } from '@/features/github/types'
 import { LangBadge } from './lang-badge'
+import { useTranslation } from 'react-i18next'
 
 export function RepoDetail({ repo }: { repo: GithubRepo | null }) {
+  const { t } = useTranslation()
   if (!repo) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-sm text-fg-subtle">Selecione um repositório</p>
+        <p className="text-sm text-fg-subtle">{t('github.selectRepo')}</p>
       </div>
     )
   }
@@ -42,7 +44,7 @@ export function RepoDetail({ repo }: { repo: GithubRepo | null }) {
         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
         style={{ background: ACCENT + '20', color: ACCENT, border: `1px solid ${ACCENT}40` }}
       >
-        Abrir no GitHub ↗
+        {t('github.openOnGithub')}
       </a>
     </div>
   )

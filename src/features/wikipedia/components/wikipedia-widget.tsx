@@ -9,12 +9,15 @@ import { CompactCard } from './compact-card'
 import { HistoryItem } from './history-item'
 import { WikiLogo } from './wiki-logo'
 import { ACCENT, formatDate, readingTime } from '@/features/wikipedia/lib/article-format'
+import { useTranslation } from 'react-i18next'
 
 const AUTO_ADVANCE_MS = 2 * 60 * 1000
 
 export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) {
+  const { t, i18n } = useTranslation()
 
-  const [lang, setLang] = useState<WikiLangCode>('en')
+  // Start in the UI language when Wikipedia has it
+  const [lang, setLang] = useState<WikiLangCode>(() => (i18n.resolvedLanguage === 'pt' ? 'pt' : 'en'))
   const [seed, setSeed] = useState(() => Date.now())
   const [history, setHistory] = useState<WikiSummary[]>([])
   const [historyIndex, setHistoryIndex] = useState(0)
@@ -103,21 +106,21 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
               <div className="flex-1" />
               <button
                 onClick={() => setPaused((wasPaused) => !wasPaused)}
-                title={paused ? 'Resume auto-advance' : 'Pause auto-advance'}
+                title={paused ? t('wikipedia.resumeTitle') : t('wikipedia.pauseTitle')}
                 className="px-2.5 py-1 rounded-lg text-xs transition-all text-fg-muted hover:text-white/60"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid rgba(255,255,255,0.07)',
                 }}
               >
-                {paused ? '▶ Auto' : '⏸ Pause'}
+                {paused ? t('wikipedia.resume') : t('wikipedia.pause')}
               </button>
               <button
                 onClick={getNext}
                 className="px-3 py-1 rounded-lg text-xs font-medium transition-all hover:opacity-80"
                 style={{ background: ACCENT + '20', color: ACCENT, border: `1px solid ${ACCENT}3e` }}
               >
-                Next →
+                {t('wikipedia.next')}
               </button>
             </div>
 
@@ -168,7 +171,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                       🕐 {formatDate(currentArticle.timestamp)}
                     </span>
                     <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-fg-subtle">
-                      📖 ~{readingTime(currentArticle.extract)} min read
+                      {t('wikipedia.readingTime', { minutes: readingTime(currentArticle.extract) })}
                     </span>
                     <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-fg-subtle uppercase tracking-wider">
                       {currentArticle.lang}
@@ -200,7 +203,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                       border: `1px solid ${ACCENT}3a`,
                     }}
                   >
-                    Read full article on Wikipedia ↗
+                    {t('wikipedia.readFull')}
                   </a>
 
                   {/* Auto-advance progress bar */}
@@ -212,8 +215,8 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                   </div>
                   <p className="text-[10px] text-fg-subtle -mt-3">
                     {paused
-                      ? 'Auto-advance paused'
-                      : `Next article in ~${Math.ceil((1 - progress) * (AUTO_ADVANCE_MS / 1000 / 60))} min`}
+                      ? t('wikipedia.paused')
+                      : t('wikipedia.nextIn', { minutes: Math.ceil((1 - progress) * (AUTO_ADVANCE_MS / 1000 / 60)) })}
                   </p>
                 </motion.div>
               ) : (
@@ -238,7 +241,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
           {/* ── Right: History ── */}
           <div className="w-60 flex-shrink-0 flex flex-col min-h-0">
             <p className="text-[10px] uppercase tracking-widest text-fg-subtle mb-3 flex-shrink-0">
-              Discovered
+              {t('wikipedia.discovered')}
             </p>
             <div className="flex-1 overflow-y-auto flex flex-col gap-0.5 min-h-0">
               {history.map((article, i) => (
@@ -251,7 +254,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                 />
               ))}
               {history.length === 0 && (
-                <p className="text-xs text-fg-subtle text-center py-10">Loading…</p>
+                <p className="text-xs text-fg-subtle text-center py-10">{t('common.loading')}</p>
               )}
             </div>
           </div>
