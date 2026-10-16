@@ -114,7 +114,7 @@ export function LiveTickerBar({ coins }: Props) {
           <div
             className="w-1.5 h-1.5 rounded-full flex-shrink-0"
             style={{
-              background: isLive ? '#10b981' : '#6b7280',
+              background: isLive ? '#10b981' : '#8b93a1',
               boxShadow:  isLive ? '0 0 6px #10b981' : 'none',
               animation:  isLive ? 'ticker-pulse 1.4s ease-in-out infinite' : 'none',
             }}

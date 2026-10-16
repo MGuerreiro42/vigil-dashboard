@@ -17,7 +17,7 @@ export function LanguageStarsChart({ repos }: { repos: GithubRepo[] }) {
     <div style={chartFrameStyle}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={langStars} layout="vertical" margin={{ top: 16, right: 24, left: -10, bottom: 8 }}>
-          <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false}
+          <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} axisLine={false} tickLine={false}
             tickFormatter={(value) => (value >= 1000 ? `${(value / 1000).toFixed(0)}k` : String(value))} />
           <YAxis type="category" dataKey="lang" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} axisLine={false} tickLine={false} width={80} />
           <Tooltip

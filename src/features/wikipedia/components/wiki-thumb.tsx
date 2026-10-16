@@ -19,7 +19,7 @@ export function WikiThumb({
           'linear-gradient(135deg, rgba(167,139,250,0.12) 0%, rgba(167,139,250,0.04) 100%)',
       }}
     >
-      <span className="font-serif font-bold text-white/15 select-none" style={{ fontSize: 28 }}>
+      <span className="font-serif font-bold text-fg-subtle select-none" style={{ fontSize: 28 }}>
         W
       </span>
     </div>

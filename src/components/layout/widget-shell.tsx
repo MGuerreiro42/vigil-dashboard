@@ -102,7 +102,7 @@ export function WidgetShell({
             </div>
           )}
           {lastUpdated && (
-            <span className="text-[12px] text-white/28 tabular-nums">
+            <span className="text-[12px] text-fg-subtle tabular-nums">
               {formatRelative(lastUpdated)}
             </span>
           )}
@@ -110,7 +110,7 @@ export function WidgetShell({
           {viewRoute && !isFocused && (
             <Link
               to={viewRoute}
-              className="text-white/28 hover:text-white/60 transition-colors p-0.5 rounded"
+              className="text-fg-subtle hover:text-white/60 transition-colors p-0.5 rounded"
               aria-label="Abrir página completa"
               onClick={(event) => event.stopPropagation()}
             >
@@ -145,7 +145,7 @@ export function WidgetShell({
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center h-full gap-3 py-8"
             >
-              <span className="text-white/30 text-sm">Falha ao carregar dados</span>
+              <span className="text-fg-subtle text-sm">Falha ao carregar dados</span>
               {onRetry && (
                 <button
                   onClick={onRetry}

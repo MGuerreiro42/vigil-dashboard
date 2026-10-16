@@ -39,7 +39,7 @@ export function DepthChart({ book }: { book: BinanceOrderBook }) {
       {/* Spread info */}
       <div className="flex items-center gap-3 flex-shrink-0 text-[11px]">
         <span className="text-emerald-400 font-mono">Bid {formatPrice(bestBid)}</span>
-        <span className="text-white/30">
+        <span className="text-fg-subtle">
           Spread ${spread.toFixed(2)} · {spreadPct.toFixed(3)}%
         </span>
         <span className="text-rose-400 font-mono">Ask {formatPrice(bestAsk)}</span>
@@ -54,13 +54,13 @@ export function DepthChart({ book }: { book: BinanceOrderBook }) {
               dataKey="price"
               type="number"
               domain={['auto', 'auto']}
-              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+              tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }}
               axisLine={false} tickLine={false}
               tickFormatter={(value: number) => formatPrice(value)}
               tickCount={6}
             />
             <YAxis
-              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+              tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }}
               axisLine={false} tickLine={false}
             />
             <Tooltip

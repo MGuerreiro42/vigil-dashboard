@@ -70,10 +70,10 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
               <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'monospace', color: cfg.color, background: cfg.color + '18', padding: '1px 7px', borderRadius: 99 }}>{count}</span>
             </div>
             <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: 3 }}>{cfg.label}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {latest.title}
             </div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.18)', marginTop: 5 }}>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', marginTop: 5 }}>
               {formatRelativeTime(Math.floor(new Date(latest.date).getTime() / 1000))}
             </div>
           </motion.div>
@@ -83,7 +83,7 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
       {/* 🔥 Fire ranking by area */}
       {topFires.length > 0 && (
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <span>🔥</span> Maiores Incêndios Ativos
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -100,7 +100,7 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
                   transition={{ delay: i * 0.04 }}
                   style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                 >
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', width: 14, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace', width: 14, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)', marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                       {fire.title}
@@ -125,7 +125,7 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
       {/* 🌀 Storm intensity */}
       {storms.length > 0 && (
         <div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <span>🌀</span> Tempestades Ativas
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -143,13 +143,13 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 600, marginBottom: 2 }}>{storm.title}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>
                     {formatRelativeTime(Math.floor(new Date(storm.date).getTime() / 1000))}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: storm.cat.color, fontFamily: 'monospace' }}>{storm.magnitude} kts</div>
-                  <div style={{ fontSize: 9, color: storm.cat.color + 'aa', marginTop: 1 }}>{storm.cat.short} · {storm.cat.label}</div>
+                  <div style={{ fontSize: 9, color: storm.cat.color, marginTop: 1 }}>{storm.cat.short} · {storm.cat.label}</div>
                 </div>
               </motion.div>
             ))}

@@ -92,9 +92,9 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
                   <div className="text-xs font-medium text-white/80 group-hover:text-white/95 transition-colors truncate">
                     {repo.name}
                   </div>
-                  <div className="text-[11px] text-white/35 truncate mt-0.5">{repo.description}</div>
+                  <div className="text-[11px] text-fg-muted truncate mt-0.5">{repo.description}</div>
                 </div>
-                <span className="text-[11px] font-mono text-white/40 flex-shrink-0">⭐{formatStars(repo.stars)}</span>
+                <span className="text-[11px] font-mono text-fg-muted flex-shrink-0">⭐{formatStars(repo.stars)}</span>
               </div>
               <div className="flex gap-2 mt-1">
                 <LangBadge lang={repo.language} />
@@ -192,12 +192,12 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
                         )}
                         <span className="text-[12px] font-semibold text-white/80 truncate">{repo.name}</span>
                       </div>
-                      <div className="text-[11px] text-white/30 truncate mt-0.5">{repo.fullName}</div>
+                      <div className="text-[11px] text-fg-subtle truncate mt-0.5">{repo.fullName}</div>
                     </div>
                     <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
                       <span className="text-[11px] font-mono text-white/50">⭐{formatStars(repo.stars)}</span>
                       {repo.forks > 0 && (
-                        <span className="text-[11px] text-white/30">🍴{formatStars(repo.forks)}</span>
+                        <span className="text-[11px] text-fg-subtle">🍴{formatStars(repo.forks)}</span>
                       )}
                     </div>
                   </motion.div>

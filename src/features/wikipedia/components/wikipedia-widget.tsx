@@ -104,7 +104,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
               <button
                 onClick={() => setPaused((wasPaused) => !wasPaused)}
                 title={paused ? 'Resume auto-advance' : 'Pause auto-advance'}
-                className="px-2.5 py-1 rounded-lg text-xs transition-all text-white/35 hover:text-white/60"
+                className="px-2.5 py-1 rounded-lg text-xs transition-all text-fg-muted hover:text-white/60"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid rgba(255,255,255,0.07)',
@@ -153,7 +153,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                       {currentArticle.title}
                     </h2>
                     {currentArticle.description && (
-                      <p className="text-sm text-white/42 mt-1">{currentArticle.description}</p>
+                      <p className="text-sm text-fg-muted mt-1">{currentArticle.description}</p>
                     )}
                   </div>
 
@@ -164,13 +164,13 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
 
                   {/* Metadata pills */}
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-white/32">
+                    <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-fg-subtle">
                       🕐 {formatDate(currentArticle.timestamp)}
                     </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-white/32">
+                    <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-fg-subtle">
                       📖 ~{readingTime(currentArticle.extract)} min read
                     </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-white/32 uppercase tracking-wider">
+                    <span className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] text-fg-subtle uppercase tracking-wider">
                       {currentArticle.lang}
                     </span>
                     {currentArticle.coordinates && (
@@ -179,7 +179,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                         style={{
                           background: ACCENT + '10',
                           border: `1px solid ${ACCENT}28`,
-                          color: ACCENT + 'a0',
+                          color: ACCENT,
                         }}
                       >
                         📍 {currentArticle.coordinates.lat.toFixed(3)}°,{' '}
@@ -210,7 +210,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                       style={{ background: ACCENT + '55', width: `${progress * 100}%` }}
                     />
                   </div>
-                  <p className="text-[10px] text-white/20 -mt-3">
+                  <p className="text-[10px] text-fg-subtle -mt-3">
                     {paused
                       ? 'Auto-advance paused'
                       : `Next article in ~${Math.ceil((1 - progress) * (AUTO_ADVANCE_MS / 1000 / 60))} min`}
@@ -237,7 +237,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
 
           {/* ── Right: History ── */}
           <div className="w-60 flex-shrink-0 flex flex-col min-h-0">
-            <p className="text-[10px] uppercase tracking-widest text-white/22 mb-3 flex-shrink-0">
+            <p className="text-[10px] uppercase tracking-widest text-fg-subtle mb-3 flex-shrink-0">
               Discovered
             </p>
             <div className="flex-1 overflow-y-auto flex flex-col gap-0.5 min-h-0">
@@ -251,7 +251,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                 />
               ))}
               {history.length === 0 && (
-                <p className="text-xs text-white/20 text-center py-10">Loading…</p>
+                <p className="text-xs text-fg-subtle text-center py-10">Loading…</p>
               )}
             </div>
           </div>

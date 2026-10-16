@@ -4,7 +4,7 @@ import { StatTile } from '@/components/ui/stat-tile'
 export function ForexRates() {
   const { data: forex } = useExchangeRates()
 
-  if (!forex) return <p className="text-sm text-white/30">Dados forex indisponíveis.</p>
+  if (!forex) return <p className="text-sm text-fg-subtle">Dados forex indisponíveis.</p>
 
   return (
     <div className="flex flex-wrap gap-2">

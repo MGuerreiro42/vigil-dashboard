@@ -94,7 +94,7 @@ export function EventsGlobe({ events, selectedEvent, onEventClick, onClearSelect
         />
       )}
       {(!Globe || size.width === 0) && (
-        <div className="flex items-center justify-center h-full text-white/20 text-sm">Carregando globo…</div>
+        <div className="flex items-center justify-center h-full text-fg-subtle text-sm">Carregando globo…</div>
       )}
 
       {/* Pinned tooltip overlay */}
@@ -104,7 +104,7 @@ export function EventsGlobe({ events, selectedEvent, onEventClick, onClearSelect
         )}
       </AnimatePresence>
 
-      <div style={{ position: 'absolute', bottom: 10, right: 12, fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+      <div style={{ position: 'absolute', bottom: 10, right: 12, fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>
         clique no globo · pausa rotação
       </div>
     </div>

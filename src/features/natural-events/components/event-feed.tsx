@@ -39,9 +39,9 @@ export function EventFeed({ events, selectedEventId, onEventClick }: {
               >
                 {evt.country ? `${evt.country} — ${evt.title}` : evt.title}
               </div>
-              <div className="text-[10px] mt-0.5 flex items-center gap-1.5 flex-wrap" style={{ color: cfg.color + 'aa' }}>
+              <div className="text-[10px] mt-0.5 flex items-center gap-1.5 flex-wrap" style={{ color: cfg.color }}>
                 <span>{cfg.label}</span>
-                <span className="text-white/20">·</span>
+                <span className="text-fg-subtle">·</span>
                 <span>{formatRelativeTime(Math.floor(new Date(evt.date).getTime() / 1000))}</span>
                 {evt.alertLevel && evt.alertLevel !== 'Green' && (
                   <span
@@ -58,7 +58,7 @@ export function EventFeed({ events, selectedEventId, onEventClick }: {
                     rel="noopener"
                     onClick={event => event.stopPropagation()}
                     className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ color: cfg.color + '99', fontSize: 10 }}
+                    style={{ color: cfg.color, fontSize: 10 }}
                   >↗</a>
                 )}
               </div>

@@ -75,7 +75,7 @@ export function InsightCard({ insight, index }: { insight: BriefInsight; index: 
         </p>
 
         {/* Detail — secundário, menor */}
-        <p className="text-[11px] text-white/40 mt-1.5 leading-relaxed line-clamp-2">
+        <p className="text-[11px] text-fg-muted mt-1.5 leading-relaxed line-clamp-2">
           {insight.detail}
         </p>
 
@@ -85,7 +85,7 @@ export function InsightCard({ insight, index }: { insight: BriefInsight; index: 
             <span
               key={src}
               className="text-[10px] px-1.5 py-px rounded-sm"
-              style={{ background: `${color}12`, color: `${color}80` }}
+              style={{ background: `${color}12`, color: color }}
             >
               {src}
             </span>

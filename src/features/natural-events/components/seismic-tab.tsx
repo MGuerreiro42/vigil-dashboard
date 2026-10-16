@@ -32,7 +32,7 @@ export function SeismicTab({ quakes }: { quakes: Earthquake[] }) {
             {option === 'mag' ? 'Magnitude ↓' : 'Recente'}
           </button>
         ))}
-        <span className="ml-auto text-[10px] text-white/20">{quakes.length} eventos</span>
+        <span className="ml-auto text-[10px] text-fg-subtle">{quakes.length} eventos</span>
       </div>
 
       {/* List */}
@@ -55,8 +55,8 @@ export function SeismicTab({ quakes }: { quakes: Earthquake[] }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[12px] text-white/70 truncate group-hover:text-white/90">{quake.place}</div>
-              <div className="text-[10px] text-white/28 mt-0.5 flex items-center gap-1.5">
-                <span style={{ color: magnitudeColor(quake.magnitude) + 'aa' }}>{magnitudeLabel(quake.magnitude)}</span>
+              <div className="text-[10px] text-fg-subtle mt-0.5 flex items-center gap-1.5">
+                <span style={{ color: magnitudeColor(quake.magnitude) }}>{magnitudeLabel(quake.magnitude)}</span>
                 <span>·</span>
                 <span>{quake.depth.toFixed(0)} km prof.</span>
                 <span>·</span>

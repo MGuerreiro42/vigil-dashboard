@@ -37,13 +37,13 @@ export function CompactOverlay({
       pointerEvents: 'none',
     }}>
       <div>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
           sobrevoo
         </div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.80)', fontWeight: 600, marginBottom: 2 }}>
           {locationLabel}
         </div>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.62)', fontFamily: 'monospace' }}>
           {formatCoordinate(position.lat, 'N', 'S')}
         </div>
       </div>

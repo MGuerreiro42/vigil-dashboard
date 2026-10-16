@@ -86,9 +86,9 @@ export function CoinList({ coins, selectedId, onSelect }: {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1">
                   <span className="text-[12px] font-semibold text-white/85">{coin.symbol}</span>
-                  <span className="text-[10px] text-white/25">#{coin.rank}</span>
+                  <span className="text-[10px] text-fg-subtle">#{coin.rank}</span>
                 </div>
-                <div className="text-[10px] text-white/35 truncate">{coin.name}</div>
+                <div className="text-[10px] text-fg-muted truncate">{coin.name}</div>
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <ChangeBadge pct={coin.change24h} />

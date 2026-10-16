@@ -79,14 +79,14 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
                     transition={{ delay: i * 0.04 }}
                     className="flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-white/4 transition-colors"
                   >
-                    <span className="text-[12px] text-white/40 capitalize w-10">{dayName}</span>
+                    <span className="text-[12px] text-fg-muted capitalize w-10">{dayName}</span>
                     <span className="text-base leading-none">{icon}</span>
                     <div className="flex-1" />
                     {day.precipitationProb > 20 && (
                       <span className="text-[11px]" style={{ color: ACCENT }}>{day.precipitationProb}%</span>
                     )}
                     <span className="text-[12px] font-mono text-white/70">{day.tempMax.toFixed(0)}°</span>
-                    <span className="text-[12px] font-mono text-white/35">{day.tempMin.toFixed(0)}°</span>
+                    <span className="text-[12px] font-mono text-fg-muted">{day.tempMin.toFixed(0)}°</span>
                   </motion.div>
                 )
               })}
@@ -129,12 +129,12 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
                             {day.precipitationProb > 20 && (
                               <span className="text-[11px]" style={{ color: ACCENT }}>💧{day.precipitationProb}%</span>
                             )}
-                            <span className="text-[11px] text-white/30">UV {day.uvIndexMax.toFixed(0)}</span>
+                            <span className="text-[11px] text-fg-subtle">UV {day.uvIndexMax.toFixed(0)}</span>
                           </div>
                         </div>
                         <div className="text-right flex-shrink-0">
                           <span className="text-[12px] font-mono text-white/75">{day.tempMax.toFixed(0)}°</span>
-                          <span className="text-[12px] font-mono text-white/35 ml-1">{day.tempMin.toFixed(0)}°</span>
+                          <span className="text-[12px] font-mono text-fg-muted ml-1">{day.tempMin.toFixed(0)}°</span>
                         </div>
                       </motion.div>
                     )

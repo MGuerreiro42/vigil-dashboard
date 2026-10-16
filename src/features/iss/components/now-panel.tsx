@@ -59,7 +59,7 @@ export function NowPanel({
         <div style={{ fontSize: 11, fontWeight: 700, color: daylight ? '#fbbf24' : '#818cf8' }}>
           {daylight ? 'Luz do dia' : 'Eclipsada'}
         </div>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginTop: 1 }}>visibilidade da ISS</div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>visibilidade da ISS</div>
       </motion.div>
 
       {/* Country / timezone */}
@@ -67,12 +67,12 @@ export function NowPanel({
         padding: '8px 12px', borderRadius: 10,
         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.24)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
           Sobrevoo
         </div>
         <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>{locationLabel}</div>
         {timezoneId && (
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 3, lineHeight: 1.4 }}>{tzLabel}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.62)', marginTop: 3, lineHeight: 1.4 }}>{tzLabel}</div>
         )}
       </div>
 
@@ -82,7 +82,7 @@ export function NowPanel({
           padding: '7px 12px', borderRadius: 10,
           background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
         }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.24)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 3 }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 3 }}>
             {label}
           </div>
           <div style={{ fontSize: 12, fontWeight: 700, color, fontFamily: 'monospace' }}>{value}</div>
@@ -97,8 +97,8 @@ export function NowPanel({
 
       {/* Update counter */}
       <div style={{ textAlign: 'center', paddingTop: 2 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.18)' }}>atualiza a cada 5s</div>
-        <div style={{ fontSize: 10, fontFamily: 'monospace', color: ACCENT + '60', marginTop: 2 }}>#{updateCount}</div>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>atualiza a cada 5s</div>
+        <div style={{ fontSize: 10, fontFamily: 'monospace', color: ACCENT, marginTop: 2 }}>#{updateCount}</div>
       </div>
     </div>
   )

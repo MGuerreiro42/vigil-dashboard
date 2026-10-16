@@ -20,7 +20,7 @@ export function buildGlobeTooltip(evt: NaturalEvent): string {
       const display = evt.magnitude >= 1000
         ? `${(evt.magnitude / 1000).toFixed(1)}k ${unit}`
         : `${evt.magnitude.toFixed(0)} ${unit}`
-      magLine = `<span style="color:${cfg.color}cc;font-size:10px">${display}</span>`
+      magLine = `<span style="color:${cfg.color};font-size:10px">${display}</span>`
     }
   }
 
@@ -32,8 +32,8 @@ export function buildGlobeTooltip(evt: NaturalEvent): string {
         ${magLine}
       </div>
       <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);line-height:1.4;margin-bottom:5px">${escapeHtml(evt.title)}</div>
-      ${evt.description ? `<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:5px">${escapeHtml(evt.description)}</div>` : ''}
-      <div style="font-size:10px;color:rgba(255,255,255,0.3)">${Math.abs(evt.lat).toFixed(2)}°${latDir} ${Math.abs(evt.lng).toFixed(2)}°${lngDir} · ${rel}</div>
+      ${evt.description ? `<div style="font-size:10px;color:rgba(255,255,255,0.62);margin-bottom:5px">${escapeHtml(evt.description)}</div>` : ''}
+      <div style="font-size:10px;color:rgba(255,255,255,0.5)">${Math.abs(evt.lat).toFixed(2)}°${latDir} ${Math.abs(evt.lng).toFixed(2)}°${lngDir} · ${rel}</div>
     </div>
   `
 }

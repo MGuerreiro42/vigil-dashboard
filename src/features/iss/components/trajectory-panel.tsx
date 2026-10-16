@@ -6,7 +6,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
   if (futurePath.length === 0) {
     return (
       <div style={{ width: 185, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>Calculando…</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Calculando…</div>
       </div>
     )
   }
@@ -22,7 +22,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
         padding: '9px 12px', borderRadius: 10,
         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.24)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
           Próxima órbita (~{period} min)
         </div>
         {/* Day/night bar */}
@@ -40,7 +40,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
         padding: '8px 12px', borderRadius: 10,
         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.24)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
           Posições futuras
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -61,7 +61,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
                 <span style={{ fontSize: 9, color: ACCENT, fontFamily: 'monospace', flexShrink: 0, minWidth: 36 }}>
                   +{minsFromNow}m
                 </span>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.62)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {Math.abs(fp.lat).toFixed(1)}°{fp.lat >= 0 ? 'N' : 'S'} {Math.abs(fp.lng).toFixed(1)}°{fp.lng >= 0 ? 'E' : 'W'}
                 </span>
               </motion.div>
@@ -74,7 +74,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
       <div style={{
         padding: '8px 12px', borderRadius: 10,
         background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-        fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6,
+        fontSize: 10, color: 'rgba(255,255,255,0.62)', lineHeight: 1.6,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
           <div style={{ width: 20, height: 2, background: '#f59e0b', borderRadius: 1, flexShrink: 0 }} />

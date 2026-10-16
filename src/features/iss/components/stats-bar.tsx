@@ -27,25 +27,25 @@ export function StatsBar({
     <div className="flex items-center gap-2 mb-3 flex-shrink-0 flex-wrap">
       {/* Quick stats */}
       <div className="flex flex-col px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-        <span className="text-[9px] uppercase tracking-widest text-white/25 leading-none">Altitude</span>
+        <span className="text-[9px] uppercase tracking-widest text-fg-subtle leading-none">Altitude</span>
         <span className="text-[17px] font-mono font-bold leading-none mt-1.5" style={{ color: ACCENT }}>
           {position.altitude.toFixed(0)}
         </span>
-        <span className="text-[9px] text-white/20 mt-0.5 leading-none">km</span>
+        <span className="text-[9px] text-fg-subtle mt-0.5 leading-none">km</span>
       </div>
       <div className="flex flex-col px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-        <span className="text-[9px] uppercase tracking-widest text-white/25 leading-none">Velocidade</span>
+        <span className="text-[9px] uppercase tracking-widest text-fg-subtle leading-none">Velocidade</span>
         <span className="text-[17px] font-mono font-bold leading-none mt-1.5" style={{ color: '#10b981' }}>
           {(position.velocity / 3600).toFixed(2)}
         </span>
-        <span className="text-[9px] text-white/20 mt-0.5 leading-none">km/s</span>
+        <span className="text-[9px] text-fg-subtle mt-0.5 leading-none">km/s</span>
       </div>
       <div className="flex flex-col px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-        <span className="text-[9px] uppercase tracking-widest text-white/25 leading-none">Footprint</span>
+        <span className="text-[9px] uppercase tracking-widest text-fg-subtle leading-none">Footprint</span>
         <span className="text-[17px] font-mono font-bold text-white/70 leading-none mt-1.5">
           {Math.round(position.footprint / 1000)}k
         </span>
-        <span className="text-[9px] text-white/20 mt-0.5 leading-none">km visíveis</span>
+        <span className="text-[9px] text-fg-subtle mt-0.5 leading-none">km visíveis</span>
       </div>
 
       {/* Tabs */}

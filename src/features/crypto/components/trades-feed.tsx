@@ -5,7 +5,7 @@ import { USD_COMPACT, formatPrice } from '@/features/crypto/lib/crypto-format'
 export function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coinSymbol: string }) {
   if (trades.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-2 text-white/25">
+      <div className="flex flex-col items-center justify-center h-full gap-2 text-fg-subtle">
         <motion.div
           animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ repeat: Infinity, duration: 1.2 }}
@@ -37,7 +37,7 @@ export function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coi
       </div>
 
       {/* Column header */}
-      <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 px-2 py-1 text-[10px] text-white/25 uppercase tracking-widest flex-shrink-0">
+      <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 px-2 py-1 text-[10px] text-fg-subtle uppercase tracking-widest flex-shrink-0">
         <span>Preço</span>
         <span className="text-right">Qtd</span>
         <span className="text-right w-16">Valor USD</span>
@@ -61,8 +61,8 @@ export function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coi
                 <span style={{ color: isBuy ? '#10b981' : '#f43f5e' }}>
                   {formatPrice(trade.price)}
                 </span>
-                <span className="text-right text-white/45">{trade.qty.toFixed(4)}</span>
-                <span className="text-right text-white/35 w-16">{USD_COMPACT.format(trade.value)}</span>
+                <span className="text-right text-fg-muted">{trade.qty.toFixed(4)}</span>
+                <span className="text-right text-fg-muted w-16">{USD_COMPACT.format(trade.value)}</span>
               </motion.div>
             )
           })}

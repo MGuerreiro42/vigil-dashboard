@@ -26,9 +26,9 @@ export function HourlyForecastChart({ hourly }: { hourly: HourlyPoint[] }) {
             </linearGradient>
           </defs>
           <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-          <XAxis dataKey="hora" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} tickLine={false} axisLine={false} interval={3} />
-          <YAxis yAxisId="temp" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} tickLine={false} axisLine={false} />
-          <YAxis yAxisId="rain" orientation="right" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11 }} tickLine={false} axisLine={false} />
+          <XAxis dataKey="hora" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} tickLine={false} axisLine={false} interval={3} />
+          <YAxis yAxisId="temp" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} tickLine={false} axisLine={false} />
+          <YAxis yAxisId="rain" orientation="right" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} tickLine={false} axisLine={false} />
           <Tooltip
             contentStyle={chartTooltipStyle}
             labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
