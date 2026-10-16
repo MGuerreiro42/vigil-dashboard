@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useWebSocket } from '@/hooks/useWebSocket'
-import type { BinanceOrderBook, BinanceTrade } from './types/binance'
+import type { BinanceOrderBook, BinanceOrderBookEntry, BinanceTrade, RawDepth, RawTrade } from './types/binance'
 
 /** Maps CoinGecko IDs → Binance USDT pair (lowercase) */
 export const COINGECKO_TO_BINANCE: Record<string, string> = {
@@ -21,6 +21,11 @@ export const COINGECKO_TO_BINANCE: Record<string, string> = {
   monero: 'xmrusdt',
 }
 
+const toBookEntry = ([price, qty]: [string, string]): BinanceOrderBookEntry => ({
+  price: parseFloat(price),
+  qty: parseFloat(qty),
+})
+
 export const WS_BASE = 'wss://stream.binance.com:9443'
 
 // ─── Order book depth ─────────────────────────────────────────────────────
@@ -37,15 +42,13 @@ export function useBinanceOrderBook(coinId: string | null): BinanceOrderBook | n
   const url = symbol ? `${WS_BASE}/ws/${symbol}@depth20` : null
 
   useWebSocket(url, { onMessage: (raw) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const d = raw as any
-    if (!Array.isArray(d?.bids)) return
-    if (!symbol) return
+    const depth = raw as RawDepth
+    if (!Array.isArray(depth?.bids) || !symbol) return
     setBook({
       symbol,
       data: {
-        bids: d.bids.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
-        asks: d.asks.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
+        bids: depth.bids.map(toBookEntry),
+        asks: depth.asks.map(toBookEntry),
         updatedAt: Date.now(),
       },
     })
@@ -82,18 +85,17 @@ export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
   }, [symbol])
 
   useWebSocket(url, { onMessage: (raw) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const t = raw as any
-    if (!t?.t || !symbol) return
-    const price = parseFloat(t.p)
-    const qty = parseFloat(t.q)
+    const trade = raw as RawTrade
+    if (!trade?.t || !symbol) return
+    const price = parseFloat(trade.p)
+    const qty = parseFloat(trade.q)
     bufferRef.current.push({
-      id: t.t,
+      id: trade.t,
       price,
       qty,
       value: price * qty,
-      buyerMaker: t.m,
-      timestamp: t.T,
+      buyerMaker: trade.m,
+      timestamp: trade.T,
     })
     if (frameRef.current !== null) return
     frameRef.current = requestAnimationFrame(() => {

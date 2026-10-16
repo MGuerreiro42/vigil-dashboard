@@ -208,7 +208,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
   }
 
   const getNext = useCallback(() => {
-    setSeed((s) => s + 1)
+    setSeed((current) => current + 1)
   }, [])
 
   const progress = useAutoAdvance(AUTO_ADVANCE_MS, seed, getNext, paused)
@@ -217,7 +217,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
 
   function switchLang(code: WikiLangCode) {
     setLang(code)
-    setSeed((s) => s + 1)
+    setSeed((current) => current + 1)
   }
 
   return (

@@ -83,11 +83,11 @@ type QuakeForMap = {
   url: string
 }
 
-function buildPopupHTML(q: QuakeForMap): string {
-  const color = magColor(q.magnitude)
-  const label = magLabel(q.magnitude)
-  const relTime = formatRelativeTime(Math.floor(q.time / 1000))
-  const tsunamiRow = q.tsunamiRisk
+function buildPopupHTML(quake: QuakeForMap): string {
+  const color = magColor(quake.magnitude)
+  const label = magLabel(quake.magnitude)
+  const relTime = formatRelativeTime(Math.floor(quake.time / 1000))
+  const tsunamiRow = quake.tsunamiRisk
     ? `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;margin:8px -14px -2px;background:rgba(245,158,11,0.08);border-top:1px solid rgba(245,158,11,0.15)">
         <span style="font-size:13px">⚠️</span>
         <span style="font-size:11px;color:#f59e0b;font-weight:500">Risco de tsunami</span>
@@ -96,14 +96,14 @@ function buildPopupHTML(q: QuakeForMap): string {
   return `
     <div style="padding:14px 14px 12px;min-width:200px;font-family:Inter,system-ui,sans-serif">
       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-        <span style="font-size:22px;font-weight:700;font-family:monospace;letter-spacing:-0.5px;color:${color}">M${q.magnitude.toFixed(1)}</span>
+        <span style="font-size:22px;font-weight:700;font-family:monospace;letter-spacing:-0.5px;color:${color}">M${quake.magnitude.toFixed(1)}</span>
         <span style="font-size:11px;font-weight:500;padding:1px 7px;border-radius:99px;background:${color}20;color:${color}">${label}</span>
       </div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.45;margin-bottom:10px;max-width:220px">${escapeHtml(q.place)}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.45;margin-bottom:10px;max-width:220px">${escapeHtml(quake.place)}</div>
       <div style="display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px">
         <div style="display:flex;justify-content:space-between;gap:16px">
           <span style="font-size:11px;color:rgba(255,255,255,0.35)">Profundidade</span>
-          <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${q.depth.toFixed(0)} km</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${quake.depth.toFixed(0)} km</span>
         </div>
         <div style="display:flex;justify-content:space-between;gap:16px">
           <span style="font-size:11px;color:rgba(255,255,255,0.35)">Ocorreu</span>
@@ -111,11 +111,11 @@ function buildPopupHTML(q: QuakeForMap): string {
         </div>
         <div style="display:flex;justify-content:space-between;gap:16px">
           <span style="font-size:11px;color:rgba(255,255,255,0.35)">Significância</span>
-          <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${q.significance}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.65);font-family:monospace">${quake.significance}</span>
         </div>
       </div>
       ${tsunamiRow}
-      <a href="${escapeHtml(q.url)}" target="_blank" rel="noopener noreferrer" class="eq-popup-link"
+      <a href="${escapeHtml(quake.url)}" target="_blank" rel="noopener noreferrer" class="eq-popup-link"
         style="display:inline-block;margin-top:12px;font-size:11px;color:${color};opacity:0.65;text-decoration:none;transition:opacity 0.15s">
         Ver no USGS ↗
       </a>
@@ -148,22 +148,22 @@ function LeafletMap({
     let cancelled = false
     const markers = markersRef.current
 
-    function initMap(L: typeof Leaflet) {
+    function initMap(leaflet: typeof Leaflet) {
       if (cancelled || !containerRef.current || mapRef.current) return
 
-      const map = L.map(containerRef.current, {
+      const map = leaflet.map(containerRef.current, {
         center: [20, 0],
         zoom: 2,
         zoomControl: false,
         attributionControl: false,
       })
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      leaflet.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 18,
       }).addTo(map)
 
-      leafletRef.current = L
-      layerRef.current = L.layerGroup().addTo(map)
+      leafletRef.current = leaflet
+      layerRef.current = leaflet.layerGroup().addTo(map)
       mapRef.current = map
       setReady(true)
 
@@ -182,7 +182,7 @@ function LeafletMap({
         rafRef.current = requestAnimationFrame(tryInit)
         return
       }
-      import('leaflet').then((L) => initMap(L))
+      import('leaflet').then(initMap)
     }
 
     rafRef.current = requestAnimationFrame(tryInit)
@@ -200,30 +200,30 @@ function LeafletMap({
   }, [])
 
   useEffect(() => {
-    const L = leafletRef.current
+    const leaflet = leafletRef.current
     const layer = layerRef.current
-    if (!ready || !L || !layer) return
+    if (!ready || !leaflet || !layer) return
     layer.clearLayers()
     markersRef.current.clear()
-    quakes.forEach((q) => {
-      const color = magColor(q.magnitude)
-      const marker = L.circleMarker([q.location.lat, q.location.lng], {
-        radius: Math.max(5, q.magnitude * 3.5),
+    quakes.forEach((quake) => {
+      const color = magColor(quake.magnitude)
+      const marker = leaflet.circleMarker([quake.location.lat, quake.location.lng], {
+        radius: Math.max(5, quake.magnitude * 3.5),
         fillColor: color,
         color,
         weight: 1,
         fillOpacity: 0.65,
       })
-        .bindPopup(buildPopupHTML(q), { maxWidth: 280, className: 'eq-popup' })
+        .bindPopup(buildPopupHTML(quake), { maxWidth: 280, className: 'eq-popup' })
         .addTo(layer)
-      markersRef.current.set(q.id, marker)
+      markersRef.current.set(quake.id, marker)
     })
   }, [quakes, ready])
 
   // Quando um item da lista é selecionado, voa até ele e abre o popup
   useEffect(() => {
     if (!selectedQuakeId || !mapRef.current) return
-    const quake = quakes.find((q) => q.id === selectedQuakeId)
+    const quake = quakes.find((candidate) => candidate.id === selectedQuakeId)
     if (!quake) return
     mapRef.current.flyTo([quake.location.lat, quake.location.lng], 5, { animate: true, duration: 0.8 })
     // Aguarda a animação antes de abrir o popup
