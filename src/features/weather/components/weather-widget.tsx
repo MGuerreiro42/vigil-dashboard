@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { WidgetShell } from '@/components/layout/widget-shell'
+import { SegmentedTabs } from '@/components/ui/segmented-tabs'
+import { tabPanel } from '@/components/ui/tab-panel'
 import { useWeather } from '@/features/weather/api/open-meteo'
 import { useAirQuality } from '@/features/weather/api/air-quality'
 import { useGeoStore } from '@/store/geo-store'
@@ -203,31 +205,11 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
 
               {/* Coluna direita */}
               <div className="flex-1 min-w-0 flex flex-col gap-3">
-                <div className="flex gap-1 flex-shrink-0">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setRightTab(tab.id)}
-                      className="px-3 py-1 rounded-lg text-xs font-medium transition-all"
-                      style={{
-                        background: rightTab === tab.id ? ACCENT + '20' : 'transparent',
-                        color: rightTab === tab.id ? ACCENT : 'rgba(255,255,255,0.35)',
-                        border: `1px solid ${rightTab === tab.id ? ACCENT + '50' : 'transparent'}`,
-                      }}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
+                <SegmentedTabs tabs={tabs} active={rightTab} onChange={setRightTab} accent={ACCENT} />
 
                 <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
                   {/* Tab: 24h */}
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    opacity: rightTab === '24h' ? 1 : 0,
-                    pointerEvents: rightTab === '24h' ? 'auto' : 'none',
-                    transition: 'opacity 0.2s ease',
-                  }}>
+                  <div {...tabPanel(rightTab === '24h')}>
                     <div style={{
                       position: 'absolute', inset: 0,
                       background: '#06080f',
@@ -269,16 +251,7 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
                   </div>
 
                   {/* Tab: Qualidade do Ar */}
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    opacity: rightTab === 'air' ? 1 : 0,
-                    pointerEvents: rightTab === 'air' ? 'auto' : 'none',
-                    transition: 'opacity 0.2s ease',
-                    overflowY: 'auto',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 12,
-                  }}>
+                  <div {...tabPanel(rightTab === 'air', { overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12 })}>
                     {air && aqiInfo ? (
                       <>
                         <div className="flex items-center gap-4 px-4 py-3 rounded-xl flex-shrink-0"
@@ -324,13 +297,7 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
                   </div>
 
                   {/* Tab: Detalhes */}
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    opacity: rightTab === 'details' ? 1 : 0,
-                    pointerEvents: rightTab === 'details' ? 'auto' : 'none',
-                    transition: 'opacity 0.2s ease',
-                    overflowY: 'auto',
-                  }}>
+                  <div {...tabPanel(rightTab === 'details', { overflowY: 'auto' })}>
                     {selectedDay && (() => {
                       const uv = uvLabel(selectedDay.uvIndexMax)
                       return (

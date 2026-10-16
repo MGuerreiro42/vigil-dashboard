@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { WidgetShell } from '@/components/layout/widget-shell'
+import { magnitudeColor, magnitudeLabel } from '@/features/earthquakes/lib/magnitude'
+import { SegmentedTabs } from '@/components/ui/segmented-tabs'
+import { tabPanel } from '@/components/ui/tab-panel'
 import { useNaturalEvents } from '@/features/natural-events/api/gdacs'
 import { useEarthquakes } from '@/features/earthquakes/api/usgs'
 import { formatRelativeTime } from '@/lib/format-relative-time'
@@ -47,18 +50,6 @@ function alertBadge(level?: string) {
 // ---------------------------------------------------------------------------
 // Seismic helpers
 // ---------------------------------------------------------------------------
-function magColor(mag: number): string {
-  if (mag >= 6.5) return '#f43f5e'
-  if (mag >= 5.0) return '#f97316'
-  if (mag >= 3.5) return '#f59e0b'
-  return '#6b7280'
-}
-function magLabel(mag: number): string {
-  if (mag >= 6.5) return 'Severo'
-  if (mag >= 5.0) return 'Forte'
-  if (mag >= 3.5) return 'Moderado'
-  return 'Menor'
-}
 
 function SeismicTab({ quakes }: { quakes: Earthquake[] }) {
   const [sort, setSort] = useState<'recent' | 'mag'>('mag')
@@ -102,16 +93,16 @@ function SeismicTab({ quakes }: { quakes: Earthquake[] }) {
           >
             <div
               className="flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0"
-              style={{ background: magColor(quake.magnitude) + '18', border: `1px solid ${magColor(quake.magnitude)}30` }}
+              style={{ background: magnitudeColor(quake.magnitude) + '18', border: `1px solid ${magnitudeColor(quake.magnitude)}30` }}
             >
-              <span className="text-[12px] font-mono font-bold" style={{ color: magColor(quake.magnitude) }}>
+              <span className="text-[12px] font-mono font-bold" style={{ color: magnitudeColor(quake.magnitude) }}>
                 {quake.magnitude.toFixed(1)}
               </span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[12px] text-white/70 truncate group-hover:text-white/90">{quake.place}</div>
               <div className="text-[10px] text-white/28 mt-0.5 flex items-center gap-1.5">
-                <span style={{ color: magColor(quake.magnitude) + 'aa' }}>{magLabel(quake.magnitude)}</span>
+                <span style={{ color: magnitudeColor(quake.magnitude) + 'aa' }}>{magnitudeLabel(quake.magnitude)}</span>
                 <span>·</span>
                 <span>{quake.depth.toFixed(0)} km prof.</span>
                 <span>·</span>
@@ -988,12 +979,12 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
 
           {isFocused && maxQuake && (
             <div className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[64px]"
-              style={{ background: magColor(maxQuake.magnitude) + '10', borderColor: magColor(maxQuake.magnitude) + '35' }}>
-              <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magColor(maxQuake.magnitude) + 'aa' }}>Maior M</span>
-              <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: magColor(maxQuake.magnitude) }}>
+              style={{ background: magnitudeColor(maxQuake.magnitude) + '10', borderColor: magnitudeColor(maxQuake.magnitude) + '35' }}>
+              <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magnitudeColor(maxQuake.magnitude) + 'aa' }}>Maior M</span>
+              <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: magnitudeColor(maxQuake.magnitude) }}>
                 {maxQuake.magnitude.toFixed(1)}
               </span>
-              <span className="text-[10px] mt-1 leading-none truncate" style={{ color: magColor(maxQuake.magnitude) + '80' }}>
+              <span className="text-[10px] mt-1 leading-none truncate" style={{ color: magnitudeColor(maxQuake.magnitude) + '80' }}>
                 {maxQuake.place.split(',')[0]}
               </span>
             </div>
@@ -1070,65 +1061,30 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
           {/* Main panel — LEFT (flex-1) */}
           <div className="flex-1 min-w-0 flex flex-col gap-3">
             {/* Tab bar */}
-            <div className="flex gap-1 flex-shrink-0">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.id)}
-                  className="px-3 py-1 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    background: activeTab === tab.id ? ACCENT + '20' : 'transparent',
-                    color: activeTab === tab.id ? ACCENT : 'rgba(255,255,255,0.35)',
-                    border: `1px solid ${activeTab === tab.id ? ACCENT + '50' : 'transparent'}`,
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            <SegmentedTabs tabs={tabs} active={activeTab} onChange={handleTabChange} accent={ACCENT} />
 
             {/* Panel area */}
             <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
 
               {/* Globe — keep in DOM once visited (canvas survives opacity toggle) */}
               {globeEverVisited && (
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  opacity: activeTab === 'globe' ? 1 : 0,
-                  pointerEvents: activeTab === 'globe' ? 'auto' : 'none',
-                  transition: 'opacity 0.2s ease',
-                }}>
+                <div {...tabPanel(activeTab === 'globe')}>
                   <GlobeView events={events} selectedEvent={selectedEvent} onEventClick={handleEventClick} onClearSelection={handleClearSelection} active={activeTab === 'globe'} />
                 </div>
               )}
 
               {/* Timeline */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: activeTab === 'timeline' ? 1 : 0,
-                pointerEvents: activeTab === 'timeline' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-              }}>
+              <div {...tabPanel(activeTab === 'timeline')}>
                 <TimelineView events={events} />
               </div>
 
               {/* Categories */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: activeTab === 'categories' ? 1 : 0,
-                pointerEvents: activeTab === 'categories' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-              }}>
+              <div {...tabPanel(activeTab === 'categories')}>
                 <CategoriesView events={events} />
               </div>
 
               {/* Seismic — USGS earthquake data */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: activeTab === 'seismic' ? 1 : 0,
-                pointerEvents: activeTab === 'seismic' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-              }}>
+              <div {...tabPanel(activeTab === 'seismic')}>
                 <SeismicTab quakes={quakes} />
               </div>
 

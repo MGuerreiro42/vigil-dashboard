@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { WidgetShell } from '@/components/layout/widget-shell'
+import { SegmentedTabs } from '@/components/ui/segmented-tabs'
+import { tabPanel } from '@/components/ui/tab-panel'
 import { useTrendingRepos } from '@/features/github/api/github'
 
 const ACCENT = '#a855f7'
@@ -278,32 +280,11 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
 
           {/* Coluna direita */}
           <div className="flex-1 min-w-0 flex flex-col gap-3 min-h-[280px] md:min-h-0">
-            <div className="flex gap-1 flex-shrink-0">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setRightTab(tab.id)}
-                  className="px-3 py-1 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    background: rightTab === tab.id ? ACCENT + '20' : 'transparent',
-                    color: rightTab === tab.id ? ACCENT : 'rgba(255,255,255,0.35)',
-                    border: `1px solid ${rightTab === tab.id ? ACCENT + '50' : 'transparent'}`,
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            <SegmentedTabs tabs={tabs} active={rightTab} onChange={setRightTab} accent={ACCENT} />
 
             <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
               {/* Tab: Repo */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'repo' ? 1 : 0,
-                pointerEvents: rightTab === 'repo' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-                overflowY: 'auto',
-              }}>
+              <div {...tabPanel(rightTab === 'repo', { overflowY: 'auto' })}>
                 {selectedRepo ? (
                   <div style={{ background: '#06080f', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', padding: 16 }}>
                     <div className="mb-3">
@@ -346,12 +327,7 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
               </div>
 
               {/* Tab: Linguagens */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'languages' ? 1 : 0,
-                pointerEvents: rightTab === 'languages' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-              }}>
+              <div {...tabPanel(rightTab === 'languages')}>
                 <div style={{
                   position: 'absolute', inset: 0,
                   background: '#06080f',
@@ -385,15 +361,7 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
               </div>
 
               {/* Tab: Análise */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'analysis' ? 1 : 0,
-                pointerEvents: rightTab === 'analysis' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12,
-              }}>
+              <div {...tabPanel(rightTab === 'analysis', { display: 'flex', flexDirection: 'column', gap: 12 })}>
                 <div style={{ flex: 1, position: 'relative' }}>
                   <div style={{
                     position: 'absolute', inset: 0,

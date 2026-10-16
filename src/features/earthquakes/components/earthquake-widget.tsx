@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, ZAxis, CartesianGrid } from 'recharts'
 import { WidgetShell } from '@/components/layout/widget-shell'
+import { magnitudeColor, magnitudeLabel } from '@/features/earthquakes/lib/magnitude'
+import { SegmentedTabs } from '@/components/ui/segmented-tabs'
+import { tabPanel } from '@/components/ui/tab-panel'
 import { useEarthquakes } from '@/features/earthquakes/api/usgs'
 import { formatRelativeTime } from '@/lib/format-relative-time'
 import { useAlertsStore } from '@/store/alerts-store'
@@ -11,19 +14,6 @@ import type * as Leaflet from 'leaflet'
 
 const ACCENT = '#f43f5e'
 
-function magColor(mag: number): string {
-  if (mag >= 6.5) return '#f43f5e'
-  if (mag >= 5.0) return '#f97316'
-  if (mag >= 3.5) return '#f59e0b'
-  return '#6b7280'
-}
-
-function magLabel(mag: number): string {
-  if (mag >= 6.5) return 'Severo'
-  if (mag >= 5.0) return 'Forte'
-  if (mag >= 3.5) return 'Moderado'
-  return 'Menor'
-}
 
 const US_STATES = new Set([
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA',
@@ -84,8 +74,8 @@ type QuakeForMap = {
 }
 
 function buildPopupHTML(quake: QuakeForMap): string {
-  const color = magColor(quake.magnitude)
-  const label = magLabel(quake.magnitude)
+  const color = magnitudeColor(quake.magnitude)
+  const label = magnitudeLabel(quake.magnitude)
   const relTime = formatRelativeTime(Math.floor(quake.time / 1000))
   const tsunamiRow = quake.tsunamiRisk
     ? `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;margin:8px -14px -2px;background:rgba(245,158,11,0.08);border-top:1px solid rgba(245,158,11,0.15)">
@@ -206,7 +196,7 @@ function LeafletMap({
     layer.clearLayers()
     markersRef.current.clear()
     quakes.forEach((quake) => {
-      const color = magColor(quake.magnitude)
+      const color = magnitudeColor(quake.magnitude)
       const marker = leaflet.circleMarker([quake.location.lat, quake.location.lng], {
         radius: Math.max(5, quake.magnitude * 3.5),
         fillColor: color,
@@ -269,8 +259,8 @@ type ScatterPoint = {
 function ScatterTooltip({ active, payload }: { active?: boolean; payload?: { payload: ScatterPoint }[] }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
-  const color = magColor(d.mag)
-  const label = magLabel(d.mag)
+  const color = magnitudeColor(d.mag)
+  const label = magnitudeLabel(d.mag)
   return (
     <div style={{
       background: '#06080f',
@@ -406,14 +396,14 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           {/* Maior magnitude */}
           <div
             className="flex flex-col justify-between px-3 py-2.5 rounded-xl border min-w-[68px]"
-            style={{ background: magColor(maxMag) + '0f', borderColor: magColor(maxMag) + '35' }}
+            style={{ background: magnitudeColor(maxMag) + '0f', borderColor: magnitudeColor(maxMag) + '35' }}
           >
-            <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magColor(maxMag) + 'aa' }}>Maior</span>
-            <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: magColor(maxMag) }}>
+            <span className="text-[10px] uppercase tracking-widest leading-none" style={{ color: magnitudeColor(maxMag) + 'aa' }}>Maior</span>
+            <span className="text-[22px] font-mono font-bold leading-none mt-1.5" style={{ color: magnitudeColor(maxMag) }}>
               M{maxMag.toFixed(1)}
             </span>
-            <span className="text-[10px] mt-1 leading-none" style={{ color: magColor(maxMag) + '99' }}>
-              {magLabel(maxMag)}{tsunamiCount > 0 && <span className="ml-1.5 text-amber-400">⚠ {tsunamiCount}</span>}
+            <span className="text-[10px] mt-1 leading-none" style={{ color: magnitudeColor(maxMag) + '99' }}>
+              {magnitudeLabel(maxMag)}{tsunamiCount > 0 && <span className="ml-1.5 text-amber-400">⚠ {tsunamiCount}</span>}
             </span>
           </div>
 
@@ -482,16 +472,16 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
             >
               <div
                 className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0"
-                style={{ background: magColor(quake.magnitude) + '18', border: `1px solid ${magColor(quake.magnitude)}30` }}
+                style={{ background: magnitudeColor(quake.magnitude) + '18', border: `1px solid ${magnitudeColor(quake.magnitude)}30` }}
               >
-                <span className="text-sm font-mono font-bold" style={{ color: magColor(quake.magnitude) }}>
+                <span className="text-sm font-mono font-bold" style={{ color: magnitudeColor(quake.magnitude) }}>
                   {quake.magnitude.toFixed(1)}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[13px] text-white/75 truncate group-hover:text-white/90">{quake.place}</div>
                 <div className="flex gap-2 mt-0.5 text-[12px] text-white/30">
-                  <span>{magLabel(quake.magnitude)}</span>
+                  <span>{magnitudeLabel(quake.magnitude)}</span>
                   <span>·</span>
                   <span>{quake.depth.toFixed(0)} km</span>
                   <span>·</span>
@@ -552,15 +542,15 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                     onClick={() => { setSelectedQuakeId(quake.id); setRightTab('map') }}
                     className="flex items-center gap-2 py-1.5 px-2 rounded-lg transition-colors group flex-shrink-0 cursor-pointer hover:bg-white/4"
                     style={{
-                      background: isSelected ? magColor(quake.magnitude) + '14' : undefined,
-                      outline: isSelected ? `1px solid ${magColor(quake.magnitude)}38` : 'none',
+                      background: isSelected ? magnitudeColor(quake.magnitude) + '14' : undefined,
+                      outline: isSelected ? `1px solid ${magnitudeColor(quake.magnitude)}38` : 'none',
                     }}
                   >
                     <div
                       className="flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0"
-                      style={{ background: magColor(quake.magnitude) + '18', border: `1px solid ${magColor(quake.magnitude)}28` }}
+                      style={{ background: magnitudeColor(quake.magnitude) + '18', border: `1px solid ${magnitudeColor(quake.magnitude)}28` }}
                     >
-                      <span className="text-xs font-mono font-bold" style={{ color: magColor(quake.magnitude) }}>
+                      <span className="text-xs font-mono font-bold" style={{ color: magnitudeColor(quake.magnitude) }}>
                         {quake.magnitude.toFixed(1)}
                       </span>
                     </div>
@@ -600,22 +590,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
           {/* Coluna direita */}
           <div className="flex-1 min-w-0 flex flex-col gap-3">
             {/* Tabs */}
-            <div className="flex gap-1 flex-shrink-0">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setRightTab(tab.id)}
-                  className="px-3 py-1 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    background: rightTab === tab.id ? ACCENT + '20' : 'transparent',
-                    color: rightTab === tab.id ? ACCENT : 'rgba(255,255,255,0.35)',
-                    border: `1px solid ${rightTab === tab.id ? ACCENT + '50' : 'transparent'}`,
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            <SegmentedTabs tabs={tabs} active={rightTab} onChange={setRightTab} accent={ACCENT} />
 
             {/* Painéis — ambos sempre no DOM, só alternam visibilidade */}
             <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
@@ -626,18 +601,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
               )}
 
               {/* Análise — também sempre no DOM */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16,
-                  opacity: rightTab === 'analysis' ? 1 : 0,
-                  pointerEvents: rightTab === 'analysis' ? 'auto' : 'none',
-                  transition: 'opacity 0.2s ease',
-                }}
-              >
+              <div {...tabPanel(rightTab === 'analysis', { display: 'flex', flexDirection: 'column', gap: 16 })}>
                 <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
                   <p className="text-xs text-white/40 uppercase tracking-widest" style={{ position: 'absolute', top: 0, left: 0 }}>
                     Magnitude × Profundidade

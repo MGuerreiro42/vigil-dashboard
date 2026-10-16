@@ -5,6 +5,8 @@ import {
   AreaChart, Area, CartesianGrid, ComposedChart,
 } from 'recharts'
 import { WidgetShell } from '@/components/layout/widget-shell'
+import { SegmentedTabs, type TabOption } from '@/components/ui/segmented-tabs'
+import { tabPanel } from '@/components/ui/tab-panel'
 import { useCryptoMarket, useExchangeRates } from '@/features/crypto/api/coingecko'
 import {
   useBinanceOrderBook, useBinanceTrades,
@@ -321,12 +323,12 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
   }, [selectedCoin])
 
   // Tabs
-  const tabs: { id: RightTab; label: string; requiresSelection?: boolean }[] = [
+  const tabs: TabOption<RightTab>[] = [
     { id: 'chart',  label: 'Gráfico' },
     { id: 'market', label: 'Mercado' },
     { id: 'forex',  label: 'Forex' },
-    { id: 'trades', label: '⚡ Trades', requiresSelection: true },
-    { id: 'depth',  label: '📊 Depth',  requiresSelection: true },
+    { id: 'trades', label: '⚡ Trades', disabled: !selectedId },
+    { id: 'depth',  label: '📊 Depth',  disabled: !selectedId },
   ]
 
   return (
@@ -479,36 +481,11 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
 
           {/* Right column: tabs + content */}
           <div className="flex-1 min-w-0 flex flex-col gap-3 min-h-[300px] md:min-h-0">
-            <div className="flex gap-1 flex-shrink-0 flex-wrap">
-              {tabs.map((tab) => {
-                const disabled = tab.requiresSelection && !selectedId
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => !disabled && setRightTab(tab.id)}
-                    disabled={disabled}
-                    className="px-3 py-1 rounded-lg text-xs font-medium transition-all disabled:opacity-30 disabled:cursor-default"
-                    style={{
-                      background: rightTab === tab.id ? ACCENT + '20' : 'transparent',
-                      color: rightTab === tab.id ? ACCENT : 'rgba(255,255,255,0.35)',
-                      border: `1px solid ${rightTab === tab.id ? ACCENT + '50' : 'transparent'}`,
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                )
-              })}
-            </div>
+            <SegmentedTabs tabs={tabs} active={rightTab} onChange={setRightTab} accent={ACCENT} />
 
             <div className="flex-1 min-h-0 relative">
               {/* ── Tab: Gráfico ── */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'chart' ? 1 : 0,
-                pointerEvents: rightTab === 'chart' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-                display: 'flex', flexDirection: 'column', gap: 8,
-              }}>
+              <div {...tabPanel(rightTab === 'chart', { display: 'flex', flexDirection: 'column', gap: 8 })}>
                 {selectedCoin ? (
                   <>
                     <div className="flex items-baseline gap-2 flex-shrink-0">
@@ -585,13 +562,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
               </div>
 
               {/* ── Tab: Mercado ── */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'market' ? 1 : 0,
-                pointerEvents: rightTab === 'market' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-                overflowY: 'auto',
-              }}>
+              <div {...tabPanel(rightTab === 'market', { overflowY: 'auto' })}>
                 <div className="flex flex-col gap-0.5">
                   {coins?.map((coin) => {
                     const barPct = Math.round((coin.marketCap / totalMarketCap) * 100)
@@ -616,12 +587,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
               </div>
 
               {/* ── Tab: Forex ── */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'forex' ? 1 : 0,
-                pointerEvents: rightTab === 'forex' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-              }}>
+              <div {...tabPanel(rightTab === 'forex')}>
                 {forex ? (
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(forex.rates).map(([currency, rate]) => (
@@ -640,13 +606,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
               </div>
 
               {/* ── Tab: ⚡ Trades ── */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'trades' ? 1 : 0,
-                pointerEvents: rightTab === 'trades' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-                display: 'flex', flexDirection: 'column',
-              }}>
+              <div {...tabPanel(rightTab === 'trades', { display: 'flex', flexDirection: 'column' })}>
                 {selectedCoin ? (
                   <TradesFeed trades={trades} coinSymbol={selectedCoin.symbol} />
                 ) : (
@@ -657,13 +617,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
               </div>
 
               {/* ── Tab: 📊 Depth ── */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                opacity: rightTab === 'depth' ? 1 : 0,
-                pointerEvents: rightTab === 'depth' ? 'auto' : 'none',
-                transition: 'opacity 0.2s ease',
-                display: 'flex', flexDirection: 'column',
-              }}>
+              <div {...tabPanel(rightTab === 'depth', { display: 'flex', flexDirection: 'column' })}>
                 {selectedCoin ? (
                   orderBook ? (
                     <DepthChart book={orderBook} />
