@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { MotionConfig } from 'framer-motion'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/lib/queryClient'
 import { WidgetSkeleton } from '@/components/ui/WidgetSkeleton'
@@ -18,21 +19,23 @@ const NewsPage         = lazy(() => import('@/pages/NewsPage').then((m) => ({ de
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Suspense fallback={<WidgetSkeleton />}>
-          <Routes>
-            <Route path="/"               element={<Dashboard />} />
-            <Route path="/crypto"         element={<CryptoPage />} />
-            <Route path="/iss"            element={<ISSPage />} />
-            <Route path="/earthquakes"    element={<EarthquakePage />} />
-            <Route path="/natural-events" element={<NaturalEventsPage />} />
-            <Route path="/github"         element={<GithubPage />} />
-            <Route path="/weather"        element={<WeatherPage />} />
-            <Route path="/wikipedia"      element={<WikipediaPage />} />
-            <Route path="/news"           element={<NewsPage />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
+      <MotionConfig reducedMotion="user">
+        <BrowserRouter>
+          <Suspense fallback={<WidgetSkeleton />}>
+            <Routes>
+              <Route path="/"               element={<Dashboard />} />
+              <Route path="/crypto"         element={<CryptoPage />} />
+              <Route path="/iss"            element={<ISSPage />} />
+              <Route path="/earthquakes"    element={<EarthquakePage />} />
+              <Route path="/natural-events" element={<NaturalEventsPage />} />
+              <Route path="/github"         element={<GithubPage />} />
+              <Route path="/weather"        element={<WeatherPage />} />
+              <Route path="/wikipedia"      element={<WikipediaPage />} />
+              <Route path="/news"           element={<NewsPage />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </MotionConfig>
     </QueryClientProvider>
   )
 }
