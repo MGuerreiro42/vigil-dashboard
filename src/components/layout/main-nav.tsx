@@ -14,7 +14,7 @@ export function MainNav() {
     <nav aria-label={t('nav.label')} className="hidden lg:flex items-center gap-1">
       {SECTIONS.map((section) => (
         <NavLink key={section.id} to={section.path} end={section.path === '/'} className={linkClass}>
-          {t(`nav.${section.id}`)}
+          <span className="max-w-full truncate px-0.5">{t(section.id === 'overview' ? 'nav.home' : `nav.${section.id}`)}</span>
         </NavLink>
       ))}
     </nav>
@@ -35,11 +35,11 @@ export function MobileNav() {
           to={section.path}
           end={section.path === '/'}
           className={({ isActive }) =>
-            `flex flex-col items-center gap-0.5 py-2 min-h-[52px] text-[10px] ${isActive ? 'text-white/90' : 'text-fg-subtle'}`
+            `flex flex-col items-center gap-0.5 py-2 min-h-[52px] min-w-0 text-[10px] ${isActive ? 'text-white/90' : 'text-fg-subtle'}`
           }
         >
           <span aria-hidden className="text-base leading-none">{section.icon}</span>
-          {t(`nav.${section.id}`)}
+          <span className="max-w-full truncate px-0.5">{t(section.id === 'overview' ? 'nav.home' : `nav.${section.id}`)}</span>
         </NavLink>
       ))}
     </nav>

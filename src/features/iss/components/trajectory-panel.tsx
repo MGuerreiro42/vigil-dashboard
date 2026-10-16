@@ -7,7 +7,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
   const { t } = useTranslation()
   if (futurePath.length === 0) {
     return (
-      <div style={{ width: 185, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="w-full md:w-[185px]" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{t('iss.trajectory.computing')}</div>
       </div>
     )
@@ -18,7 +18,7 @@ export function TrajectoryPanel({ futurePath, position }: { futurePath: ISSFutur
   const dayPct = Math.round((dayCount / futurePath.length) * 100)
 
   return (
-    <div style={{ width: 185, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
+    <div className="w-full md:w-[185px]" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
       {/* Orbit summary */}
       <div style={{
         padding: '9px 12px', borderRadius: 10,

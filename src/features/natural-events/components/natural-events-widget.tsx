@@ -112,7 +112,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
     >
       {/* ── Stats header ── */}
       {events.length > 0 && (
-        <div className="flex gap-2 mb-3 flex-shrink-0">
+        <div className="grid grid-cols-2 sm:flex gap-2 mb-3 flex-shrink-0">
           <StatTile label={t('naturalEvents.stats.active')} value={totalActive} caption={t('naturalEvents.stats.global')} valueColor={ACCENT} />
 
           {dominantCat && (
@@ -200,7 +200,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
           className="flex flex-col md:flex-row gap-4 flex-1 min-h-0"
         >
           {/* Main panel — LEFT (flex-1) */}
-          <div className="flex-1 min-w-0 flex flex-col gap-3">
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-3">
             {/* Tab bar */}
             <SegmentedTabs tabs={tabs} active={activeTab} onChange={handleTabChange} accent={ACCENT} />
 
@@ -236,7 +236,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
           <div className="md:w-px md:h-auto h-px w-full bg-white/6 flex-shrink-0" />
 
           {/* Feed — RIGHT (w-52 on md+, full width on mobile) */}
-          <div className="w-full md:w-52 md:flex-shrink-0 flex flex-col md:min-h-0 min-h-[200px]">
+          <div className="w-full h-[38%] md:h-auto md:w-52 flex-shrink-0 flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
               <span className="text-[10px] uppercase tracking-widest text-fg-subtle">{t('naturalEvents.liveFeed')}</span>
               <span className="text-[11px] font-mono text-fg-subtle">{events.length}</span>

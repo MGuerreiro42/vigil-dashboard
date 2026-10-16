@@ -10,6 +10,7 @@ export const pt = {
     today: 'Hoje',
   },
   nav: {
+    home: 'Início',
     label: 'Seções',
     overview: 'Visão geral',
     markets: 'Mercados',

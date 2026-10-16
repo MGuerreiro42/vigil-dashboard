@@ -10,7 +10,7 @@ export function MarketStats({ coins }: { coins: CryptoAsset[] }) {
   const totalVolume = coins.reduce((total, coin) => total + coin.volume24h, 0)
 
   return (
-    <div className="flex gap-2 mb-3 flex-shrink-0 overflow-x-auto pb-0.5">
+    <div className="grid grid-cols-2 sm:flex gap-2 mb-3 flex-shrink-0">
       <StatTile label={t('crypto.stats.assets')} value={coins.length} caption={t('crypto.stats.coins')} />
       {topGain && (
         <StatTile label={t('crypto.stats.topGain')} value={`+${topGain.change24h.toFixed(2)}%`} caption={topGain.symbol} color="#10b981" className="min-w-[72px]" />

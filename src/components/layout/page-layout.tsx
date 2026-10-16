@@ -57,10 +57,10 @@ export function PageLayout({ children, subheader, stacked = false }: Props) {
   )
 }
 
-/** A full-height, linkable section of a stacked page. */
+/** A full-height, linkable section of a stacked page; taller on phones, where widget columns stack. */
 export function PageSection({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="scroll-mt-4 h-[85vh] min-h-[560px]">
+    <section id={id} className="scroll-mt-4 h-[110vh] min-h-[680px] md:h-[85vh] md:min-h-[560px]">
       {children}
     </section>
   )
