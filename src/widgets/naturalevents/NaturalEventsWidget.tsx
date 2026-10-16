@@ -4,7 +4,7 @@ import { WidgetShell } from '@/components/layout/WidgetShell'
 import { useNaturalEvents } from '@/api/gdacs'
 import { useEarthquakes } from '@/api/usgs'
 import { formatRelativeTime } from '@/hooks/useRelativeTime'
-import type { NaturalEvent } from '@/api/types/eonet'
+import type { NaturalEvent } from '@/api/types/natural-event'
 import type { Earthquake } from '@/api/types/earthquake'
 
 const ACCENT = '#10b981'
@@ -511,7 +511,8 @@ function TimelineView({ events }: { events: NaturalEvent[] }) {
   const [hovered, setHovered] = useState<NaturalEvent | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
-  const nowMs = Date.now()
+  // Captured once per mount: the timeline is re-created whenever its tab opens
+  const [nowMs] = useState(() => Date.now())
   const startMs = nowMs - 20 * 24 * 60 * 60 * 1000
 
   const categories = useMemo(() => {
@@ -887,9 +888,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
     [events, selectedEventId],
   )
 
-  useEffect(() => {
-    if (isFocused && activeTab === 'globe') setGlobeEverVisited(true)
-  }, [isFocused, activeTab])
+  if (isFocused && activeTab === 'globe' && !globeEverVisited) setGlobeEverVisited(true)
 
   const handleTabChange = (tab: RightTab) => {
     setActiveTab(tab)
@@ -954,7 +953,6 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
 
   return (
     <WidgetShell
-      id="naturalevents"
       title="Eventos Naturais"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌿</span>}
       isLoading={isLoading}

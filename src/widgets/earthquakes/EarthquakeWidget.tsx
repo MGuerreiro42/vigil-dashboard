@@ -148,6 +148,7 @@ function LeafletMap({
   useEffect(() => {
     if (!containerRef.current) return
     let cancelled = false
+    const markers = markersRef.current
 
     function initMap(L: typeof import('leaflet')) {
       if (cancelled || !containerRef.current || mapRef.current) return
@@ -206,7 +207,7 @@ function LeafletMap({
       roRef.current = null
       mapRef.current?.remove()
       mapRef.current = null
-      markersRef.current.clear()
+      markers.clear()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // monta uma vez — os quakes são adicionados na inicialização
@@ -371,7 +372,6 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
 
   return (
     <WidgetShell
-      id="earthquakes"
       title="Atividade Sísmica"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌍</span>}
       isLoading={isLoading}

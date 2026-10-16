@@ -1,15 +1,15 @@
-import { useState, useEffect, useMemo, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateDailyBrief, type BriefInsight } from '@/engine/brief'
 import { GlassCard } from '@/components/surfaces/GlassCard'
 import { useRandomWikipedia } from '@/api/wikipedia'
+import { useAutoAdvance } from '@/hooks/useAutoAdvance'
 import type { CryptoAsset } from '@/api/types/crypto'
 import type { WeatherCurrent, ForecastDay } from '@/api/types/weather'
 import type { AirQuality } from '@/api/types/air'
 import type { Earthquake } from '@/api/types/earthquake'
 import type { GithubRepo } from '@/api/types/github'
-import type { HNStory } from '@/api/types/hackernews'
 
 interface Props {
   crypto?: CryptoAsset[]
@@ -18,7 +18,6 @@ interface Props {
   airQuality?: AirQuality | null
   earthquakes?: Earthquake[]
   githubTrending?: GithubRepo[]
-  hnStories?: HNStory[]
 }
 
 const WIKI_ACCENT = '#a78bfa'
@@ -28,19 +27,8 @@ const WIKI_AUTO_MS = 3 * 60 * 1000
 function WikiDiscoverCard() {
   const navigate = useNavigate()
   const [seed, setSeed] = useState(() => Date.now())
-  const [progress, setProgress] = useState(0)
   const { data: article, isLoading } = useRandomWikipedia('en', seed)
-
-  useEffect(() => {
-    const start = Date.now()
-    setProgress(0)
-    const id = setInterval(() => {
-      const p = Math.min((Date.now() - start) / WIKI_AUTO_MS, 1)
-      setProgress(p)
-      if (p >= 1) { clearInterval(id); setSeed(Date.now()) }
-    }, 500)
-    return () => clearInterval(id)
-  }, [seed])
+  const progress = useAutoAdvance(WIKI_AUTO_MS, seed, () => setSeed((s) => s + 1))
 
   return (
     <div className="w-full lg:w-72 flex-shrink-0 flex flex-col gap-2.5 min-h-0">
@@ -154,7 +142,7 @@ function WikiDiscoverCard() {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  crypto: '₿', weather: '🌤', seismic: '🌍', air: '💨', tech: '💻', correlation: '📊',
+  crypto: '₿', weather: '🌤', seismic: '🌍', air: '💨', tech: '💻',
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -247,10 +235,10 @@ function InsightCard({ insight, index }: { insight: BriefInsight; index: number 
   )
 }
 
-export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending, hnStories }: Props) {
+export const DailyBrief = memo(function DailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending }: Props) {
   const insights = useMemo(
-    () => generateDailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending, hnStories }),
-    [crypto, weather, forecast, airQuality, earthquakes, githubTrending, hnStories]
+    () => generateDailyBrief({ crypto, weather, forecast, airQuality, earthquakes, githubTrending }),
+    [crypto, weather, forecast, airQuality, earthquakes, githubTrending]
   )
 
   // Ordenar: alertas → warnings → info (Gestalt: proximidade e ordem)

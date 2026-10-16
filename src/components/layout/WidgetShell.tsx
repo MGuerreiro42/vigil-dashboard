@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GlassCard } from '@/components/surfaces/GlassCard'
-import type { WidgetId } from '@/store/app.store'
 
 interface WidgetShellProps {
-  id: WidgetId
   title: string
   icon: React.ReactNode
   isLoading: boolean
@@ -54,7 +52,6 @@ function LoadingSkeleton() {
 }
 
 export function WidgetShell({
-  id: _id,
   title,
   icon,
   isLoading,

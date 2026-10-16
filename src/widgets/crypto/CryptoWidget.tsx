@@ -369,7 +369,6 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   return (
     <WidgetShell
-      id="crypto"
       title="Mercado Cripto"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>₿</span>}
       isLoading={isLoading}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import type { BinanceTicker, BinanceOrderBook, BinanceTrade } from './types/binance'
+import type { BinanceOrderBook, BinanceTrade } from './types/binance'
 
 /** Maps CoinGecko IDs → Binance USDT pair (lowercase) */
 export const COINGECKO_TO_BINANCE: Record<string, string> = {
@@ -30,74 +30,36 @@ const WS_BASE = 'wss://stream.binance.com:9443'
  * connection is only recreated when `url` changes.
  */
 function useWS(url: string | null, onMessage: (data: unknown) => void) {
-  const wsRef = useRef<WebSocket | null>(null)
-  const shouldReconnect = useRef(false)
   const cbRef = useRef(onMessage)
-  cbRef.current = onMessage
+  useEffect(() => { cbRef.current = onMessage })
 
   useEffect(() => {
     if (!url) return
-    shouldReconnect.current = true
+    // Per-connection state: a closing socket from a previous url can't reconnect or touch the new one
+    let active = true
+    let socket: WebSocket | null = null
+    let retry: ReturnType<typeof setTimeout> | undefined
 
     function connect() {
-      if (!shouldReconnect.current) return
       const ws = new WebSocket(url as string)
-      wsRef.current = ws
-
+      socket = ws
       ws.onmessage = (ev) => {
         try { cbRef.current(JSON.parse(ev.data as string)) } catch { /* ignore */ }
       }
       ws.onerror = () => ws.close()
       ws.onclose = () => {
-        wsRef.current = null
-        if (shouldReconnect.current) setTimeout(connect, 3_000)
+        if (active) retry = setTimeout(connect, 3_000)
       }
     }
 
     connect()
 
     return () => {
-      shouldReconnect.current = false
-      wsRef.current?.close()
-      wsRef.current = null
+      active = false
+      clearTimeout(retry)
+      socket?.close()
     }
   }, [url])
-}
-
-// ─── Multi-symbol mini tickers ────────────────────────────────────────────
-
-/**
- * Subscribes to Binance miniTicker stream for all provided CoinGecko IDs.
- * Returns a map keyed by Binance symbol (lowercase, e.g. 'btcusdt').
- * Updates continuously as prices change.
- */
-export function useBinanceTickers(coinIds: string[]): Record<string, BinanceTicker> {
-  const [tickers, setTickers] = useState<Record<string, BinanceTicker>>({})
-
-  const symbols = coinIds.map((id) => COINGECKO_TO_BINANCE[id]).filter(Boolean)
-  const streams = symbols.map((s) => `${s}@miniTicker`).join('/')
-  const url = symbols.length > 0 ? `${WS_BASE}/stream?streams=${streams}` : null
-
-  useWS(url, (raw) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const d = (raw as any)?.data
-    if (!d?.s) return
-    setTickers((prev) => ({
-      ...prev,
-      [d.s.toLowerCase()]: {
-        symbol: d.s,
-        price: parseFloat(d.c),
-        open: parseFloat(d.o),
-        high: parseFloat(d.h),
-        low: parseFloat(d.l),
-        volume: parseFloat(d.v),
-        quoteVolume: parseFloat(d.q),
-        updatedAt: Date.now(),
-      },
-    }))
-  })
-
-  return tickers
 }
 
 // ─── Order book depth ─────────────────────────────────────────────────────
@@ -108,7 +70,7 @@ export function useBinanceTickers(coinIds: string[]): Record<string, BinanceTick
  * Passes null to disconnect.
  */
 export function useBinanceOrderBook(coinId: string | null): BinanceOrderBook | null {
-  const [book, setBook] = useState<BinanceOrderBook | null>(null)
+  const [book, setBook] = useState<{ symbol: string; data: BinanceOrderBook } | null>(null)
 
   const symbol = coinId ? COINGECKO_TO_BINANCE[coinId] : null
   const url = symbol ? `${WS_BASE}/ws/${symbol}@depth20` : null
@@ -117,22 +79,25 @@ export function useBinanceOrderBook(coinId: string | null): BinanceOrderBook | n
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const d = raw as any
     if (!Array.isArray(d?.bids)) return
+    if (!symbol) return
     setBook({
-      bids: d.bids.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
-      asks: d.asks.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
-      updatedAt: Date.now(),
+      symbol,
+      data: {
+        bids: d.bids.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
+        asks: d.asks.map(([p, q]: string[]) => ({ price: parseFloat(p), qty: parseFloat(q) })),
+        updatedAt: Date.now(),
+      },
     })
   })
 
-  // Reset local state when symbol changes
-  useEffect(() => { setBook(null) }, [coinId])
-
-  return book
+  // State from a previous symbol reads as empty, so switching coins needs no reset
+  return book?.symbol === symbol ? book.data : null
 }
 
 // ─── Aggregated trade stream ──────────────────────────────────────────────
 
 const MAX_TRADES = 60
+const EMPTY_TRADES: BinanceTrade[] = []
 
 /**
  * Subscribes to Binance trade stream for the given CoinGecko ID.
@@ -140,7 +105,7 @@ const MAX_TRADES = 60
  * Passes null to disconnect.
  */
 export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
-  const [trades, setTrades] = useState<BinanceTrade[]>([])
+  const [trades, setTrades] = useState<{ symbol: string; data: BinanceTrade[] } | null>(null)
 
   const symbol = coinId ? COINGECKO_TO_BINANCE[coinId] : null
   const url = symbol ? `${WS_BASE}/ws/${symbol}@trade` : null
@@ -151,20 +116,20 @@ export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
     if (!t?.t) return
     const price = parseFloat(t.p)
     const qty = parseFloat(t.q)
-    setTrades((prev) => [
-      {
-        id: t.t,
-        price,
-        qty,
-        value: price * qty,
-        buyerMaker: t.m,
-        timestamp: t.T,
-      },
-      ...prev.slice(0, MAX_TRADES - 1),
-    ])
+    if (!symbol) return
+    const trade: BinanceTrade = {
+      id: t.t,
+      price,
+      qty,
+      value: price * qty,
+      buyerMaker: t.m,
+      timestamp: t.T,
+    }
+    setTrades((prev) => ({
+      symbol,
+      data: [trade, ...(prev?.symbol === symbol ? prev.data.slice(0, MAX_TRADES - 1) : [])],
+    }))
   })
 
-  useEffect(() => { setTrades([]) }, [coinId])
-
-  return trades
+  return trades?.symbol === symbol ? trades.data : EMPTY_TRADES
 }

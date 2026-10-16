@@ -63,7 +63,6 @@ export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   return (
     <WidgetShell
-      id="weather"
       title="Clima & Qualidade do Ar"
       icon={<span className={isFocused ? 'text-2xl' : 'text-base'}>🌤</span>}
       isLoading={isLoading}
