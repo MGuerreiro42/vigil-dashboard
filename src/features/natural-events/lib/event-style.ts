@@ -5,6 +5,7 @@ import type { NaturalEvent } from '@/features/natural-events/types'
 export const ACCENT = '#10b981'
 
 export const CATEGORIES = {
+  earthquakes:        { icon: '🌍', color: '#f43f5e' },
   wildfires:          { icon: '🔥', color: '#f97316' },
   severeStorms:       { icon: '🌪️', color: '#818cf8' },
   volcanoes:          { icon: '🌋', color: '#ef4444' },

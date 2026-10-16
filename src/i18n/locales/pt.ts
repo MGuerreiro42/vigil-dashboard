@@ -104,6 +104,7 @@ export const pt = {
     globeHint: 'clique no globo · pausa rotação',
     now: 'agora',
     categories: {
+      earthquakes: 'Terremotos',
       wildfires: 'Incêndios', severeStorms: 'Tempestades', volcanoes: 'Vulcões', seaLakeIce: 'Gelo marinho',
       floods: 'Inundações', landslides: 'Deslizamentos', snow: 'Neve', tempExtremes: 'Extremos térmicos',
       drought: 'Seca', dustHaze: 'Poeira / névoa', waterColor: 'Mancha na água', manmade: 'Incidentes',

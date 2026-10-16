@@ -24,7 +24,7 @@ The dashboard is split into a **summary view** (home page with all widgets in mi
 |---|---|---|
 | **Crypto** | CoinGecko + Binance | REST + WebSocket |
 | **ISS** | Where the ISS at | REST polling |
-| **Natural Events** | GDACS (UN/EU) | RSS/XML via proxy |
+| **Natural Events** | GDACS (UN/EU) event API | GeoJSON REST |
 | **Seismic** | USGS Earthquake Catalog | REST |
 | **News** | Wikimedia Feed API (headlines, most read, on this day — PT/EN) | REST |
 | **Weather** | Open-Meteo forecast + air quality | REST |
@@ -60,10 +60,8 @@ The dashboard is split into a **summary view** (home page with all widgets in mi
 - **Leaflet + react-leaflet** — interactive maps for seismic and natural events
 - **Native Canvas** — animated background particles via `requestAnimationFrame` with no extra dependency
 
-### Proxy & CORS
-- **Vite dev proxy** — works around GDACS's CORS (self-signed certificate) with `secure: false`
-- **Vercel Rewrites** (`vercel.json`) + **Netlify `_redirects`** — production proxy to the same endpoint
-- Documented strategy: the frontend always calls `/api/gdacs/...`, the environment resolves the target
+### CORS
+- Every source is called directly from the browser: each one was checked for `Access-Control-Allow-Origin`, so no proxy or backend is needed (GDACS moved from its RSS feed, which needed a proxy, to its CORS-enabled GeoJSON API)
 
 ---
 
@@ -100,7 +98,7 @@ src/
 │   ├── crypto/            # CoinGecko + Binance WebSocket (api, components, hooks, store)
 │   ├── iss/               # ISS position, orbit and TLE
 │   ├── earthquakes/       # USGS
-│   ├── natural-events/    # GDACS RSS (XML parser)
+│   ├── natural-events/    # GDACS GeoJSON events
 │   ├── weather/           # Open-Meteo forecast + air quality
 │   ├── github/  news/  wikipedia/
 │   └── brief/             # Vigil Brief insight generator
@@ -119,7 +117,7 @@ src/
 # Install dependencies (Node 24, pnpm)
 pnpm install
 
-# Start dev server (with GDACS proxy)
+# Start dev server
 pnpm dev
 
 # Tests, lint and production build
@@ -134,7 +132,7 @@ No API keys are needed: every source is free and keyless.
 
 ## Deployment
 
-The project is configured for **Vercel** (rewrites in `vercel.json`) and **Netlify** (`public/_redirects`), both resolving the GDACS proxy in production.
+Deployed on **Vercel**: `vercel.json` only rewrites client routes to `index.html` for the SPA. Every API is called directly from the browser.
 
 ---
 

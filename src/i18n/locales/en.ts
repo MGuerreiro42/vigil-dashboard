@@ -106,6 +106,7 @@ export const en: typeof pt = {
     globeHint: 'click the globe · pause rotation',
     now: 'now',
     categories: {
+      earthquakes: 'Earthquakes',
       wildfires: 'Wildfires', severeStorms: 'Storms', volcanoes: 'Volcanoes', seaLakeIce: 'Sea ice',
       floods: 'Floods', landslides: 'Landslides', snow: 'Snow', tempExtremes: 'Temperature extremes',
       drought: 'Drought', dustHaze: 'Dust / haze', waterColor: 'Water discoloration', manmade: 'Incidents',
