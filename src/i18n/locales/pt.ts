@@ -171,8 +171,14 @@ export const pt = {
     reposSeries: 'Repos',
   },
   news: {
-    sections: { technology: 'Tecnologia', science: 'Ciência', world: 'Mundo', environment: 'Ambiente', business: 'Economia' },
-    stats: { articles: 'Artigos', latest: 'Mais recente' },
+    title: 'Notícias do mundo',
+    source: 'via Wikipedia',
+    tabs: { headlines: '📰 Manchetes', trending: '🔥 Em alta', onThisDay: '📅 Neste dia' },
+    views: '{{value}} visualizações ontem',
+    yearsAgo_one: 'há {{count}} ano',
+    yearsAgo_other: 'há {{count}} anos',
+    empty: 'Nenhuma manchete para hoje.',
+    readMore: 'Ler na Wikipedia ↗',
   },
   wikipedia: {
     pause: '⏸ Pausar',
