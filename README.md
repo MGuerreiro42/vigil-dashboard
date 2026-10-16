@@ -38,16 +38,16 @@ The dashboard is split into a **summary view** (home page with all widgets in mi
 ### Core
 - **React 19** — with `lazy()` + `Suspense` for route-based code splitting
 - **TypeScript 6** — strict typing across the codebase; zero implicit `any`
-- **Vite 8 (Rolldown)** — build with `manualChunks` to split heavy vendors (globe, leaflet, recharts, framer-motion)
+- **Vite 8 (Rolldown)** — routes, widgets, the globe and Leaflet are split on dynamic `import()`, so each page downloads only what it renders
 - **Tailwind CSS v4** — utility-first with a design system based on CSS variables and opacity tokens
 
 ### State & Data
 - **TanStack Query v5** — server cache, stale-while-revalidate, automatic retry and request deduplication
 - **Zustand v5** — minimal global state for: selected crypto IDs, Binance tickers (WebSocket), geolocation, alerts, and preferences
-- **Separation of concerns**: each API has its own module in `src/api/`, returning TanStack Query hooks with explicit types
+- **Separation of concerns**: each data domain lives in `src/features/<domain>/` with its own API module, types and components
 
 ### Real-Time Communication
-- **Binance WebSocket** (`wss://stream.binance.com`) — real-time mini-ticker for crypto prices, with a Zustand store as buffer. Connects only on the `/crypto` page to save resources
+- **Binance WebSocket** (`wss://stream.binance.com`) — real-time mini-ticker for crypto prices, with a Zustand store as buffer. Shared by the dashboard and `/crypto`, reconnects with exponential backoff and closes while the tab is hidden
 - **Price flash** — each crypto row detects the direction of change (`up/down`) and applies a transient color for 500ms using `useRef` + `useEffect`
 
 ### Routing
@@ -96,23 +96,19 @@ The `DailyBrief` (insights panel) explicitly applies visual design principles: c
 
 ```
 src/
-├── api/              # Data hooks (one file per service)
-│   ├── types/        # TypeScript types for API responses
-│   ├── binance.ts    # Binance WebSocket
-│   ├── coingecko.ts  # Crypto market
-│   ├── gdacs.ts      # Global natural events (XML parser)
-│   ├── guardian.ts   # The Guardian news
-│   ├── iss.ts        # ISS tracking
-│   ├── openmeteo.ts  # Weather
-│   └── usgs.ts       # Seismic activity
-├── components/
-│   ├── layout/       # Header, DailyBrief, PageLayout, WidgetShell
-│   └── ui/           # LiveTickerBar, WidgetSkeleton, ParticleBackground
-├── engine/
-│   └── brief.ts      # Vigil Brief insight generator
-├── pages/            # One page per route (lazy loaded)
-├── store/            # Zustand stores (app, binance, geo, alerts)
-└── widgets/          # One directory per data domain
+├── features/              # One folder per data domain
+│   ├── crypto/            # CoinGecko + Binance WebSocket (api, components, hooks, store)
+│   ├── iss/               # ISS position, orbit and TLE
+│   ├── earthquakes/       # USGS
+│   ├── natural-events/    # GDACS RSS (XML parser)
+│   ├── weather/           # Open-Meteo forecast + air quality
+│   ├── github/  news/  wikipedia/
+│   └── brief/             # Vigil Brief insight generator
+├── components/            # Shared layout and UI (header, widget shell, skeletons)
+├── hooks/                 # Shared hooks (WebSocket, globe, geolocation, auto-advance)
+├── lib/                   # Framework-free helpers (HTTP, query client and keys, reconnecting socket)
+├── pages/                 # One page per route (lazy loaded)
+└── store/                 # Zustand stores shared across features (app, geo, alerts)
 ```
 
 ---
