@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, memo } from 'react'
+import { memo } from 'react'
 import { useBinanceTickerStore } from '@/store/binance.store'
 import { COINGECKO_TO_BINANCE } from '@/api/binance'
+import { usePriceFlash, flashColor } from '@/hooks/usePriceFlash'
 import type { CryptoAsset } from '@/api/types/crypto'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -14,8 +15,8 @@ function formatTickerPrice(price: number): string {
 // ─── Single coin item ─────────────────────────────────────────────────────────
 
 const TickerItem = memo(function TickerItem({ coin }: { coin: CryptoAsset }) {
-  const sym    = COINGECKO_TO_BINANCE[coin.id]
-  const ticker = useBinanceTickerStore((s) => sym ? s.tickers[sym] : undefined)
+  const symbol = COINGECKO_TO_BINANCE[coin.id]
+  const ticker = useBinanceTickerStore((state) => (symbol ? state.tickers[symbol] : undefined))
 
   const livePrice = ticker?.price ?? coin.price
   const pct       = ticker
@@ -23,20 +24,7 @@ const TickerItem = memo(function TickerItem({ coin }: { coin: CryptoAsset }) {
     : coin.change24h
   const isUp = pct >= 0
 
-  const prevRef  = useRef(livePrice)
-  const [flash, setFlash] = useState<'up' | 'down' | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    if (!ticker) return
-    if (prevRef.current !== ticker.price) {
-      const dir = ticker.price > prevRef.current ? 'up' : 'down'
-      prevRef.current = ticker.price
-      setFlash(dir)
-      if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setFlash(null), 500)
-    }
-  }, [ticker?.price, ticker])
+  const flash = usePriceFlash(ticker?.price)
 
   return (
     <div className="flex items-center gap-2 px-5 flex-shrink-0 select-none">
@@ -44,13 +32,7 @@ const TickerItem = memo(function TickerItem({ coin }: { coin: CryptoAsset }) {
       <span className="text-[12px] font-semibold text-white/55 tracking-wide">{coin.symbol}</span>
       <span
         className="text-[12px] font-mono font-bold tabular-nums transition-colors duration-200"
-        style={{
-          color: flash === 'up'
-            ? '#10b981'
-            : flash === 'down'
-              ? '#f43f5e'
-              : 'rgba(255,255,255,0.88)',
-        }}
+        style={{ color: flashColor(flash, 'rgba(255,255,255,0.88)') }}
       >
         {formatTickerPrice(livePrice)}
       </span>
@@ -88,7 +70,7 @@ interface Props {
 }
 
 export function LiveTickerBar({ coins }: Props) {
-  const connectedCount = useBinanceTickerStore((s) => s.connectedCount)
+  const connectedCount = useBinanceTickerStore((state) => state.connectedCount)
   const isLive = connectedCount > 0
 
   if (!coins || coins.length === 0) return null

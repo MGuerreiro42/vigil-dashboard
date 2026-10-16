@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
@@ -10,7 +10,9 @@ import {
   useBinanceOrderBook, useBinanceTrades,
   COINGECKO_TO_BINANCE,
 } from '@/api/binance'
+import { useShallow } from 'zustand/react/shallow'
 import { useBinanceTickerStore } from '@/store/binance.store'
+import { usePriceFlash, flashColor } from '@/hooks/usePriceFlash'
 import type { BinanceTrade, BinanceOrderBook } from '@/api/types/binance'
 import { useAppStore } from '@/store/app.store'
 import type { CryptoAsset } from '@/api/types/crypto'
@@ -27,6 +29,13 @@ function formatPrice(price: number): string {
   if (price >= 1)    return `$${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
   return `$${price.toLocaleString('en-US', { maximumFractionDigits: 4 })}`
 }
+
+const USD_COMPACT = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  notation: 'compact',
+  maximumFractionDigits: 1,
+})
 
 function formatMarketCap(n: number): string {
   if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`
@@ -51,39 +60,26 @@ function ChangeBadge({ pct }: { pct: number }) {
   )
 }
 
-/** Displays the live Binance price and flashes green/red on change. Falls back to CoinGecko price. */
+/** Live Binance price for one coin, falling back to CoinGecko. Subscribes to that coin only, so other coins' ticks don't re-render it. */
 function LivePrice({
-  livePrice,
-  fallback,
+  coin,
   className = '',
+  idleColor,
 }: {
-  livePrice: number | undefined
-  fallback: number
+  coin: CryptoAsset
   className?: string
+  idleColor?: string
 }) {
-  const price = livePrice ?? fallback
-
-  const prevRef = useRef(price)
-  const [flash, setFlash] = useState<'up' | 'down' | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    if (livePrice == null) return
-    if (prevRef.current !== livePrice) {
-      const dir = livePrice > prevRef.current ? 'up' : 'down'
-      prevRef.current = livePrice
-      setFlash(dir)
-      if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setFlash(null), 500)
-    }
-  }, [livePrice])
+  const symbol = COINGECKO_TO_BINANCE[coin.id]
+  const livePrice = useBinanceTickerStore((state) => (symbol ? state.tickers[symbol]?.price : undefined))
+  const flash = usePriceFlash(livePrice)
 
   return (
     <span
       className={`font-mono transition-colors duration-300 ${className}`}
-      style={{ color: flash === 'up' ? '#10b981' : flash === 'down' ? '#f43f5e' : undefined }}
+      style={{ color: flashColor(flash, idleColor) }}
     >
-      {formatPrice(price)}
+      {formatPrice(livePrice ?? coin.price)}
     </span>
   )
 }
@@ -232,7 +228,7 @@ function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coinSymbol
                   {formatPrice(trade.price)}
                 </span>
                 <span className="text-right text-white/45">{trade.qty.toFixed(4)}</span>
-                <span className="text-right text-white/35 w-16">${trade.value < 1000 ? trade.value.toFixed(0) : formatMarketCap(trade.value).slice(1)}</span>
+                <span className="text-right text-white/35 w-16">{USD_COMPACT.format(trade.value)}</span>
               </motion.div>
             )
           })}
@@ -242,10 +238,6 @@ function TradesFeed({ trades, coinSymbol }: { trades: BinanceTrade[]; coinSymbol
   )
 }
 
-/**
- * Memoized compact row — reads its own ticker from the global Binance store so
- * React.memo can bail out when only OTHER coins' tickers update.
- */
 const CompactCoinRow = memo(function CompactCoinRow({
   coin,
   index,
@@ -253,25 +245,6 @@ const CompactCoinRow = memo(function CompactCoinRow({
   coin: CryptoAsset
   index: number
 }) {
-  const sym    = COINGECKO_TO_BINANCE[coin.id]
-  const ticker = useBinanceTickerStore((s) => sym ? s.tickers[sym] : undefined)
-
-  const price = ticker?.price ?? coin.price
-  const prevRef = useRef(price)
-  const [flash, setFlash] = useState<'up' | 'down' | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    if (ticker == null) return
-    if (prevRef.current !== ticker.price) {
-      const dir = ticker.price > prevRef.current ? 'up' : 'down'
-      prevRef.current = ticker.price
-      setFlash(dir)
-      if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setFlash(null), 500)
-    }
-  }, [ticker?.price, ticker])
-
   return (
     <motion.div
       initial={{ opacity: 0, x: -6 }}
@@ -286,12 +259,7 @@ const CompactCoinRow = memo(function CompactCoinRow({
       </div>
       <div className="flex items-center gap-1.5">
         <ChangeBadge pct={coin.change24h} />
-        <span
-          className="text-xs font-mono transition-colors duration-300"
-          style={{ color: flash === 'up' ? '#10b981' : flash === 'down' ? '#f43f5e' : 'rgba(255,255,255,0.75)' }}
-        >
-          {formatPrice(price)}
-        </span>
+        <LivePrice coin={coin} className="text-xs" idleColor="rgba(255,255,255,0.75)" />
       </div>
     </motion.div>
   )
@@ -300,7 +268,7 @@ const CompactCoinRow = memo(function CompactCoinRow({
 // ─── Main widget ─────────────────────────────────────────────────────────────
 
 export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
-  const { cryptoIds } = useAppStore()
+  const cryptoIds = useAppStore((state) => state.cryptoIds)
 
   const [sortOrder, setSortOrder] = useState<SortOrder>('rank')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -310,9 +278,9 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
   const { data: coins, isLoading, error, refetch, dataUpdatedAt } = useCryptoMarket(cryptoIds)
   const { data: forex } = useExchangeRates()
 
-  // Read from global store (BinanceTickerSync manages the WS connection)
-  const allTickers     = useBinanceTickerStore((s) => s.tickers)
-  const connectedCount = useBinanceTickerStore((s) => s.connectedCount)
+  // Symbols only: re-renders when a coin goes live, not on every price tick
+  const liveSymbols    = useBinanceTickerStore(useShallow((state) => Object.keys(state.tickers)))
+  const connectedCount = useBinanceTickerStore((state) => state.connectedCount)
 
   // Per-symbol on-demand streams (only opened when focused + tab selected)
   const orderBook = useBinanceOrderBook(
@@ -336,10 +304,6 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
 
   const selectedCoin     = coins?.find((c) => c.id === selectedId) ?? null
   const totalMarketCap   = coins?.reduce((s, c) => s + c.marketCap, 0) ?? 1
-  const selectedBinanceSym = selectedId ? COINGECKO_TO_BINANCE[selectedId] : null
-
-  // Count live connections from store
-  const liveCount = connectedCount
 
   const chartData = selectedCoin
     ? selectedCoin.sparkline.slice(-168).map((v, i) => ({ i, v }))
@@ -355,8 +319,6 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
     const pad = (max - min) * 0.1 || min * 0.01
     return [min - pad, max + pad]
   }, [selectedCoin])
-
-  // Selected coin live price accessed inline from allTickers where needed
 
   // Tabs
   const tabs: { id: RightTab; label: string; requiresSelection?: boolean }[] = [
@@ -378,7 +340,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
       accentColor={ACCENT}
       isFocused={isFocused}
       fillHeight={isFocused}
-      isLive={liveCount > 0}
+      isLive={connectedCount > 0}
       viewRoute="/crypto"
     >
       {/* ── Stats header ── */}
@@ -467,7 +429,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
             <div className="flex flex-col gap-0.5 overflow-y-auto flex-1 min-h-0 pr-0.5">
               {sortedCoins.map((coin, i) => {
                 const isSelected = selectedId === coin.id
-                const hasLive = COINGECKO_TO_BINANCE[coin.id] != null && allTickers[COINGECKO_TO_BINANCE[coin.id]] != null
+                const hasLive = liveSymbols.includes(COINGECKO_TO_BINANCE[coin.id])
                 return (
                   <motion.div
                     key={coin.id}
@@ -504,7 +466,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <ChangeBadge pct={coin.change24h} />
-                      <LivePrice livePrice={allTickers[COINGECKO_TO_BINANCE[coin.id] ?? '']?.price} fallback={coin.price} className="text-[11px] text-white/70 font-mono" />
+                      <LivePrice coin={coin} className="text-[11px] text-white/70" />
                     </div>
                   </motion.div>
                 )
@@ -551,7 +513,7 @@ export function CryptoWidget({ isFocused = false }: { isFocused?: boolean }) {
                   <>
                     <div className="flex items-baseline gap-2 flex-shrink-0">
                       <span className="text-sm font-semibold text-white/80">{selectedCoin.name}</span>
-                      <LivePrice livePrice={selectedBinanceSym ? allTickers[selectedBinanceSym]?.price : undefined} fallback={selectedCoin.price} className="text-[13px] text-white/60" />
+                      <LivePrice coin={selectedCoin} className="text-[13px] text-white/60" />
                       <ChangeBadge pct={selectedCoin.change7d} />
                       <span className="text-[11px] text-white/30 ml-1">7d</span>
                     </div>

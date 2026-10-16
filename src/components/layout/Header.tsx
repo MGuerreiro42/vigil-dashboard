@@ -8,7 +8,7 @@ import { useState } from 'react'
 
 // ─── Weather pill ──────────────────────────────────────────────────────────────
 function WeatherPill() {
-  const { coords } = useGeoStore()
+  const coords = useGeoStore((state) => state.coords)
   const navigate = useNavigate()
   const { data: weather } = useWeather(coords ?? undefined)
   const current = weather?.current
@@ -68,8 +68,11 @@ function WeatherPill() {
 }
 
 export function Header() {
-  const { unreadCount, alerts, markAllRead } = useAlertsStore()
-  const { status, coords } = useGeoStore()
+  const unreadCount = useAlertsStore((state) => state.unreadCount)
+  const alerts = useAlertsStore((state) => state.alerts)
+  const markAllRead = useAlertsStore((state) => state.markAllRead)
+  const status = useGeoStore((state) => state.status)
+  const coords = useGeoStore((state) => state.coords)
   const [showAlerts, setShowAlerts] = useState(false)
 
   return (

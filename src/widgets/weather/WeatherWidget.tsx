@@ -33,7 +33,7 @@ function uvLabel(uv: number): { label: string; color: string } {
 type RightTab = '24h' | 'air' | 'details'
 
 export function WeatherWidget({ isFocused = false }: { isFocused?: boolean }) {
-  const { coords } = useGeoStore()
+  const coords = useGeoStore((state) => state.coords)
 
   const [selectedDayIdx, setSelectedDayIdx] = useState<number>(0)
   const [rightTab, setRightTab] = useState<RightTab>('24h')

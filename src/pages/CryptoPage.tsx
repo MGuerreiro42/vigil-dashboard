@@ -9,7 +9,7 @@ import { useCryptoMarket } from '@/api/coingecko'
 const CryptoWidget = lazy(() => import('@/widgets/crypto/CryptoWidget').then((m) => ({ default: m.CryptoWidget })))
 
 export function CryptoPage() {
-  const { cryptoIds } = useAppStore()
+  const cryptoIds = useAppStore((state) => state.cryptoIds)
   const { data: coins } = useCryptoMarket(cryptoIds)
 
   return (
