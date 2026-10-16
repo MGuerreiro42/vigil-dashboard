@@ -6,6 +6,7 @@ import { useEarthquakes } from '@/api/usgs'
 import { formatRelativeTime } from '@/hooks/useRelativeTime'
 import type { NaturalEvent } from '@/api/types/natural-event'
 import { escapeHtml } from '@/lib/escapeHtml'
+import { useGlobe, GLOBE_TEXTURE_URL } from '@/hooks/useGlobe'
 import type { Earthquake } from '@/api/types/earthquake'
 
 const ACCENT = '#10b981'
@@ -304,32 +305,15 @@ function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: () => voi
 type GlobePoint = { id: string; lat: number; lng: number; color: string; radius: number }
 type TrackSegment = { points: [number, number][]; color: string; strokeWidth: number }
 
-function GlobeView({ events, selectedEvent, onEventClick, onClearSelection }: {
+function GlobeView({ events, selectedEvent, onEventClick, onClearSelection, active }: {
   events: NaturalEvent[]
   selectedEvent: NaturalEvent | null
   onEventClick: (e: NaturalEvent) => void
   onClearSelection: () => void
+  active: boolean
 }) {
-  const wrapRef = useRef<HTMLDivElement>(null)
-  const [dims, setDims] = useState({ w: 0, h: 0 })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [GlobeComponent, setGlobeComponent] = useState<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const globeRef = useRef<any>(null)
+  const { containerRef, globeRef, Globe, size } = useGlobe(active)
   const rotatingRef = useRef(true)
-
-  useEffect(() => {
-    import('react-globe.gl').then((mod) => setGlobeComponent(() => mod.default))
-  }, [])
-
-  useEffect(() => {
-    if (!wrapRef.current) return
-    const ro = new ResizeObserver(([e]) => {
-      setDims({ w: e.contentRect.width, h: e.contentRect.height })
-    })
-    ro.observe(wrapRef.current)
-    return () => ro.disconnect()
-  }, [])
 
   // FlyTo when selectedEvent changes
   useEffect(() => {
@@ -341,7 +325,7 @@ function GlobeView({ events, selectedEvent, onEventClick, onClearSelection }: {
       { lat: selectedEvent.lat, lng: selectedEvent.lng, altitude: 1.4 },
       1200,
     )
-  }, [selectedEvent])
+  }, [selectedEvent, globeRef])
 
   // Main event points — magnitude-scaled radius
   const points: GlobePoint[] = useMemo(
@@ -410,7 +394,7 @@ function GlobeView({ events, selectedEvent, onEventClick, onClearSelection }: {
     if (!globeRef.current) return
     rotatingRef.current = !rotatingRef.current
     globeRef.current.controls().autoRotate = rotatingRef.current
-  }, [])
+  }, [globeRef])
 
   const getTooltip = useCallback((point: object) => {
     const p = point as GlobePoint
@@ -420,14 +404,14 @@ function GlobeView({ events, selectedEvent, onEventClick, onClearSelection }: {
   }, [events, selectedEvent])
 
   return (
-    <div ref={wrapRef} style={{ position: 'absolute', inset: 0, background: '#06080f', borderRadius: 10, overflow: 'hidden' }}>
-      {GlobeComponent && dims.w > 0 && (
-        <GlobeComponent
+    <div ref={containerRef} style={{ position: 'absolute', inset: 0, background: '#06080f', borderRadius: 10, overflow: 'hidden' }}>
+      {Globe && size.width > 0 && (
+        <Globe
           ref={globeRef}
-          width={dims.w}
-          height={dims.h}
+          width={size.width}
+          height={size.height}
           backgroundColor="rgba(0,0,0,0)"
-          globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
+          globeImageUrl={GLOBE_TEXTURE_URL}
           atmosphereColor="rgba(16,185,129,0.15)"
           atmosphereAltitude={0.18}
           // Main event points
@@ -446,7 +430,7 @@ function GlobeView({ events, selectedEvent, onEventClick, onClearSelection }: {
           pathStroke="strokeWidth"
           pathDashLength={0.05}
           pathDashGap={0}
-          pathAltitude={0.005}
+          pathPointAlt={0.005}
           onGlobeClick={handleGlobeClick}
           onGlobeReady={() => {
             if (!globeRef.current) return
@@ -456,7 +440,7 @@ function GlobeView({ events, selectedEvent, onEventClick, onClearSelection }: {
           }}
         />
       )}
-      {(!GlobeComponent || dims.w === 0) && (
+      {(!Globe || size.width === 0) && (
         <div className="flex items-center justify-center h-full text-white/20 text-sm">Carregando globo…</div>
       )}
 
@@ -1114,7 +1098,7 @@ export function NaturalEventsWidget({ isFocused = false }: { isFocused?: boolean
                   pointerEvents: activeTab === 'globe' ? 'auto' : 'none',
                   transition: 'opacity 0.2s ease',
                 }}>
-                  <GlobeView events={events} selectedEvent={selectedEvent} onEventClick={handleEventClick} onClearSelection={handleClearSelection} />
+                  <GlobeView events={events} selectedEvent={selectedEvent} onEventClick={handleEventClick} onClearSelection={handleClearSelection} active={activeTab === 'globe'} />
                 </div>
               )}
 
