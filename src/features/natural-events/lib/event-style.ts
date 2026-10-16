@@ -45,12 +45,12 @@ export function stormCategory(kts: number): { label: string; color: string; shor
 
 // Radius scale for globe points — log scale, returns value in [0.25, 1.2]
 export function magnitudeRadius(evt: NaturalEvent): number {
-  const m = evt.magnitude
-  if (!m || m <= 0) return 0.45
+  const magnitude = evt.magnitude
+  if (!magnitude || magnitude <= 0) return 0.45
   const unit = evt.magnitudeUnit ?? ''
-  let val = m
-  if (unit === 'hectare') val = m * 2.471 // convert to acres for uniform scale
+  let value = magnitude
+  if (unit === 'hectare') value = magnitude * 2.471 // convert to acres for uniform scale
   // log2 scale: 100ac→0.35, 1k→0.5, 10k→0.7, 100k→0.95, 1M→1.2
-  const r = 0.25 + (Math.log2(Math.max(val, 1)) / 20) * 0.95
-  return Math.min(Math.max(r, 0.25), 1.2)
+  const radius = 0.25 + (Math.log2(Math.max(value, 1)) / 20) * 0.95
+  return Math.min(Math.max(radius, 0.25), 1.2)
 }

@@ -77,7 +77,7 @@ export function NowPanel({
       </div>
 
       {/* Telemetry rows */}
-      {rows.filter(r => r.label !== '').map(({ label, value, color }) => (
+      {rows.filter(row => row.label !== '').map(({ label, value, color }) => (
         <div key={label} style={{
           padding: '7px 12px', borderRadius: 10,
           background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',

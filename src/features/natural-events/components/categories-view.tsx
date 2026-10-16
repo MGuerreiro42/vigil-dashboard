@@ -7,9 +7,9 @@ import { categoryStyle, stormCategory } from '@/features/natural-events/lib/even
 export function CategoriesView({ events }: { events: NaturalEvent[] }) {
   const categoryGroups = useMemo(() => {
     const groups: Record<string, NaturalEvent[]> = {}
-    events.forEach(e => {
-      if (!groups[e.categoryId]) groups[e.categoryId] = []
-      groups[e.categoryId].push(e)
+    events.forEach(event => {
+      if (!groups[event.categoryId]) groups[event.categoryId] = []
+      groups[event.categoryId].push(event)
     })
     return Object.entries(groups)
       .sort(([, a], [, b]) => b.length - a.length)
@@ -17,33 +17,33 @@ export function CategoriesView({ events }: { events: NaturalEvent[] }) {
         id,
         cfg: categoryStyle(id),
         count: evts.length,
-        latest: evts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0],
+        latest: evts.sort((first, second) => new Date(second.date).getTime() - new Date(first.date).getTime())[0],
       }))
   }, [events])
 
   // Top fires by area (need magnitude in acres or hectares)
   const topFires = useMemo(() => {
     return events
-      .filter(e => e.categoryId === 'wildfires' && e.magnitude != null)
-      .map(e => ({
-        ...e,
-        acres: e.magnitudeUnit === 'hectare'
-          ? (e.magnitude! * 2.471)
-          : e.magnitude!,
+      .filter(event => event.categoryId === 'wildfires' && event.magnitude != null)
+      .map(event => ({
+        ...event,
+        acres: event.magnitudeUnit === 'hectare'
+          ? (event.magnitude! * 2.471)
+          : event.magnitude!,
       }))
-      .sort((a, b) => b.acres - a.acres)
+      .sort((first, second) => second.acres - first.acres)
       .slice(0, 7)
   }, [events])
 
   // Active storms with intensity
   const storms = useMemo(() => {
     return events
-      .filter(e => e.categoryId === 'severeStorms')
-      .map(e => ({
-        ...e,
-        cat: e.magnitude ? stormCategory(e.magnitude) : stormCategory(0),
+      .filter(event => event.categoryId === 'severeStorms')
+      .map(event => ({
+        ...event,
+        cat: event.magnitude ? stormCategory(event.magnitude) : stormCategory(0),
       }))
-      .sort((a, b) => (b.magnitude ?? 0) - (a.magnitude ?? 0))
+      .sort((first, second) => (second.magnitude ?? 0) - (first.magnitude ?? 0))
   }, [events])
 
   const maxAcres = topFires[0]?.acres ?? 1

@@ -15,14 +15,14 @@ export function PinnedTooltip({ evt, onClose }: { evt: NaturalEvent; onClose: ()
   // Magnitude display
   let magDisplay = ''
   if (evt.magnitude != null && evt.magnitudeUnit) {
-    const u = evt.magnitudeUnit
-    if (u === 'kts') magDisplay = `${evt.magnitude} kts`
-    else if (u === 'NM^2') magDisplay = `${evt.magnitude.toFixed(1)} NM²`
-    else if (u === 'hectare') magDisplay = `${(evt.magnitude).toLocaleString('pt-BR')} ha`
+    const unit = evt.magnitudeUnit
+    if (unit === 'kts') magDisplay = `${evt.magnitude} kts`
+    else if (unit === 'NM^2') magDisplay = `${evt.magnitude.toFixed(1)} NM²`
+    else if (unit === 'hectare') magDisplay = `${(evt.magnitude).toLocaleString('pt-BR')} ha`
     else {
       magDisplay = evt.magnitude >= 1000
-        ? `${(evt.magnitude / 1000).toFixed(1)}k ${u}`
-        : `${evt.magnitude.toFixed(0)} ${u}`
+        ? `${(evt.magnitude / 1000).toFixed(1)}k ${unit}`
+        : `${evt.magnitude.toFixed(0)} ${unit}`
     }
   }
 

@@ -11,15 +11,15 @@ export function formatVelocity(kmh: number) { return `${(kmh / 3600).toFixed(2)}
 /** ISO 3166-1 alpha-2 → Unicode flag emoji */
 export function countryFlag(code: string): string {
   return code.toUpperCase().split('').map(
-    (c) => String.fromCodePoint(c.charCodeAt(0) - 65 + 0x1f1e6),
+    (letter) => String.fromCodePoint(letter.charCodeAt(0) - 65 + 0x1f1e6),
   ).join('')
 }
 
 /** Convert TLE epoch day-of-year to a readable date string */
 export function epochToDate(year: number, day: number): string {
-  const d = new Date(Date.UTC(year, 0, 1))
-  d.setUTCDate(d.getUTCDate() + Math.floor(day) - 1)
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  const date = new Date(Date.UTC(year, 0, 1))
+  date.setUTCDate(date.getUTCDate() + Math.floor(day) - 1)
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
 }
 
 /** Orbital period in minutes from mean motion (rev/day) */
