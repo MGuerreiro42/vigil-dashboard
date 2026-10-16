@@ -37,7 +37,8 @@ function normalizeCoin(raw: RawCoin): CryptoAsset {
   }
 }
 
-type RawBinanceTicker = { symbol: string; lastPrice: string; priceChangePercent: string; quoteVolume: string }
+// MINI tickers carry no priceChangePercent, so the change is derived from the open price
+type RawBinanceTicker = { symbol: string; openPrice: string; lastPrice: string; quoteVolume: string }
 
 /** Binance 24h tickers shaped like CoinGecko rows: no market cap, logo, 7d change or sparkline. */
 export function binanceTickersToAssets(ids: string[], tickers: RawBinanceTicker[]): CryptoAsset[] {
@@ -52,7 +53,7 @@ export function binanceTickersToAssets(ids: string[], tickers: RawBinanceTicker[
       price: Number(ticker.lastPrice),
       marketCap: 0,
       volume24h: Number(ticker.quoteVolume),
-      change24h: Number(ticker.priceChangePercent),
+      change24h: ((Number(ticker.lastPrice) - Number(ticker.openPrice)) / Number(ticker.openPrice)) * 100,
       change7d: 0,
       sparkline: [],
       rank: index + 1,
