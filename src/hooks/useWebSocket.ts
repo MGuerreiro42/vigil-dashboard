@@ -1,69 +1,18 @@
 import { useEffect, useRef } from 'react'
+import { createReconnectingSocket, type SocketHandlers } from '@/lib/reconnectingSocket'
 
-const BASE_DELAY_MS = 1_000
-const MAX_DELAY_MS = 30_000
-
-/** Exponential backoff with jitter, so reconnecting clients don't retry in lockstep. */
-export function reconnectDelay(attempt: number): number {
-  const ceiling = Math.min(MAX_DELAY_MS, BASE_DELAY_MS * 2 ** attempt)
-  return ceiling / 2 + Math.random() * (ceiling / 2)
-}
-
-interface Handlers {
-  onMessage: (data: unknown) => void
-  onOpen?: () => void
-  onClose?: () => void
-}
-
-/** Reconnects with backoff; stays closed while the tab is hidden. `null` url disconnects. */
-export function useWebSocket(url: string | null, handlers: Handlers) {
+export function useWebSocket(url: string | null, handlers: SocketHandlers) {
+  // Read handlers through a ref so a re-render doesn't reopen the connection
   const handlersRef = useRef(handlers)
   useEffect(() => { handlersRef.current = handlers })
 
   useEffect(() => {
     if (!url) return
-    // Per-connection state, so a closing socket from the previous url can't reconnect
-    let active = true
-    let socket: WebSocket | null = null
-    let retry: ReturnType<typeof setTimeout> | undefined
-    let attempt = 0
-
-    function connect() {
-      const ws = new WebSocket(url as string)
-      socket = ws
-      ws.onopen = () => {
-        attempt = 0
-        handlersRef.current.onOpen?.()
-      }
-      ws.onmessage = (ev) => {
-        try { handlersRef.current.onMessage(JSON.parse(ev.data as string)) } catch { /* ignore malformed frames */ }
-      }
-      ws.onerror = () => ws.close()
-      ws.onclose = () => {
-        if (socket === ws) socket = null
-        handlersRef.current.onClose?.()
-        if (active && !document.hidden) retry = setTimeout(connect, reconnectDelay(attempt++))
-      }
-    }
-
-    function onVisibilityChange() {
-      if (document.hidden) {
-        clearTimeout(retry)
-        socket?.close()
-      } else if (!socket) {
-        attempt = 0
-        connect()
-      }
-    }
-
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    if (!document.hidden) connect()
-
-    return () => {
-      active = false
-      clearTimeout(retry)
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-      socket?.close()
-    }
+    const socket = createReconnectingSocket(url, {
+      onMessage: (data) => handlersRef.current.onMessage(data),
+      onOpen: () => handlersRef.current.onOpen?.(),
+      onClose: () => handlersRef.current.onClose?.(),
+    })
+    return () => socket.close()
   }, [url])
 }
