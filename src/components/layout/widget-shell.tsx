@@ -29,10 +29,12 @@ function formatRelative(ts: number): string {
   return `${Math.floor(diff / 3600)}h ago`
 }
 
-function SkeletonLine({ width = 'full' }: { width?: string }) {
+// Inline width: Tailwind can't generate a class built at runtime like `w-${width}`
+function SkeletonLine({ width = '100%' }: { width?: string }) {
   return (
     <motion.div
-      className={`h-3 rounded-full bg-white/8 w-${width}`}
+      className="h-3 rounded-full bg-white/8"
+      style={{ width }}
       animate={{ opacity: [0.4, 0.8, 0.4] }}
       transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
     />
@@ -42,10 +44,10 @@ function SkeletonLine({ width = 'full' }: { width?: string }) {
 function LoadingSkeleton() {
   return (
     <div className="flex flex-col gap-3 p-4">
-      <SkeletonLine width="3/4" />
+      <SkeletonLine width="75%" />
       <SkeletonLine />
-      <SkeletonLine width="5/6" />
-      <SkeletonLine width="2/3" />
+      <SkeletonLine width="83%" />
+      <SkeletonLine width="67%" />
       <SkeletonLine />
     </div>
   )

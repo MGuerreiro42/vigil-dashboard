@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ParticleBackground } from '@/components/ui/particle-background'
+import { AppBackground } from './app-background'
 import { Header } from './header'
 
 interface Props {
@@ -18,17 +18,7 @@ export function PageLayout({ children, subheader }: Props) {
 
   return (
     <div className="relative min-h-screen lg:h-screen lg:overflow-hidden" style={{ background: '#080b12' }}>
-      <ParticleBackground />
-
-      {/* Gradient overlays */}
-      <div
-        className="fixed inset-0 pointer-events-none z-[1]"
-        style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34,211,238,0.06) 0%, transparent 60%)' }}
-      />
-      <div
-        className="fixed inset-0 pointer-events-none z-[1]"
-        style={{ background: 'radial-gradient(ellipse 60% 40% at 100% 100%, rgba(168,85,247,0.05) 0%, transparent 50%)' }}
-      />
+      <AppBackground />
 
       <div className="relative z-[2] lg:h-full flex flex-col">
         {/* Shared header */}
