@@ -5,6 +5,7 @@ import { useNaturalEvents } from '@/api/gdacs'
 import { useEarthquakes } from '@/api/usgs'
 import { formatRelativeTime } from '@/hooks/useRelativeTime'
 import type { NaturalEvent } from '@/api/types/natural-event'
+import { escapeHtml } from '@/lib/escapeHtml'
 import type { Earthquake } from '@/api/types/earthquake'
 
 const ACCENT = '#10b981'
@@ -181,8 +182,8 @@ function buildGlobeTooltip(evt: NaturalEvent): string {
         <span style="font-size:10px;font-weight:700;color:${cfg.color};background:${cfg.color}18;padding:1px 6px;border-radius:99px">${cfg.label}</span>
         ${magLine}
       </div>
-      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);line-height:1.4;margin-bottom:5px">${evt.title}</div>
-      ${evt.description ? `<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:5px">${evt.description}</div>` : ''}
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);line-height:1.4;margin-bottom:5px">${escapeHtml(evt.title)}</div>
+      ${evt.description ? `<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:5px">${escapeHtml(evt.description)}</div>` : ''}
       <div style="font-size:10px;color:rgba(255,255,255,0.3)">${Math.abs(evt.lat).toFixed(2)}°${latDir} ${Math.abs(evt.lng).toFixed(2)}°${lngDir} · ${rel}</div>
     </div>
   `
