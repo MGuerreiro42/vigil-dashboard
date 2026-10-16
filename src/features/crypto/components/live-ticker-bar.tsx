@@ -123,7 +123,7 @@ export function LiveTickerBar({ coins }: Props) {
           />
           <span
             className="text-[10px] font-bold tracking-widest uppercase"
-            style={{ color: isLive ? '#10b981' : 'rgba(255,255,255,0.25)' }}
+            style={{ color: isLive ? '#10b981' : 'rgba(255,255,255,0.5)' }}
           >
             {t('crypto.tickerLive')}
           </span>

@@ -59,7 +59,7 @@ export function StatsBar({
             className="text-[11px] px-3 py-1.5 rounded-lg transition-all"
             style={{
               background: activeTab === tab.id ? `${ACCENT}18` : 'rgba(255,255,255,0.04)',
-              color: activeTab === tab.id ? ACCENT : 'rgba(255,255,255,0.4)',
+              color: activeTab === tab.id ? ACCENT : 'rgba(255,255,255,0.62)',
               border: `1px solid ${activeTab === tab.id ? ACCENT + '35' : 'rgba(255,255,255,0.08)'}`,
             }}
           >
@@ -74,7 +74,7 @@ export function StatsBar({
         className="flex items-center gap-1.5 text-[11px] px-3 py-2 rounded-xl transition-all ml-auto"
         style={{
           background: followISS ? `${ACCENT}15` : 'rgba(255,255,255,0.05)',
-          color: followISS ? ACCENT : 'rgba(255,255,255,0.35)',
+          color: followISS ? ACCENT : 'rgba(255,255,255,0.62)',
           border: `1px solid ${followISS ? ACCENT + '35' : 'rgba(255,255,255,0.1)'}`,
         }}
       >

@@ -96,7 +96,7 @@ export function WikipediaWidget({ isFocused = false }: { isFocused?: boolean }) 
                   className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
                   style={{
                     background: lang === language.code ? ACCENT + '22' : 'rgba(255,255,255,0.04)',
-                    color: lang === language.code ? ACCENT : 'rgba(255,255,255,0.32)',
+                    color: lang === language.code ? ACCENT : 'rgba(255,255,255,0.5)',
                     border: `1px solid ${lang === language.code ? ACCENT + '48' : 'transparent'}`,
                   }}
                 >

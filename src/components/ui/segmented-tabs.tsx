@@ -26,7 +26,7 @@ export function SegmentedTabs<T extends string>({ tabs, active, onChange, accent
             className="px-3 py-1 rounded-lg text-xs font-medium transition-all disabled:opacity-30 disabled:cursor-default"
             style={{
               background: selected ? accent + '20' : 'transparent',
-              color: selected ? accent : 'rgba(255,255,255,0.35)',
+              color: selected ? accent : 'rgba(255,255,255,0.62)',
               border: `1px solid ${selected ? accent + '50' : 'transparent'}`,
             }}
           >

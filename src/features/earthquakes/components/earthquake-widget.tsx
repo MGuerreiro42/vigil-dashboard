@@ -521,7 +521,7 @@ export function EarthquakeWidget({ isFocused = false }: { isFocused?: boolean })
                   className="px-2.5 py-1 rounded-md text-[11px] font-medium transition-all"
                   style={{
                     background: sortOrder === opt.id ? 'rgba(255,255,255,0.08)' : 'transparent',
-                    color: sortOrder === opt.id ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
+                    color: sortOrder === opt.id ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)',
                     border: `1px solid ${sortOrder === opt.id ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
                   }}
                 >

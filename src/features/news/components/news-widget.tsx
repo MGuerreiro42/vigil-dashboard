@@ -173,7 +173,7 @@ export function NewsWidget({ isFocused = false }: { isFocused?: boolean }) {
             className="px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all"
             style={{
               background: activeSection === s.id ? s.color + '20' : 'transparent',
-              color: activeSection === s.id ? s.color : 'rgba(255,255,255,0.30)',
+              color: activeSection === s.id ? s.color : 'rgba(255,255,255,0.5)',
               border: `1px solid ${activeSection === s.id ? s.color + '50' : 'transparent'}`,
             }}
           >

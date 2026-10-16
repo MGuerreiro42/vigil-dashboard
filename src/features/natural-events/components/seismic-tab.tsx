@@ -27,7 +27,7 @@ export function SeismicTab({ quakes }: { quakes: Earthquake[] }) {
             className="px-2.5 py-1 rounded-md text-[11px] font-medium transition-all"
             style={{
               background: sort === option ? 'rgba(255,255,255,0.08)' : 'transparent',
-              color: sort === option ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
+              color: sort === option ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)',
               border: `1px solid ${sort === option ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
             }}
           >

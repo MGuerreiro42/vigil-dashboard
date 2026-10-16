@@ -124,7 +124,7 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
                   className="text-[11px] px-2 py-0.5 rounded-full border transition-all"
                   style={{
                     borderColor: !selectedLangFilter ? ACCENT + '80' : 'rgba(255,255,255,0.1)',
-                    color: !selectedLangFilter ? ACCENT : 'rgba(255,255,255,0.4)',
+                    color: !selectedLangFilter ? ACCENT : 'rgba(255,255,255,0.62)',
                     background: !selectedLangFilter ? ACCENT + '15' : 'transparent',
                   }}
                 >
@@ -137,7 +137,7 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
                     className="text-[11px] px-2 py-0.5 rounded-full border transition-all"
                     style={{
                       borderColor: selectedLangFilter === lang ? ACCENT + '80' : 'rgba(255,255,255,0.1)',
-                      color: selectedLangFilter === lang ? ACCENT : 'rgba(255,255,255,0.4)',
+                      color: selectedLangFilter === lang ? ACCENT : 'rgba(255,255,255,0.62)',
                       background: selectedLangFilter === lang ? ACCENT + '15' : 'transparent',
                     }}
                   >
@@ -156,7 +156,7 @@ export function GithubWidget({ isFocused = false }: { isFocused?: boolean }) {
                   className="px-2 py-1 rounded-md text-[11px] font-medium transition-all"
                   style={{
                     background: sortOrder === option ? 'rgba(255,255,255,0.08)' : 'transparent',
-                    color: sortOrder === option ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.28)',
+                    color: sortOrder === option ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)',
                     border: `1px solid ${sortOrder === option ? 'rgba(255,255,255,0.12)' : 'transparent'}`,
                   }}
                 >
