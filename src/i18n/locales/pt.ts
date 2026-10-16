@@ -323,4 +323,23 @@ export const pt = {
       source: 'alternative.me · Coinpaprika · mempool.space',
     },
   },
+  pulse: {
+    edits: {
+      title: 'Wikipedia ao vivo',
+      perMinute: 'Edições/min',
+      allLanguages: 'todos os idiomas',
+      bots: 'Bots',
+      ofEdits: 'das edições',
+      newArticles: 'Artigos novos',
+      lastMinute: 'último minuto',
+      feed: 'Edições humanas em tempo real',
+      source: 'Wikimedia EventStreams · artigos de todas as Wikipédias',
+      reconnecting: 'Reconectando ao stream…',
+    },
+    bluesky: {
+      title: 'Em alta no Bluesky',
+      empty: 'Nenhum assunto em alta agora.',
+      source: 'Bluesky · tendências globais (em inglês)',
+    },
+  },
 }
