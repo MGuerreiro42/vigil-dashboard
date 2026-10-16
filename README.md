@@ -23,11 +23,11 @@ The dashboard is split into a **summary view** (home page with all widgets in mi
 | Widget | Source | Type |
 |---|---|---|
 | **Crypto** | CoinGecko + Binance | REST + WebSocket |
-| **ISS** | Open-Notify + WhereTheISS | REST polling |
+| **ISS** | Where the ISS at | REST polling |
 | **Natural Events** | GDACS (UN/EU) | RSS/XML via proxy |
 | **Seismic** | USGS Earthquake Catalog | REST |
-| **News** | The Guardian Open API | REST |
-| **Weather** | Open-Meteo + OpenAQ | REST |
+| **News** | Wikimedia Feed API (headlines, most read, on this day — PT/EN) | REST |
+| **Weather** | Open-Meteo forecast + air quality | REST |
 | **GitHub Trending** | GitHub Search API | REST |
 | **Wikipedia** | Wikipedia REST API | REST |
 
@@ -116,20 +116,19 @@ src/
 ## Running Locally
 
 ```bash
-# Install dependencies
-npm install
+# Install dependencies (Node 24, pnpm)
+pnpm install
 
 # Start dev server (with GDACS proxy)
-npm run dev
+pnpm dev
 
-# Production build
-npm run build
+# Tests, lint and production build
+pnpm test
+pnpm lint
+pnpm build
 ```
 
-> **Optional environment variables:**
-> ```
-> VITE_GUARDIAN_API_KEY=your_key   # default: The Guardian's "test" demo key
-> ```
+No API keys are needed: every source is free and keyless.
 
 ---
 

@@ -1,4 +1,3 @@
-import type { GuardianSection } from '@/features/news/types'
 import type { WikiLangCode } from '@/features/wikipedia/types'
 
 export const queryKeys = {
@@ -13,7 +12,9 @@ export const queryKeys = {
   github: {
     trending: (language?: string) => ['github', 'trending', language] as const,
   },
-  news: (section: GuardianSection) => ['news', section] as const,
+  news: {
+    featured: (lang: string, date: string) => ['news', 'featured', lang, date] as const,
+  },
   wikipedia: {
     random: (lang: WikiLangCode, seed: number) => ['wikipedia', 'random', lang, seed] as const,
   },

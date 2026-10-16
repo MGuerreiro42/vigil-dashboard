@@ -173,8 +173,14 @@ export const en: typeof pt = {
     reposSeries: 'Repos',
   },
   news: {
-    sections: { technology: 'Tech', science: 'Science', world: 'World', environment: 'Environment', business: 'Business' },
-    stats: { articles: 'Articles', latest: 'Latest' },
+    title: 'World news',
+    source: 'via Wikipedia',
+    tabs: { headlines: '📰 Headlines', trending: '🔥 Trending', onThisDay: '📅 On this day' },
+    views: '{{value}} views yesterday',
+    yearsAgo_one: '{{count}} year ago',
+    yearsAgo_other: '{{count}} years ago',
+    empty: 'No headlines for today.',
+    readMore: 'Read on Wikipedia ↗',
   },
   wikipedia: {
     pause: '⏸ Pause',
