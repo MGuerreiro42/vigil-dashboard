@@ -23,6 +23,12 @@ describe('sourceRow', () => {
     expect(sourceRow(rest, [failing], undefined, noCache, now)).toMatchObject({ status: 'error', failure: { code: 'timeout', status: null }, ageMs: null })
   })
 
+  it('is an error when the request succeeded but its payload was unreadable', () => {
+    const answered = health({ lastSuccessAt: 9_000 })
+    const unreadable = health({ latencyMs: null, lastSuccessAt: null, lastFailure: { code: 'invalid_payload', status: null }, lastFailureAt: 9_000 })
+    expect(sourceRow(rest, [answered, unreadable], undefined, noCache, now)).toMatchObject({ status: 'error', failure: { code: 'invalid_payload', status: null } })
+  })
+
   it('shows data restored from the persisted cache as cache until a request this session', () => {
     const restored = { updatedAt: 4_000, hasData: true }
     expect(sourceRow(rest, [undefined], undefined, restored, now)).toMatchObject({ status: 'ok', latency: 'cache', ageMs: 6_000 })

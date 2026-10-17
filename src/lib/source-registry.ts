@@ -79,7 +79,8 @@ export function sourceRow(entry: SourceEntry, records: (SourceHealth | undefined
   const ageMs = updatedAt > 0 ? now - updatedAt : null
 
   if (failing) {
-    const hasData = cache.hasData || Boolean(lastSuccess)
+    // Only the cache counts: a request can succeed and still bring nothing when its payload is unreadable
+    const hasData = cache.hasData
     return { entry, status: hasData ? 'degraded' : 'error', latency: null, failure: failing.lastFailure, ageMs: hasData ? ageMs : null, failingSince: failing.lastFailureAt }
   }
   if (updatedAt === 0) return { entry, status: 'waiting', latency: null, failure: null, ageMs: null, failingSince: null }
