@@ -34,6 +34,18 @@ function CauseText({ cause, separator }: { cause: FailureCause; separator: strin
   return <>{typeof cause === 'number' ? `${cause}${separator}${reason}` : reason}</>
 }
 
+/** "aguardando {source}▌" over rim-dot rows shaped like the table to come. */
+export function LoadingBody({ source, placeholder = DEFAULT_PLACEHOLDER, timeoutNote = true }: { source: string; placeholder?: string[]; timeoutNote?: boolean }) {
+  const { t } = useTranslation()
+  return (
+    <>
+      <span>{t('terminal.panel.waiting', { source })}<span className="animate-blink text-ok" aria-hidden>▌</span></span>
+      {placeholder.map((row, index) => <span key={index} className="whitespace-pre text-rim" aria-hidden>{row}</span>)}
+      {timeoutNote && <span className="text-dim">{t('terminal.panel.timeoutNote')}</span>}
+    </>
+  )
+}
+
 /** Panel that renders a query's loading, error, degraded (cached) and ready states. */
 export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOLDER, retryMs = DEFAULT_RETRY_MS, cacheNote, children, ...panel }: QueryPanelProps<Data>) {
   const { t } = useTranslation()
@@ -59,9 +71,7 @@ export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOL
   if (status.phase === 'loading') {
     return (
       <Panel {...panel} gap={6} meta={t('terminal.panel.connecting')} metaTone="info">
-        <span>{t('terminal.panel.waiting', { source })}<span className="animate-blink text-ok" aria-hidden>▌</span></span>
-        {placeholder.map((row, index) => <span key={index} className="whitespace-pre text-rim" aria-hidden>{row}</span>)}
-        <span className="text-dim">{t('terminal.panel.timeoutNote')}</span>
+        <LoadingBody source={source} placeholder={placeholder} />
       </Panel>
     )
   }

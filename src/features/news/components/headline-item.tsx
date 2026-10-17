@@ -1,4 +1,6 @@
 import type { NewsHeadline } from '@/features/news/types'
+import { intlLocale } from '@/i18n'
+import { formatShortDate, parseIsoDay } from '@/lib/terminal-format'
 import { ArticleThumb } from './article-thumb'
 
 export function HeadlineItem({ headline, compact = false }: { headline: NewsHeadline; compact?: boolean }) {
@@ -6,7 +8,7 @@ export function HeadlineItem({ headline, compact = false }: { headline: NewsHead
     <>
       <ArticleThumb src={headline.article?.thumbnail ?? null} size={compact ? 36 : 56} />
       <div className="flex-1 min-w-0">
-        {headline.dateLabel && <div className="text-[10px] uppercase tracking-widest text-fg-subtle mb-0.5">{headline.dateLabel}</div>}
+        {headline.date && <div className="text-[10px] uppercase tracking-widest text-fg-subtle mb-0.5">{formatShortDate(parseIsoDay(headline.date), intlLocale())}</div>}
         <p className={`${compact ? 'text-[12px] line-clamp-2' : 'text-[13px]'} text-white/80 leading-snug`}>{headline.text}</p>
         {!compact && headline.article && <div className="text-[11px] text-fg-muted mt-1 truncate">{headline.article.title}</div>}
       </div>

@@ -29,7 +29,7 @@ export function TerminalShell() {
       <main className="flex flex-1 flex-col gap-[28px] px-[20px] pt-[24px] pb-[28px] max-sm:px-[12px] max-sm:pt-[20px] max-sm:pb-[24px]">
         <Suspense fallback={null}><Outlet /></Suspense>
       </main>
-      <Keybar refreshingScreen={refreshingScreen} />
+      <Keybar screen={screen} refreshingScreen={refreshingScreen} />
       <TabBar />
     </div>
   )

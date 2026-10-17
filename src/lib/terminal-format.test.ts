@@ -44,6 +44,7 @@ describe('dates', () => {
   it('formats short dates per language', () => {
     expect(formatShortDate(october16, 'pt-BR')).toBe('16 out')
     expect(formatShortDate(october16, 'en-US')).toBe('Oct 16')
+    expect(formatShortDate(new Date(2026, 9, 4), 'pt-BR', true)).toBe('04 out')
     expect(formatMonthYear(october16, 'pt-BR')).toBe('out 2026')
     expect(formatMonthYear(october16, 'en-US', true)).toBe('Oct 26')
     expect(formatDayMonth(october16, 'pt-BR')).toBe('16/10')
