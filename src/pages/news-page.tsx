@@ -9,7 +9,7 @@ const WikipediaWidget = lazy(() => import('@/features/wikipedia/components/wikip
 
 export function NewsPage() {
   return (
-    <PageLayout stacked>
+    <PageLayout>
       <PageSection id="headlines">
         <Suspense fallback={<WidgetSkeleton />}><NewsWidget isFocused /></Suspense>
       </PageSection>

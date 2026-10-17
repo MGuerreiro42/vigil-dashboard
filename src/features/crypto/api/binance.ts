@@ -28,6 +28,9 @@ const toBookEntry = ([price, qty]: [string, string]): BinanceOrderBookEntry => (
 
 export const WS_BASE = 'wss://stream.binance.com:9443'
 
+/** Key of the mini-ticker stream in the source-health store */
+export const BINANCE_STREAM = 'binance ws'
+
 // ─── Order book depth ─────────────────────────────────────────────────────
 
 /**

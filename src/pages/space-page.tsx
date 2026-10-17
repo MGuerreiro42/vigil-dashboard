@@ -10,7 +10,7 @@ const SpaceNewsWidget = lazy(() => import('@/features/space/components/space-new
 
 export function SpacePage() {
   return (
-    <PageLayout stacked>
+    <PageLayout>
       <PageSection id="iss">
         <Suspense fallback={<WidgetSkeleton />}><ISSWidget isFocused /></Suspense>
       </PageSection>
