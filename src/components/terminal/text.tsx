@@ -54,10 +54,12 @@ export function ExternalLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
 export function MetaLine({ segments, className = '' }: { segments: (MetaSegment | null | undefined | false)[]; className?: string }) {
   const pieces = metaPieces(segments)
   return (
-    <span className={`flex min-w-0 whitespace-pre text-dim ${className}`}>
+    <span className={`flex min-w-0 overflow-hidden whitespace-pre text-dim ${className}`}>
       {pieces.map((piece, index) => {
         const last = index === pieces.length - 1
-        const fit = last ? 'min-w-0 overflow-hidden text-ellipsis' : `shrink-0 ${piece.phoneLast ? 'max-sm:shrink max-sm:min-w-0 max-sm:overflow-hidden max-sm:text-ellipsis' : ''}`
+        // The truncating segment gives way first; the others shrink only once it is gone, so nothing overflows
+        const shrink = last ? 'shrink-[999]' : piece.phoneLast ? 'shrink max-sm:shrink-[999]' : 'shrink'
+        const fit = `min-w-0 overflow-hidden text-ellipsis ${shrink}`
         return (
           <span key={index} className={`${fit} ${piece.phone ? '' : 'max-sm:hidden'}`}>
             {index > 0 && <span className={piece.phoneFirst ? 'max-sm:hidden' : ''}> · </span>}
