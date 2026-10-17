@@ -44,7 +44,7 @@ import { useCityName } from '@/features/weather/lib/use-city-name'
 import { aqiTone, POLLUTANT_LABEL, worstPollutant } from '@/features/weather/lib/weather-terminal'
 import { useNow } from '@/hooks/use-now'
 import { intlLocale } from '@/i18n'
-import { failureCause } from '@/lib/http'
+import { classifyError } from '@/lib/http'
 import { changeTone, formatAge, formatPrice, formatShortDate, formatSigned, parseIsoDay } from '@/lib/terminal-format'
 import { useAppStore } from '@/store/app-store'
 import { useGeoStore } from '@/store/geo-store'
@@ -285,9 +285,11 @@ function SpaceFacts() {
 
   let asteroidValue: ReactNode = <Missing />
   if (asteroids.isError) {
-    const cause = failureCause(asteroids.error)
-    const label = asteroids.data ? `cache ${formatAge(now - asteroids.dataUpdatedAt, true)} · ${cause}` : `${t('terminal.panel.error')} · ${cause}`
-    asteroidValue = <ToneText tone="err">{label}</ToneText>
+    const prefix = asteroids.data ? `cache ${formatAge(now - asteroids.dataUpdatedAt, true)}` : t('terminal.panel.error')
+    const failure = classifyError(asteroids.error)
+    // The card is too narrow for the full reason: the status, or the short code [1.2] uses
+    const reason = failure.status ?? t(`terminal.overview.sources.latency.${failure.code}`)
+    asteroidValue = <ToneText tone="err">{prefix} · {reason}</ToneText>
   } else if (asteroids.data) {
     asteroidValue = t('terminal.overview.space.asteroidsValue', { count: asteroids.data.length, hazardous: asteroids.data.filter((neo) => neo.hazardous).length })
   }

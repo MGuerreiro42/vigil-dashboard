@@ -16,11 +16,12 @@ const STATUS_STYLE: Record<SourceRowStatus, { glyph: string; tone: Tone }> = {
 
 function useLatencyLabel() {
   const { t } = useTranslation()
-  return ({ status, latency }: SourceRow) => {
+  return ({ latency, failure }: SourceRow) => {
+    // While failing the column names the failure: the HTTP status when there is one, else a short code
+    if (failure) return failure.status === null ? t(`terminal.overview.sources.latency.${failure.code}`) : String(failure.status)
     if (latency === null) return '—'
-    if (latency === 'live' || latency === 'timeout' || latency === 'network') return t(`terminal.overview.sources.latency.${latency}`)
-    // While failing the number is the HTTP status, otherwise the request time
-    return status === 'ok' ? `${latency}ms` : String(latency)
+    if (latency === 'live' || latency === 'cache') return t(`terminal.overview.sources.latency.${latency}`)
+    return `${latency}ms`
   }
 }
 

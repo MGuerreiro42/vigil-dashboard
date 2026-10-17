@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useNow } from '@/hooks/use-now'
+import { classifyError } from '@/lib/http'
 import { SOURCE_REGISTRY, sourceRow, type CacheState, type SourceRow } from '@/lib/source-registry'
 import { useSourceHealthStore } from '@/store/source-health-store'
 
@@ -17,6 +18,13 @@ export function useSourceRows(): { rows: SourceRow[]; now: number } {
       hasData: queries.some((query) => query.state.data !== undefined),
     }
     const records = (entry.fetchNames ?? []).map((name) => sources[name])
+    // fetchOk saw a good response, so a payload the parser rejected only shows on the query
+    for (const query of queries) {
+      const failure = query.state.status === 'error' ? classifyError(query.state.error) : null
+      if (failure?.code === 'invalid_payload') {
+        records.push({ latencyMs: null, lastSuccessAt: null, lastFailure: failure, lastFailureAt: query.state.errorUpdatedAt })
+      }
+    }
     return sourceRow(entry, records, entry.stream ? streams[entry.stream] : undefined, cache, now)
   })
   return { rows, now }
