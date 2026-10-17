@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { SocketStatus } from '@/lib/reconnecting-socket'
 
 /** Why the last request to a source failed: an HTTP status, or a failure before any response. */
 export type FailureCause = number | 'timeout' | 'network'
@@ -55,6 +56,18 @@ export const useSourceHealthStore = create<SourceHealthState>((set) => ({
   setStream: (stream, patch) =>
     set((state) => ({ streams: { ...state.streams, [stream]: { ...(state.streams[stream] ?? EMPTY_STREAM), ...patch } } })),
 }))
+
+/** Mirrors a reconnecting stream's status, tracking when it dropped and how long it stayed down. */
+export function reportStreamStatus(stream: string, { state, attempt, nextRetryAt }: SocketStatus) {
+  const { streams, setStream } = useSourceHealthStore.getState()
+  const now = Date.now()
+  const lostAt = streams[stream]?.lostAt ?? null
+  if (state === 'live') {
+    setStream(stream, { state, attempt, nextRetryAt, lostAt: null, recoveredAfterMs: lostAt ? now - lostAt : null, recoveredAt: lostAt ? now : null })
+  } else {
+    setStream(stream, { state, attempt, nextRetryAt, lostAt: state === 'connecting' ? null : lostAt ?? now })
+  }
+}
 
 export type SourceStatus = 'ok' | 'degraded' | 'error'
 

@@ -21,9 +21,43 @@ export interface SocketHandlers {
   onStatus?: (status: SocketStatus) => void
 }
 
+/** What the reconnect loop needs from a connection; a WebSocket already fits. */
+export interface StreamConnection {
+  onopen: ((event: Event) => void) | null
+  onmessage: ((event: MessageEvent) => void) | null
+  onerror: ((event: Event) => void) | null
+  onclose: ((event: CloseEvent) => void) | null
+  close: () => void
+}
+
+/** Server-sent events behind the WebSocket shape, so both share one backoff. */
+export function openEventSource(url: string): StreamConnection {
+  const source = new EventSource(url)
+  let closed = false
+  const connection: StreamConnection = {
+    onopen: null,
+    onmessage: null,
+    onerror: null,
+    onclose: null,
+    close() {
+      if (closed) return
+      closed = true
+      source.close()
+      connection.onclose?.(new CloseEvent('close'))
+    },
+  }
+  source.onopen = (event) => connection.onopen?.(event)
+  source.onmessage = (event) => connection.onmessage?.(event)
+  // EventSource would retry on its own schedule; closing hands the retry to the shared backoff
+  source.onerror = (event) => connection.onerror?.(event)
+  return connection
+}
+
+const openWebSocket = (url: string): StreamConnection => new WebSocket(url)
+
 /** Reconnects with backoff and gives up after MAX_RECONNECT_ATTEMPTS; stays closed while the tab is hidden. */
-export function createReconnectingSocket(url: string, handlers: SocketHandlers) {
-  let socket: WebSocket | null = null
+export function createReconnectingSocket(url: string, handlers: SocketHandlers, open: (url: string) => StreamConnection = openWebSocket) {
+  let socket: StreamConnection | null = null
   let retry: ReturnType<typeof setTimeout> | undefined
   let attempt = 0
   let stopped = false
@@ -32,7 +66,7 @@ export function createReconnectingSocket(url: string, handlers: SocketHandlers) 
     handlers.onStatus?.({ state, attempt, nextRetryAt })
 
   function connect() {
-    const ws = new WebSocket(url)
+    const ws = open(url)
     socket = ws
     if (attempt === 0) report('connecting')
     ws.onopen = () => {
