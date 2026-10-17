@@ -21,13 +21,13 @@ interface TabsProps<Id extends string> {
 const VARIANT = {
   underline: {
     list: 'flex flex-wrap gap-x-[18px] gap-y-[4px] border-b border-line',
-    tab: 'mb-[-1px] border-b-2 pt-[2px] pb-[6px] focus-visible:px-[4px] focus-visible:text-text',
+    tab: 'mb-[-1px] border-b-2 pt-[2px] pb-[6px] max-sm:pt-[8px] focus-visible:px-[4px] focus-visible:text-text',
     active: 'border-ok text-ok',
     idle: 'border-transparent text-dim',
   },
   text: {
     list: 'flex flex-wrap gap-x-[16px] gap-y-[2px]',
-    tab: '',
+    tab: 'max-sm:min-h-[32px]',
     active: 'text-ok',
     idle: 'text-dim',
   },

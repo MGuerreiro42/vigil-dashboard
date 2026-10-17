@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { AlertSeverity } from '@/store/alerts-store'
 import type { Tone } from '@/lib/terminal-format'
 import { blockBar, pollutantBar, sparkline } from '@/lib/text-bars'
+import { metaPieces, type MetaSegment } from './priority'
 import { TONE_CLASS } from './tone'
 
 /** Coloured inline text: badges and levels are plain text, never a filled chip. */
@@ -44,6 +45,37 @@ export function BracketButton({ tone = 'info', className = '', ...props }: Butto
 /** Link that opens outside the app; `↗` is part of the label, as in the design. */
 export function ExternalLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a target="_blank" rel="noopener noreferrer" {...props} />
+}
+
+/**
+ * Metadata line: every segment joined by " · " from 600px; below, the first two p1 segments and the
+ * last of them truncates. Never wraps.
+ */
+export function MetaLine({ segments, className = '' }: { segments: (MetaSegment | null | undefined | false)[]; className?: string }) {
+  const pieces = metaPieces(segments)
+  return (
+    <span className={`flex min-w-0 whitespace-pre text-dim ${className}`}>
+      {pieces.map((piece, index) => {
+        const last = index === pieces.length - 1
+        const fit = last ? 'min-w-0 overflow-hidden text-ellipsis' : `shrink-0 ${piece.phoneLast ? 'max-sm:shrink max-sm:min-w-0 max-sm:overflow-hidden max-sm:text-ellipsis' : ''}`
+        return (
+          <span key={index} className={`${fit} ${piece.phone ? '' : 'max-sm:hidden'}`}>
+            {index > 0 && <span className={piece.phoneFirst ? 'max-sm:hidden' : ''}> · </span>}
+            {piece.text}
+          </span>
+        )
+      })}
+    </span>
+  )
+}
+
+/** Legend as a grid of items that never break in the middle; names in text, the glyph carries the colour. */
+export function LegendGrid({ minItem, gap = '4px 20px', className = '', children }: { minItem: number; gap?: string; className?: string; children: ReactNode }) {
+  return (
+    <div className={`grid whitespace-nowrap ${className}`} style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${minItem}px, 100%), max-content))`, gap }}>
+      {children}
+    </div>
+  )
 }
 
 /** "what is empty" plus "why, or when it comes back"; never just "no data". */
