@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { createProjection, DOT_PITCH, gridSize, nearestMarkerIndex, type BBox, type GeoMarker, type GeoTrackPoint, type ScreenPoint } from './dot-grid'
+import { createProjection, DOT_PITCH, gridSize, invertInsideWorld, nearestMarkerIndex, type BBox, type GeoMarker, type GeoTrackPoint, type ScreenPoint } from './dot-grid'
 import { drawDotGeo, rasterizeMask } from './draw-dot-geo'
 import { prepareCanvas, useCanvasSize } from './dot-canvas'
 import { createColorResolver } from './dot-palette'
@@ -65,9 +65,9 @@ export function DotMap({ label, markers = NO_MARKERS, track = NO_TRACK, bbox, gr
     if (!onInspect || !geometry) return
     const rect = event.currentTarget.getBoundingClientRect()
     const pointer: ScreenPoint = [event.clientX - rect.left, event.clientY - rect.top]
-    const lonLat = geometry.projection.invert?.(pointer)
-    setCrosshair(pointer)
-    onInspect(lonLat ? { lon: lonLat[0], lat: lonLat[1], markerIndex: nearestMarkerIndex(markers, geometry.projection, pointer) } : null)
+    const lonLat = invertInsideWorld(geometry.projection, pointer)
+    setCrosshair(lonLat && pointer)
+    onInspect(lonLat && { lon: lonLat[0], lat: lonLat[1], markerIndex: nearestMarkerIndex(markers, geometry.projection, pointer) })
   }
 
   const interactive = Boolean(onInspect)

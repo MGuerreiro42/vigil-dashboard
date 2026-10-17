@@ -1,4 +1,4 @@
-const SPARK_LEVELS = '▁▂▃▄▅▆▇█'
+export const SPARK_LEVELS = '▁▂▃▄▅▆▇█'
 
 /** Text bar scaled to `max`; never empty so the smallest value still shows. */
 export function blockBar(value: number, max: number, width: number): string {
