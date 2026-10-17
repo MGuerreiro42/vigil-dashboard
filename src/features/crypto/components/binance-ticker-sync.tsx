@@ -1,6 +1,7 @@
 import { useBinanceTickerStore } from '@/features/crypto/store/ticker-store'
-import { COINGECKO_TO_BINANCE, WS_BASE } from '@/features/crypto/api/binance'
+import { BINANCE_STREAM, COINGECKO_TO_BINANCE, WS_BASE } from '@/features/crypto/api/binance'
 import { useWebSocket } from '@/hooks/use-web-socket'
+import { useSourceHealthStore } from '@/store/source-health-store'
 import type { RawMiniTicker } from '@/features/crypto/types'
 
 interface Props {
@@ -19,6 +20,7 @@ interface Props {
 export function BinanceTickerSync({ coinIds }: Props) {
   const setTicker    = useBinanceTickerStore((state) => state.setTicker)
   const setConnected = useBinanceTickerStore((state) => state.setConnected)
+  const setStream = useSourceHealthStore((state) => state.setStream)
 
   const symbols = coinIds.map((id) => COINGECKO_TO_BINANCE[id]).filter(Boolean)
   const url = symbols.length > 0
@@ -28,6 +30,16 @@ export function BinanceTickerSync({ coinIds }: Props) {
   useWebSocket(url, {
     onOpen: () => setConnected(symbols.length),
     onClose: () => setConnected(0),
+    onStatus: ({ state, attempt, nextRetryAt }) => {
+      const now = Date.now()
+      const previous = useSourceHealthStore.getState().streams[BINANCE_STREAM]
+      if (state === 'live') {
+        const lostAt = previous?.lostAt ?? null
+        setStream(BINANCE_STREAM, { state, attempt, nextRetryAt, lostAt: null, recoveredAfterMs: lostAt ? now - lostAt : null, recoveredAt: lostAt ? now : null })
+      } else {
+        setStream(BINANCE_STREAM, { state, attempt, nextRetryAt, lostAt: state === 'connecting' ? null : previous?.lostAt ?? now })
+      }
+    },
     onMessage: (raw) => {
       const ticker = (raw as { data?: RawMiniTicker })?.data
       if (!ticker?.s) return

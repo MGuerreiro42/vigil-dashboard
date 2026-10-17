@@ -44,7 +44,6 @@ beforeEach(() => {
   vi.useFakeTimers()
   vi.stubGlobal('WebSocket', FakeSocket)
   vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden)
-  vi.spyOn(Math, 'random').mockReturnValue(1) // upper bound of the jitter range
 })
 
 afterEach(() => {
@@ -56,13 +55,8 @@ afterEach(() => {
 })
 
 describe('reconnectDelay', () => {
-  it('doubles per attempt and caps at 30s', () => {
-    expect([0, 1, 2, 5, 10].map(reconnectDelay)).toEqual([1_000, 2_000, 4_000, 30_000, 30_000])
-  })
-
-  it('jitters between half and the full ceiling', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0)
-    expect(reconnectDelay(2)).toBe(2_000)
+  it('follows the 1·2·4·8·16 s schedule', () => {
+    expect([1, 2, 3, 4, 5].map(reconnectDelay)).toEqual([1_000, 2_000, 4_000, 8_000, 16_000])
   })
 })
 
@@ -91,6 +85,34 @@ describe('createReconnectingSocket', () => {
     latest().close()
     vi.advanceTimersByTime(1_000)
     expect(FakeSocket.instances).toHaveLength(4)
+  })
+
+  it('reports each attempt and gives up after five failures', () => {
+    const onStatus = vi.fn()
+    open({ onMessage: vi.fn(), onStatus })
+    expect(onStatus).toHaveBeenLastCalledWith({ state: 'connecting', attempt: 0, nextRetryAt: null })
+
+    for (const delay of [1_000, 2_000, 4_000, 8_000, 16_000]) {
+      latest().close()
+      expect(onStatus).toHaveBeenLastCalledWith(expect.objectContaining({ state: 'reconnecting', nextRetryAt: Date.now() + delay }))
+      vi.advanceTimersByTime(delay)
+    }
+    expect(FakeSocket.instances).toHaveLength(6)
+
+    latest().close()
+    expect(onStatus).toHaveBeenLastCalledWith({ state: 'error', attempt: 5, nextRetryAt: null })
+    vi.advanceTimersByTime(60_000)
+    expect(FakeSocket.instances).toHaveLength(6)
+  })
+
+  it('starts over on retry() after giving up', () => {
+    const socket = open({ onMessage: vi.fn() })
+    for (let attempt = 0; attempt < 6; attempt++) {
+      latest().close()
+      vi.advanceTimersByTime(16_000)
+    }
+    socket.retry()
+    expect(FakeSocket.instances).toHaveLength(7)
   })
 
   it('stops reconnecting after close()', () => {
