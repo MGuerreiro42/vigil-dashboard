@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { HttpError } from '@/lib/http'
-import { causeKey, panelStatus, type PanelQuery } from './panel-state'
+import { causeKey, combineQueries, panelStatus, type PanelQuery } from './panel-state'
 
 const query = (patch: Partial<PanelQuery<unknown>>): PanelQuery<unknown> => ({
   data: undefined, error: null, isError: false, dataUpdatedAt: 0, errorUpdatedAt: 0, refetch: () => {}, ...patch,
@@ -23,4 +23,12 @@ describe('panelStatus', () => {
 it('maps causes to reasons', () => {
   expect([429, 403, 404, 503, 418, 'timeout', 'network'].map((cause) => causeKey(cause as never)))
     .toEqual(['rateLimit', 'unauthorized', 'notFound', 'server', 'other', 'timeout', 'network'])
+})
+
+it('combines queries: ready when all have data, failing when any fails', () => {
+  const error = new HttpError('bcb', 503)
+  const ready = combineQueries(query({ data: 1, dataUpdatedAt: 5 }), query({ data: 'a', dataUpdatedAt: 3 }))
+  expect(ready).toMatchObject({ data: [1, 'a'], isError: false, dataUpdatedAt: 3 })
+  expect(combineQueries(query({ data: 1 }), query({})).data).toBeUndefined()
+  expect(combineQueries(query({ data: 1 }), query({ isError: true, error, errorUpdatedAt: 9 }))).toMatchObject({ isError: true, error, errorUpdatedAt: 9 })
 })

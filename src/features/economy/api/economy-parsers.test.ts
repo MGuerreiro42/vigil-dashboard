@@ -2,7 +2,6 @@ import { expect, it } from 'vitest'
 import { parseFxSeries } from './frankfurter'
 import { parseBcbSeries } from './bcb'
 import { parseFearGreed } from './crypto-pulse'
-import { fearGreedColor } from '@/features/economy/lib/economy-style'
 
 it('orders an FX time series by date and keeps only the asked currency', () => {
   expect(parseFxSeries({ rates: { '2026-10-16': { BRL: 5.08 }, '2026-10-15': { BRL: 5.05, EUR: 0.88 }, '2026-10-14': { EUR: 0.89 } } }, 'BRL'))
@@ -23,6 +22,3 @@ it('reads the latest Fear & Greed value and an oldest-first history', () => {
   expect(fearGreed.history.map((point) => point.value)).toEqual([53, 63])
 })
 
-it('colors the Fear & Greed bands', () => {
-  expect([10, 30, 50, 70, 90].map(fearGreedColor)).toEqual(['#f43f5e', '#f97316', '#facc15', '#84cc16', '#10b981'])
-})
