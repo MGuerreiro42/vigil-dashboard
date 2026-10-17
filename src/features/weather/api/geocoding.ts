@@ -7,13 +7,15 @@ import type { Place } from '@/features/weather/types'
 type RawPlace = { id: number; name: string; latitude: number; longitude: number; country?: string; admin1?: string }
 
 export function parsePlaces(raw: { results?: RawPlace[] }): Place[] {
-  return (raw.results ?? []).map((place) => ({
+  const places = (raw.results ?? []).map((place) => ({
     id: place.id,
     name: place.name,
     region: [place.admin1, place.country].filter(Boolean).join(', '),
     lat: place.latitude,
     lng: place.longitude,
   }))
+  // The geocoder can list several places of one name in one region, indistinguishable in the picker: keep the first
+  return places.filter((place, index) => places.findIndex((other) => other.name === place.name && other.region === place.region) === index)
 }
 
 export function useCitySearch(query: string) {

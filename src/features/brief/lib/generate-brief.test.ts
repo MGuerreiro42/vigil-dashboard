@@ -30,7 +30,8 @@ const quake = (id: string, magnitude: number, time = NOW - 3_600_000): Earthquak
 const neows: SourceRow = {
   entry: { label: 'nasa neows', short: 'nasa', screen: 4 },
   status: 'degraded',
-  latency: 429,
+  latency: null,
+  failure: { code: 'rate_limited', status: 429 },
   ageMs: 3 * 3_600_000,
   failingSince: NOW - 60_000,
 }
@@ -48,7 +49,7 @@ describe('generateDailyBrief', () => {
       ['seismic', 'warning', 3],
       ['crypto', 'info', 2],
     ])
-    expect(rows[0]).toMatchObject({ sourceName: 'nasa', at: NOW - 60_000, headline: { key: 'healthDegraded', params: { cause: 'rateLimit', code: ' (429)' } } })
+    expect(rows[0]).toMatchObject({ sourceName: 'nasa', at: NOW - 60_000, headline: { key: 'healthDegraded', params: { cause: 'rate_limited', code: ' (429)' } } })
   })
 
   it('flags a big mover and escalates past 15%', () => {
@@ -62,7 +63,7 @@ describe('generateDailyBrief', () => {
   })
 
   it('stays silent on ok sources', () => {
-    expect(generateDailyBrief({ now: NOW, sources: [{ ...neows, status: 'ok', latency: 40 }] })).toEqual([])
+    expect(generateDailyBrief({ now: NOW, sources: [{ ...neows, status: 'ok', latency: 40, failure: null }] })).toEqual([])
   })
 })
 
@@ -70,7 +71,7 @@ describe('brief texts', () => {
   it('resolves nested cause keys after interpolation', async () => {
     await i18n.changeLanguage('pt')
     const [row] = generateDailyBrief({ now: NOW, sources: [neows] })
-    expect(i18n.t(`terminal.overview.brief.rows.${row.headline.key}`, row.headline.params)).toBe(`nasa neows degradado: ${pt.terminal.causes.rateLimit} (429)`)
+    expect(i18n.t(`terminal.overview.brief.rows.${row.headline.key}`, row.headline.params)).toBe(`nasa neows degradado: ${pt.terminal.errors.rate_limited} (429)`)
   })
 
   it('formats pollutant numbers in the UI language', async () => {

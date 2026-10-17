@@ -1,4 +1,5 @@
-import type { FailureCause, SourceHealth, StreamHealth } from '@/store/source-health-store'
+import type { Failure } from '@/lib/http'
+import type { SourceHealth, StreamHealth } from '@/store/source-health-store'
 
 export interface SourceEntry {
   /** Name in the [1.2] list */
@@ -45,8 +46,9 @@ export type SourceRowStatus = 'ok' | 'degraded' | 'error' | 'reconnecting' | 'wa
 export interface SourceRow {
   entry: SourceEntry
   status: SourceRowStatus
-  /** ms of the last success, the failure cause while failing, 'live' for a connected stream */
-  latency: number | FailureCause | 'live' | null
+  /** ms of the last request this session, 'live' for a connected stream, 'cache' when only restored data is shown */
+  latency: number | 'live' | 'cache' | null
+  failure: Failure | null
   /** Age of the newest data shown, null when there is none */
   ageMs: number | null
   failingSince: number | null
@@ -60,11 +62,11 @@ export interface CacheState {
 
 function streamRow(entry: SourceEntry, stream: StreamHealth | undefined, now: number): SourceRow {
   const state = stream?.state ?? 'connecting'
-  if (state === 'live') return { entry, status: 'ok', latency: 'live', ageMs: 0, failingSince: null }
-  if (state === 'error') return { entry, status: 'error', latency: null, ageMs: null, failingSince: stream?.lostAt ?? null }
+  if (state === 'live') return { entry, status: 'ok', latency: 'live', failure: null, ageMs: 0, failingSince: null }
+  if (state === 'error') return { entry, status: 'error', latency: null, failure: { code: 'stream_lost', status: null }, ageMs: null, failingSince: stream?.lostAt ?? null }
   // A first connection has no drop time: nothing to show yet
-  if (!stream?.lostAt) return { entry, status: 'waiting', latency: null, ageMs: null, failingSince: null }
-  return { entry, status: 'reconnecting', latency: null, ageMs: now - stream.lostAt, failingSince: stream.lostAt }
+  if (!stream?.lostAt) return { entry, status: 'waiting', latency: null, failure: null, ageMs: null, failingSince: null }
+  return { entry, status: 'reconnecting', latency: null, failure: null, ageMs: now - stream.lostAt, failingSince: stream.lostAt }
 }
 
 /** One [1.2] row: a source is degraded when it fails but cached data is still shown, error when nothing is. */
@@ -77,11 +79,13 @@ export function sourceRow(entry: SourceEntry, records: (SourceHealth | undefined
   const ageMs = updatedAt > 0 ? now - updatedAt : null
 
   if (failing) {
-    const hasData = cache.hasData || Boolean(lastSuccess)
-    return { entry, status: hasData ? 'degraded' : 'error', latency: failing.lastFailure, ageMs: hasData ? ageMs : null, failingSince: failing.lastFailureAt }
+    // Only the cache counts: a request can succeed and still bring nothing when its payload is unreadable
+    const hasData = cache.hasData
+    return { entry, status: hasData ? 'degraded' : 'error', latency: null, failure: failing.lastFailure, ageMs: hasData ? ageMs : null, failingSince: failing.lastFailureAt }
   }
-  if (updatedAt === 0) return { entry, status: 'waiting', latency: null, ageMs: null, failingSince: null }
-  return { entry, status: 'ok', latency: lastSuccess?.latencyMs ?? null, ageMs, failingSince: null }
+  if (updatedAt === 0) return { entry, status: 'waiting', latency: null, failure: null, ageMs: null, failingSince: null }
+  // Health records only exist for this session: without one the data was restored from the persisted cache
+  return { entry, status: 'ok', latency: lastSuccess?.latencyMs ?? 'cache', failure: null, ageMs, failingSince: null }
 }
 
 export function countRowStatuses(rows: SourceRow[]): Record<SourceRowStatus, number> {

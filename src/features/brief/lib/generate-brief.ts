@@ -10,7 +10,6 @@ import { formatStars, repoSummary } from '@/features/github/lib/github-terminal'
 import { auroraLatitude, kpToScale } from '@/features/space/lib/geomagnetic'
 import { conditionKey } from '@/features/weather/lib/conditions'
 import { POLLUTANT_LABEL, worstPollutant } from '@/features/weather/lib/weather-terminal'
-import { causeKey } from '@/components/terminal/panel-state'
 import { formatAge, formatPrice, formatSigned } from '@/lib/terminal-format'
 import type { SourceRow } from '@/lib/source-registry'
 import type { AlertSeverity } from '@/store/alerts-store'
@@ -94,8 +93,8 @@ function healthInsights(rows: SourceRow[], now: number): BriefInsight[] {
       return [{ ...base, severity: 'warning', headline: text('streamDown', { source }), detail: text('streamDownDetail', { age: formatAge(row.ageMs ?? 0, true) }) }]
     }
     if (row.status !== 'degraded' && row.status !== 'error') return []
-    const cause = typeof row.latency === 'number' || row.latency === 'timeout' || row.latency === 'network' ? row.latency : 'network'
-    const params = { source, cause: causeKey(cause), code: typeof cause === 'number' ? ` (${cause})` : '' }
+    const failure = row.failure ?? { code: 'network', status: null }
+    const params = { source, cause: failure.code, code: failure.status === null ? '' : ` (${failure.status})` }
     return row.status === 'degraded'
       ? [{ ...base, severity: 'warning', headline: text('healthDegraded', params), detail: text('healthDegradedDetail', { age: formatAge(row.ageMs ?? 0, true) }) }]
       : [{ ...base, severity: 'critical', headline: text('healthError', params), detail: text('healthErrorDetail') }]

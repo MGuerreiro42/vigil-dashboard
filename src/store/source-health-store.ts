@@ -1,8 +1,6 @@
 import { create } from 'zustand'
+import type { Failure } from '@/lib/http'
 import type { SocketStatus } from '@/lib/reconnecting-socket'
-
-/** Why the last request to a source failed: an HTTP status, or a failure before any response. */
-export type FailureCause = number | 'timeout' | 'network'
 
 export type StreamState = 'connecting' | 'live' | 'reconnecting' | 'error'
 
@@ -10,7 +8,7 @@ export interface SourceHealth {
   /** Latency of the last successful request, in ms */
   latencyMs: number | null
   lastSuccessAt: number | null
-  lastFailure: FailureCause | null
+  lastFailure: Failure | null
   lastFailureAt: number | null
 }
 
@@ -29,7 +27,7 @@ interface SourceHealthState {
   sources: Record<string, SourceHealth>
   streams: Record<string, StreamHealth>
   recordSuccess: (source: string, latencyMs: number) => void
-  recordFailure: (source: string, cause: FailureCause) => void
+  recordFailure: (source: string, failure: Failure) => void
   setStream: (stream: string, patch: Partial<StreamHealth>) => void
 }
 
@@ -46,11 +44,11 @@ export const useSourceHealthStore = create<SourceHealthState>((set) => ({
         [source]: { ...EMPTY_SOURCE, latencyMs: Math.round(latencyMs), lastSuccessAt: Date.now() },
       },
     })),
-  recordFailure: (source, cause) =>
+  recordFailure: (source, failure) =>
     set((state) => ({
       sources: {
         ...state.sources,
-        [source]: { ...(state.sources[source] ?? EMPTY_SOURCE), lastFailure: cause, lastFailureAt: Date.now() },
+        [source]: { ...(state.sources[source] ?? EMPTY_SOURCE), lastFailure: failure, lastFailureAt: Date.now() },
       },
     })),
   setStream: (stream, patch) =>

@@ -14,13 +14,30 @@ describe('sourceRow', () => {
   })
 
   it('is degraded while failing with cached data, showing the failure instead of latency', () => {
-    const failing = health({ lastSuccessAt: null, lastFailure: 429, lastFailureAt: 9_000 })
-    expect(sourceRow(rest, [failing], undefined, { updatedAt: 2_000, hasData: true }, now)).toMatchObject({ status: 'degraded', latency: 429, ageMs: 8_000 })
+    const failing = health({ lastSuccessAt: null, lastFailure: { code: 'rate_limited', status: 429 }, lastFailureAt: 9_000 })
+    expect(sourceRow(rest, [failing], undefined, { updatedAt: 2_000, hasData: true }, now)).toMatchObject({ status: 'degraded', failure: { code: 'rate_limited', status: 429 }, ageMs: 8_000 })
   })
 
   it('is an error when failing with nothing cached', () => {
-    const failing = health({ lastSuccessAt: null, lastFailure: 'timeout', lastFailureAt: 9_000 })
-    expect(sourceRow(rest, [failing], undefined, noCache, now)).toMatchObject({ status: 'error', latency: 'timeout', ageMs: null })
+    const failing = health({ lastSuccessAt: null, lastFailure: { code: 'timeout', status: null }, lastFailureAt: 9_000 })
+    expect(sourceRow(rest, [failing], undefined, noCache, now)).toMatchObject({ status: 'error', failure: { code: 'timeout', status: null }, ageMs: null })
+  })
+
+  it('is an error when the request succeeded but its payload was unreadable', () => {
+    const answered = health({ lastSuccessAt: 9_000 })
+    const unreadable = health({ latencyMs: null, lastSuccessAt: null, lastFailure: { code: 'invalid_payload', status: null }, lastFailureAt: 9_000 })
+    expect(sourceRow(rest, [answered, unreadable], undefined, noCache, now)).toMatchObject({ status: 'error', failure: { code: 'invalid_payload', status: null } })
+  })
+
+  it('shows data restored from the persisted cache as cache until a request this session', () => {
+    const restored = { updatedAt: 4_000, hasData: true }
+    expect(sourceRow(rest, [undefined], undefined, restored, now)).toMatchObject({ status: 'ok', latency: 'cache', ageMs: 6_000 })
+    expect(sourceRow(rest, [health({ lastSuccessAt: 9_500 })], undefined, restored, now)).toMatchObject({ status: 'ok', latency: 40, ageMs: 500 })
+  })
+
+  it('names a stream that gave up as stream_lost', () => {
+    const lost: StreamHealth = { state: 'error', attempt: 5, lostAt: 1_000, nextRetryAt: null, recoveredAfterMs: null, recoveredAt: null }
+    expect(sourceRow(stream, [], lost, noCache, now)).toMatchObject({ status: 'error', failure: { code: 'stream_lost', status: null } })
   })
 
   it('waits for a source this device never reached', () => {

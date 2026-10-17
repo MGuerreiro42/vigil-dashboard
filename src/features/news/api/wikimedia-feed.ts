@@ -9,7 +9,7 @@ export type FeedLanguage = 'pt' | 'en'
 const MAX_HEADLINES = 20
 const MAX_TRENDING = 20
 
-// Raw payload: only the fields we read (https://api.wikimedia.org/wiki/Feed_API)
+// Raw payload: only the fields we read (https://en.wikipedia.org/api/rest_v1/#/Feed)
 type RawPage = {
   title: string
   normalizedtitle?: string
@@ -98,7 +98,7 @@ export function feedDate(now = new Date()): string {
 }
 
 async function fetchRawFeed(lang: FeedLanguage, date: string, signal: AbortSignal): Promise<RawFeed> {
-  return (await fetchOk(`https://api.wikimedia.org/feed/v1/wikipedia/${lang}/featured/${date}`, 'Wikimedia', { signal })).json()
+  return (await fetchOk(`https://${lang}.wikipedia.org/api/rest_v1/feed/featured/${date}`, 'Wikimedia', { signal })).json()
 }
 
 async function fetchFeaturedFeed(lang: FeedLanguage, date: string, signal: AbortSignal): Promise<FeaturedFeed> {
