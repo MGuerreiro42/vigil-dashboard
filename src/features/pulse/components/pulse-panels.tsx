@@ -8,27 +8,19 @@ import { TONE_CLASS } from '@/components/terminal/tone'
 import { byteDelta } from '@/features/news/lib/news-terminal'
 import { useBlueskyTrends } from '@/features/pulse/api/bluesky-trends'
 import { useWikiEditStream, WIKIMEDIA_STREAM } from '@/features/pulse/hooks/use-wiki-edit-stream'
+import { bucketedPerSecond } from '@/features/pulse/lib/wiki-edits'
 import type { BlueskyTrend, EditStreamSummary, LiveEdit } from '@/features/pulse/types'
 import { intlLocale } from '@/i18n'
 import { useSourceHealthStore } from '@/store/source-health-store'
 
 const EDIT_ROWS = 12
 const TREND_ROWS = 10
-const SPARK_BUCKET_SECONDS = 4
 const EDITS_PLACEHOLDER = [
   '··  ························  ·········  ····',
   '··  ··················  ···········  ···',
   '··  ·····················  ········  ·····',
 ]
 
-/** Edits per bucket of a few seconds, so the minute fits a short sparkline. */
-function bucketed(perSecond: number[]): number[] {
-  const buckets: number[] = []
-  for (let start = 0; start < perSecond.length; start += SPARK_BUCKET_SECONDS) {
-    buckets.push(perSecond.slice(start, start + SPARK_BUCKET_SECONDS).reduce((sum, count) => sum + count, 0))
-  }
-  return buckets
-}
 
 function EditsBody({ summary, feed }: { summary: EditStreamSummary; feed: LiveEdit[] }) {
   const { t } = useTranslation()
@@ -40,7 +32,7 @@ function EditsBody({ summary, feed }: { summary: EditStreamSummary; feed: LiveEd
   return (
     <>
       <StatLine wide={false}>
-        <span>{t('terminal.news.edits.perMinute')} <span className="text-text">{summary.perMinute}</span> <Sparkline values={bucketed(summary.perSecond)} /></span>
+        <span>{t('terminal.news.edits.perMinute')} <span className="text-text">{summary.perMinute}</span> <Sparkline values={bucketedPerSecond(summary.perSecond)} /></span>
         <Stat label={t('terminal.news.edits.bots')}>{Math.round(summary.botShare * 100)}%</Stat>
         <span>{t('terminal.news.edits.newArticles')} <ToneText tone="ok">{summary.newArticles}</ToneText> {t('terminal.news.edits.lastMinute')}</span>
       </StatLine>

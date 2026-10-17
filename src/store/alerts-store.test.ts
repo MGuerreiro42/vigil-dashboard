@@ -2,11 +2,11 @@ import { beforeEach, expect, it } from 'vitest'
 import { useAlertsStore } from './alerts-store'
 
 const quake = {
+  id: 'earthquake-us123',
   type: 'earthquake' as const,
-  title: 'Terremoto M6.2',
-  body: 'Off the coast of Chile',
   severity: 'warning' as const,
-  sourceWidget: 'earthquakes',
+  timestamp: 1,
+  params: { magnitude: '6.2', place: 'Off the coast of Chile' },
 }
 
 beforeEach(() => {
@@ -15,22 +15,15 @@ beforeEach(() => {
 
 it('ignores an alert whose id is already listed', () => {
   const { addAlert } = useAlertsStore.getState()
-  addAlert({ ...quake, id: 'earthquake-us123' })
-  addAlert({ ...quake, id: 'earthquake-us123' })
+  addAlert(quake)
+  addAlert(quake)
   expect(useAlertsStore.getState()).toMatchObject({ unreadCount: 1, alerts: [{ id: 'earthquake-us123' }] })
-})
-
-it('keeps alerts without an id', () => {
-  const { addAlert } = useAlertsStore.getState()
-  addAlert(quake)
-  addAlert(quake)
-  expect(useAlertsStore.getState().unreadCount).toBe(2)
 })
 
 it('dismisses an alert for good', () => {
   const { addAlert, dismiss } = useAlertsStore.getState()
-  addAlert({ ...quake, id: 'earthquake-us123' })
+  addAlert(quake)
   dismiss('earthquake-us123')
-  addAlert({ ...quake, id: 'earthquake-us123' })
+  addAlert(quake)
   expect(useAlertsStore.getState()).toMatchObject({ unreadCount: 0, alerts: [] })
 })

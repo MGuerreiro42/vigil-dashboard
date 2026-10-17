@@ -68,17 +68,3 @@ export function reportStreamStatus(stream: string, { state, attempt, nextRetryAt
     setStream(stream, { state, attempt, nextRetryAt, lostAt: state === 'connecting' ? null : lostAt ?? now })
   }
 }
-
-export type SourceStatus = 'ok' | 'degraded' | 'error'
-
-/** ok after a success; degraded when the last request failed but older data exists; error with nothing to show. */
-export function sourceStatus(health: SourceHealth): SourceStatus {
-  if (health.lastFailure === null) return 'ok'
-  return health.lastSuccessAt === null ? 'error' : 'degraded'
-}
-
-export function countSourceStatuses(sources: Record<string, SourceHealth>): Record<SourceStatus, number> {
-  const counts: Record<SourceStatus, number> = { ok: 0, degraded: 0, error: 0 }
-  for (const health of Object.values(sources)) counts[sourceStatus(health)] += 1
-  return counts
-}

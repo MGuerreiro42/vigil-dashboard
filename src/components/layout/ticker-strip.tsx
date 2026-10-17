@@ -1,8 +1,8 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCryptoMarket } from '@/features/crypto/api/coingecko'
-import { BINANCE_STREAM, COINGECKO_TO_BINANCE } from '@/features/crypto/api/binance'
-import { useBinanceTickerStore } from '@/features/crypto/store/ticker-store'
+import { BINANCE_STREAM } from '@/features/crypto/api/binance'
+import { useLiveQuote } from '@/features/crypto/hooks/use-live-quote'
 import type { CryptoAsset } from '@/features/crypto/types'
 import { ToneText } from '@/components/terminal/text'
 import { changeTone, formatPrice, formatSigned } from '@/lib/terminal-format'
@@ -12,10 +12,7 @@ import { useSourceHealthStore } from '@/store/source-health-store'
 const TICKER_SIZE = 10
 
 const TickerItem = memo(function TickerItem({ coin }: { coin: CryptoAsset }) {
-  const symbol = COINGECKO_TO_BINANCE[coin.id]
-  const ticker = useBinanceTickerStore((state) => (symbol ? state.tickers[symbol] : undefined))
-  const price = ticker?.price ?? coin.price
-  const change = ticker ? ((ticker.price - ticker.open) / ticker.open) * 100 : coin.change24h
+  const { price, change } = useLiveQuote(coin)
   return (
     <span>
       {coin.symbol.toUpperCase()} {formatPrice(price)} <ToneText tone={changeTone(change)}>{formatSigned(change)}</ToneText>

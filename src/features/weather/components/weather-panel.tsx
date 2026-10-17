@@ -15,7 +15,7 @@ import { useAirQuality } from '@/features/weather/api/air-quality'
 import { useCitySearch } from '@/features/weather/api/geocoding'
 import { useWeather } from '@/features/weather/api/open-meteo'
 import { aqiTone, POLLUTANT_LABEL, POLLUTANTS, precipTone, uvBand, uvTone, WHO_LIMITS, worstPollutant } from '@/features/weather/lib/weather-terminal'
-import { getWMO } from '@/features/weather/lib/wmo-icons'
+import { conditionLabel } from '@/features/weather/lib/conditions'
 import type { AirQuality, HourlyPoint, Place, WeatherData } from '@/features/weather/types'
 import { useNow } from '@/hooks/use-now'
 import { intlLocale } from '@/i18n'
@@ -30,7 +30,6 @@ const MIN_QUERY = 2
 const MAX_HITS = 5
 const LABEL_EVERY_HOURS = 4
 
-const condition = (code: number) => getWMO(code).label.toLowerCase()
 const clockTime = (iso: string) => iso.slice(11, 16)
 const decimal = (value: number, locale: string, digits = 1) => value.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })
 
@@ -130,7 +129,7 @@ function Forecast({ weather }: { weather: WeatherData }) {
       {weather.forecast.map((day, index) => (
         <TableRow key={day.date}>
           <Cell className={index === 0 ? 'text-ok' : 'text-dim'}>{index === 0 ? t('terminal.planet.weather.today') : weekday(day.date, locale)}</Cell>
-          <Cell>{condition(day.weatherCode)}</Cell>
+          <Cell>{conditionLabel(day.weatherCode)}</Cell>
           <Cell right>{Math.round(day.tempMax)}°/{Math.round(day.tempMin)}°</Cell>
           <Cell right><ToneText tone={precipTone(day.precipitationProb)}>{day.precipitationProb ? `${day.precipitationProb}%` : '—'}</ToneText></Cell>
           <Cell right><ToneText tone={uvTone(day.uvIndexMax)}>{Math.round(day.uvIndexMax)}</ToneText></Cell>
@@ -232,7 +231,7 @@ function WeatherBody({ weather, air, airFailed, view, onView }: { weather: Weath
   return (
     <>
       <StatLine wide={false}>
-        <span>{t('terminal.planet.weather.temp')} <ToneText tone="info">{Math.round(current.temp)}°</ToneText> {condition(current.weatherCode)}</span>
+        <span>{t('terminal.planet.weather.temp')} <ToneText tone="info">{Math.round(current.temp)}°</ToneText> {conditionLabel(current.weatherCode)}</span>
         <Stat label={t('terminal.planet.weather.feels')}>{Math.round(current.feelsLike)}°</Stat>
         {air && <span>{t('terminal.planet.weather.aqi')} <ToneText tone={aqiTone(air.category)}>{air.aqi}</ToneText> {t(`terminal.planet.weather.aqiBands.${air.category}`)}</span>}
         <Stat label={t('terminal.planet.weather.wind')}>{Math.round(current.windSpeed)} km/h</Stat>

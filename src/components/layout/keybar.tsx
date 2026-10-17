@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { countSourceStatuses, useSourceHealthStore } from '@/store/source-health-store'
+import { useSourceRows } from '@/hooks/use-source-rows'
+import { countRowStatuses } from '@/lib/source-registry'
 import type { Screen } from './sections'
 
 const KEYS = ['screen', 'tabs', 'open', 'refresh', 'radar'] as const
@@ -8,14 +9,15 @@ const SCREEN_KEYS: Partial<Record<Screen['id'], 'discover'>> = { news: 'discover
 
 function SourcesStatus() {
   const { t } = useTranslation()
-  const sources = useSourceHealthStore((state) => state.sources)
-  const counts = countSourceStatuses(sources)
-  if (Object.keys(sources).length === 0) return <>{t('terminal.status.waiting')}</>
+  const { rows } = useSourceRows()
+  const counts = countRowStatuses(rows)
+  if (counts.waiting === rows.length) return <>{t('terminal.status.waiting')}</>
   return (
     <>
       {t('terminal.status.sourcesOk', { count: counts.ok })}
       {counts.degraded > 0 && ` · ${t('terminal.status.degraded', { count: counts.degraded })}`}
       {counts.error > 0 && ` · ${t('terminal.status.failed', { count: counts.error })}`}
+      {counts.reconnecting > 0 && ` · ${t('terminal.status.reconnecting', { count: counts.reconnecting })}`}
     </>
   )
 }
