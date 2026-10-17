@@ -34,10 +34,11 @@ export function parseIsoDay(isoDay: string): Date {
 
 const monthShort = (date: Date, locale: string) => date.toLocaleString(locale, { month: 'short' }).replace('.', '')
 
-/** pt "16 out" · en "Oct 16". */
-export function formatShortDate(date: Date, locale: string): string {
+/** pt "16 out" · en "Oct 16"; `padDay` gives "04 out" for date columns. */
+export function formatShortDate(date: Date, locale: string, padDay = false): string {
   const month = monthShort(date, locale)
-  return locale.startsWith('pt') ? `${date.getDate()} ${month}` : `${month} ${date.getDate()}`
+  const day = padDay ? String(date.getDate()).padStart(2, '0') : String(date.getDate())
+  return locale.startsWith('pt') ? `${day} ${month}` : `${month} ${day}`
 }
 
 /** pt "set 2026" (or "set 26" with a short year) · en "Sep 2026". */

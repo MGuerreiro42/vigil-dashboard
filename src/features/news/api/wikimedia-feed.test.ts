@@ -9,11 +9,11 @@ it('strips HTML from headlines and anchors each on a page with a thumbnail', () 
       story: '<!--Oct 16--> <a href="./Navi_Pillay">Navi Pillay</a> is awarded the <b>Nobel Peace Prize</b>.',
       links: [page('Nobel_Peace_Prize'), page('Navi_Pillay', { thumbnail: { source: 'https://img/pillay.jpg' } })],
     }],
-  }, 'en')
+  }, 'en', new Date(2026, 9, 17))
   expect(feed.headlines).toEqual([{
     id: '0-Navi_Pillay',
     text: 'Navi Pillay is awarded the Nobel Peace Prize.',
-    dateLabel: null,
+    date: '2026-10-16',
     article: {
       title: 'Navi Pillay',
       description: 'Navi_Pillay description',
@@ -27,8 +27,18 @@ it('splits the date prefix of Portuguese current-events entries', () => {
   const [headline] = parseFeaturedFeed({
     news: [{ story: '11 de outubro de 2026 - Paramount conclui a aquisição da Warner Bros.', links: [page('Paramount')] }],
   }, 'pt').headlines
-  expect(headline).toMatchObject({ dateLabel: '11 de outubro de 2026', text: 'Paramount conclui a aquisição da Warner Bros.' })
+  expect(headline).toMatchObject({ date: '2026-10-11', text: 'Paramount conclui a aquisição da Warner Bros.' })
   expect(headline.article?.url).toBe('https://pt.wikipedia.org/wiki/Paramount')
+})
+
+it('dates an en story from the previous year when its month is still ahead', () => {
+  const [headline] = parseFeaturedFeed({ news: [{ story: '<!--Dec 30-->Fireworks.', links: [] }] }, 'en', new Date(2027, 0, 2)).headlines
+  expect(headline.date).toBe('2026-12-30')
+})
+
+it('leaves the date empty when a story carries none', () => {
+  const [headline] = parseFeaturedFeed({ news: [{ story: 'Undated story.', links: [] }] }, 'en').headlines
+  expect(headline.date).toBeNull()
 })
 
 it('drops special pages from most-read, re-ranks and keeps the view history', () => {

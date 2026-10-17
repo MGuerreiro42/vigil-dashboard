@@ -8,8 +8,8 @@ export interface WikiArticleRef {
 export interface NewsHeadline {
   id: string
   text: string
-  /** Present on Portuguese "Eventos atuais" entries, already localized ("11 de outubro de 2026") */
-  dateLabel: string | null
+  /** Day the story happened, as yyyy-mm-dd; null when the entry carries no date */
+  date: string | null
   article: WikiArticleRef | null
 }
 

@@ -5,7 +5,7 @@ import { SCREENS, type Screen } from './sections'
 
 const MIN_REFRESH_FEEDBACK_MS = 900
 
-function isTyping(target: EventTarget | null): boolean {
+export function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
 }
 

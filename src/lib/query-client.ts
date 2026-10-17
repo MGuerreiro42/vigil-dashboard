@@ -34,5 +34,5 @@ export const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
   }),
   maxAge: CACHE_MAX_AGE_MS,
   // Bump when a parsed payload changes shape, so old entries are not restored into new code
-  buster: '1',
+  buster: '2',
 }
