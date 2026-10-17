@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SourceHealth, StreamHealth } from '@/store/source-health-store'
-import { sourceRow, type SourceEntry } from './source-registry'
+import { phoneListedRows, sourceRow, type SourceEntry, type SourceRow } from './source-registry'
 
 const rest: SourceEntry = { label: 'nasa neows', short: 'nasa', screen: 4, fetchNames: ['NASA NeoWs'] }
 const stream: SourceEntry = { label: 'binance ws', short: 'binance', screen: 2, stream: 'binance ws' }
@@ -48,5 +48,19 @@ describe('sourceRow', () => {
     const live: StreamHealth = { state: 'live', attempt: 0, lostAt: null, nextRetryAt: null, recoveredAfterMs: null, recoveredAt: null }
     expect(sourceRow(stream, [], live, noCache, now)).toMatchObject({ status: 'ok', latency: 'live' })
     expect(sourceRow(stream, [], { ...live, state: 'reconnecting', attempt: 2, lostAt: 6_000 }, noCache, now)).toMatchObject({ status: 'reconnecting', ageMs: 4_000 })
+  })
+})
+
+describe('phoneListedRows', () => {
+  const row = (label: string, status: SourceRow['status']): SourceRow => ({ entry: { ...rest, label }, status, latency: null, failure: null, ageMs: null, failingSince: null })
+  const rows = [row('usgs', 'ok'), row('nasa neows', 'degraded'), row('gdacs', 'ok'), row('wikimedia feed', 'error')]
+
+  it('lists only the sources that are not ok while collapsed', () => {
+    expect(phoneListedRows(rows, false).map((listed) => listed.entry.label)).toEqual(['nasa neows', 'wikimedia feed'])
+  })
+
+  it('lists nothing when every source is ok, and everything once expanded', () => {
+    expect(phoneListedRows([row('usgs', 'ok')], false)).toEqual([])
+    expect(phoneListedRows(rows, true)).toEqual(rows)
   })
 })

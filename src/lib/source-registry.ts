@@ -88,6 +88,9 @@ export function sourceRow(entry: SourceEntry, records: (SourceHealth | undefined
   return { entry, status: 'ok', latency: lastSuccess?.latencyMs ?? 'cache', failure: null, ageMs, failingSince: null }
 }
 
+/** [1.2] on phones: collapsed, only the sources that need attention are listed. */
+export const phoneListedRows = (rows: SourceRow[], expanded: boolean) => (expanded ? rows : rows.filter((row) => row.status !== 'ok'))
+
 export function countRowStatuses(rows: SourceRow[]): Record<SourceRowStatus, number> {
   const counts: Record<SourceRowStatus, number> = { ok: 0, degraded: 0, error: 0, reconnecting: 0, waiting: 0 }
   for (const row of rows) counts[row.status] += 1

@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
+import { PRIORITY_CLASS, type Priority } from './priority'
 
 interface DataTableProps {
   /** grid-template-columns, as authored per panel */
@@ -28,8 +29,8 @@ export function DataTable({ columns, gap = '2px 10px', header, className = '', c
   )
 }
 
-export function TableRow({ children }: { children: ReactNode }) {
-  return <div role="row" className="contents">{children}</div>
+export function TableRow({ priority = 'p1', children }: { priority?: Priority; children: ReactNode }) {
+  return <div role="row" className={`contents ${PRIORITY_CLASS[priority]}`}>{children}</div>
 }
 
 export function Cell({ right = false, truncate = false, className = '', children }: { right?: boolean; truncate?: boolean; className?: string; children: ReactNode }) {
@@ -56,7 +57,7 @@ export function SelectableRow({ selected, onSelect, columns, gap = '0 10px', chi
       type="button"
       aria-pressed={selected}
       onClick={onSelect}
-      className={`grid w-full px-[8px] py-[3px] hover:bg-row-selected focus-visible:bg-row-selected focus-visible:outline-offset-[-1px] ${selected ? 'bg-row-selected [&>*:first-child]:text-ok' : ''}`}
+      className={`grid w-full items-center px-[8px] py-[3px] max-sm:min-h-[32px] hover:bg-row-selected focus-visible:bg-row-selected focus-visible:outline-offset-[-1px] ${selected ? 'bg-row-selected [&>*:first-child]:text-ok' : ''}`}
       style={{ gridTemplateColumns: columns, gap }}
     >
       {children}

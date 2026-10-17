@@ -1,9 +1,9 @@
-import { Fragment } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Panel, PanelDivider } from '@/components/terminal/panel'
-import { ToneText } from '@/components/terminal/text'
+import { BracketButton, LegendGrid, ToneText } from '@/components/terminal/text'
 import { TONE_CLASS } from '@/components/terminal/tone'
-import { countRowStatuses, type SourceRow, type SourceRowStatus } from '@/lib/source-registry'
+import { countRowStatuses, phoneListedRows, type SourceRow, type SourceRowStatus } from '@/lib/source-registry'
 import { formatAge, type Tone } from '@/lib/terminal-format'
 
 const STATUS_STYLE: Record<SourceRowStatus, { glyph: string; tone: Tone }> = {
@@ -30,6 +30,11 @@ export function SourcesPanel({ rows, className }: { rows: SourceRow[]; className
   const { t } = useTranslation()
   const latencyLabel = useLatencyLabel()
   const counts = countRowStatuses(rows)
+  const [expanded, setExpanded] = useState(false)
+  const phoneRows = phoneListedRows(rows, expanded)
+  const legendItem = (status: SourceRowStatus, note?: string) => (
+    <span><ToneText tone={STATUS_STYLE[status].tone} className="font-semibold">{STATUS_STYLE[status].glyph}</ToneText> {t(`terminal.overview.sources.statuses.${status}`)}{note && ` · ${note}`}</span>
+  )
   const meta = t('terminal.overview.sources.meta', { ok: counts.ok })
     + (counts.degraded ? t('terminal.overview.sources.metaDegraded', { count: counts.degraded }) : '')
     + (counts.error ? t('terminal.overview.sources.metaFailed', { count: counts.error }) : '')
@@ -39,23 +44,33 @@ export function SourcesPanel({ rows, className }: { rows: SourceRow[]; className
       <div className="grid grid-cols-[14px_minmax(0,1fr)_auto_52px_40px] gap-x-[10px] gap-y-[2px]">
         {rows.map((row) => {
           const { glyph, tone } = STATUS_STYLE[row.status]
+          // A waiting source is named in text: only its status is dim
+          const nameTone = row.status === 'ok' || row.status === 'waiting' ? 'text' : tone
           return (
-            <Fragment key={row.entry.label}>
+            <div key={row.entry.label} className={`contents ${phoneRows.includes(row) ? '' : 'max-sm:hidden'}`}>
               <span aria-hidden className={TONE_CLASS[tone]}>{glyph}</span>
-              <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${TONE_CLASS[row.status === 'ok' ? 'text' : tone]}`}>{row.entry.label}</span>
+              <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${TONE_CLASS[nameTone]}`}>{row.entry.label}</span>
               <span className={TONE_CLASS[tone]}>{t(`terminal.overview.sources.statuses.${row.status}`)}</span>
               <span className="text-right text-dim">{latencyLabel(row)}</span>
               <span className="text-right text-dim">{row.ageMs === null ? '—' : formatAge(row.ageMs)}</span>
-            </Fragment>
+            </div>
           )
         })}
       </div>
-      <PanelDivider tight className="text-dim">
-        <ToneText tone="ok">{t('terminal.overview.sources.legend.ok')}</ToneText>
-        {' · '}<ToneText tone="warn">{t('terminal.overview.sources.legend.degraded')}</ToneText> {t('terminal.overview.sources.legend.degradedNote')}
-        {' · '}<ToneText tone="err">{t('terminal.overview.sources.legend.error')}</ToneText> {t('terminal.overview.sources.legend.errorNote')}
-        {' · '}<ToneText tone="info">{t('terminal.overview.sources.legend.reconnecting')}</ToneText>
-        {' · '}{t('terminal.overview.sources.legend.columns')}
+      <div className="flex min-h-[32px] items-center justify-between gap-[12px] sm:hidden">
+        <span><ToneText tone="ok">●</ToneText> {t('terminal.overview.sources.okCount', { count: counts.ok })}</span>
+        <BracketButton aria-expanded={expanded} className="min-h-[32px]" onClick={() => setExpanded(!expanded)}>
+          {expanded ? t('terminal.overview.sources.collapse') : t('terminal.overview.sources.showAll', { count: rows.length })}
+        </BracketButton>
+      </div>
+      <PanelDivider tight>
+        <LegendGrid minItem={170}>
+          {legendItem('ok')}
+          {legendItem('degraded', t('terminal.overview.sources.legend.degradedNote'))}
+          {legendItem('error', t('terminal.overview.sources.legend.errorNote'))}
+          {legendItem('reconnecting')}
+          <span className="text-dim">{t('terminal.overview.sources.legend.columns')}</span>
+        </LegendGrid>
       </PanelDivider>
     </Panel>
   )

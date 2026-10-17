@@ -23,6 +23,11 @@ export const isEventCategory = (id: string): id is EventCategory => (EVENT_CATEG
 export const eventGlyph = (event: NaturalEvent) => (isEventCategory(event.categoryId) ? CATEGORY_GLYPH[event.categoryId] : '?')
 export const alertOf = (event: NaturalEvent): AlertLevel => event.alertLevel ?? 'Green'
 
+/** Orange and red counted apart, colours with no event left out. */
+export const highAlertCounts = (events: NaturalEvent[]) => (['Orange', 'Red'] as const)
+  .map((level) => [level, events.filter((event) => event.alertLevel === level).length] as const)
+  .filter(([, count]) => count > 0)
+
 export type StormCategory = 'TS' | 'C1' | 'C2' | 'C3' | 'C4' | 'C5'
 
 /** Saffir–Simpson category from sustained wind in knots; below hurricane strength is a tropical storm. */

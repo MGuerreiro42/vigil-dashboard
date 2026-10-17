@@ -5,7 +5,8 @@ import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
 import { SPACE_SPAN, autoFitGrid } from '@/components/terminal/grid'
 import { combineQueries } from '@/components/terminal/panel-state'
 import { QueryPanel } from '@/components/terminal/query-panel'
-import { EmptyState, ExternalLink, ToneText } from '@/components/terminal/text'
+import { Stat, StatLine } from '@/components/terminal/stat-line'
+import { EmptyState, ExternalLink, LegendGrid, MetaLine, ToneText } from '@/components/terminal/text'
 import { TONE_CLASS } from '@/components/terminal/tone'
 import { useNearEarthObjects } from '@/features/space/api/asteroids'
 import { useUpcomingLaunches } from '@/features/space/api/launches'
@@ -31,7 +32,6 @@ const launchDate = (iso: string, locale: string) => {
 }
 // "Cape Canaveral SFS, FL, USA" → "Cape Canaveral SFS"
 const shortPad = (pad: string | null) => pad?.split(',')[0] ?? null
-const joinDot = (parts: (string | null)[]) => parts.filter(Boolean).join(' · ')
 
 function LaunchCountdown({ net }: { net: string }) {
   const { t } = useTranslation()
@@ -48,13 +48,14 @@ function LaunchesBody({ launches, updatedAt }: { launches: Launch[]; updatedAt: 
   if (!next) return <EmptyState title={t('terminal.space.launches.empty')} hint={t('terminal.space.launches.emptyHint', { age: formatAge(now - updatedAt, true) })} />
   const nextDate = new Date(next.net)
   const weekday = nextDate.toLocaleDateString(locale, { weekday: 'short' }).replace('.', '')
+  const pad = shortPad(next.pad)
 
   return (
     <>
       <div className="flex flex-col gap-[2px] border-b border-line pb-[12px]">
         <span className="text-dim">{t('terminal.space.launches.next', { mission: next.mission.toLowerCase() })}</span>
         <LaunchCountdown net={next.net} />
-        <span className="text-dim">{joinDot([next.rocket, next.provider, `${weekday} ${launchDate(next.net, locale)}`, shortPad(next.pad)]).toLowerCase()}</span>
+        <MetaLine segments={[next.rocket.toLowerCase(), next.provider && { text: next.provider.toLowerCase(), priority: 'p2' }, `${weekday} ${launchDate(next.net, locale)}`.toLowerCase(), pad && { text: pad.toLowerCase(), priority: 'p2' }]} />
       </div>
       <DataTable columns="104px minmax(0,1fr) auto" gap="6px 12px">
         {later.slice(0, LIST_LAUNCHES).map((launch) => {
@@ -64,7 +65,7 @@ function LaunchesBody({ launches, updatedAt }: { launches: Launch[]; updatedAt: 
               <Cell className="text-dim">{launchDate(launch.net, locale)}</Cell>
               <Cell className="flex flex-col">
                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">{launch.mission}</span>
-                <span className="overflow-hidden text-ellipsis whitespace-nowrap text-dim">{joinDot([launch.rocket, launch.provider, launch.orbit])}</span>
+                <MetaLine segments={[launch.rocket, launch.provider && { text: launch.provider, priority: 'p2' }, launch.orbit && { text: launch.orbit, priority: 'p2' }]} />
               </Cell>
               <Cell><ToneText tone={confirmed ? 'ok' : 'dim'}>{t(confirmed ? 'terminal.space.launches.go' : 'terminal.space.launches.tbc')}</ToneText></Cell>
             </TableRow>
@@ -133,16 +134,21 @@ function SpaceWeatherBody({ readings, alerts }: { readings: KpReading[]; alerts:
 
   return (
     <>
-      <span>
-        {t('terminal.space.weather.kpNow')}{' '}
-        <ToneText tone={kpTone(latest.kp)}>{latest.kp.toFixed(2)} {scale} {t(`terminal.space.weather.scales.${scale}`)}</ToneText>{' '}
-        <span className="text-dim">{t('terminal.space.weather.aurora', { latitude: auroraLatitude(latest.kp) })}</span>
-      </span>
-      <span className="text-dim">
-        <span className="max-sm:hidden">{t('terminal.space.weather.note', { days: days(readings.length) })}</span>
-        <span className="sm:hidden">{t('terminal.space.weather.note', { days: days(Math.min(readings.length, PHONE_KP_COLUMNS)) })}</span>
-      </span>
+      <StatLine>
+        <Stat label={t('terminal.space.weather.kpNow')}>
+          <ToneText tone={kpTone(latest.kp)}>{latest.kp.toFixed(2)} {scale} {t(`terminal.space.weather.scales.${scale}`)}</ToneText>
+        </Stat>
+        <span className="text-dim max-sm:hidden">{t('terminal.space.weather.aurora', { latitude: auroraLatitude(latest.kp) })}</span>
+      </StatLine>
       <KpGrid readings={readings} />
+      <LegendGrid minItem={150}>
+        <span className="text-dim">
+          <span className="max-sm:hidden">{t('terminal.space.weather.noteDays', { days: days(readings.length) })}</span>
+          <span className="sm:hidden">{t('terminal.space.weather.noteDays', { days: days(Math.min(readings.length, PHONE_KP_COLUMNS)) })}</span>
+        </span>
+        <span className="text-dim">{t('terminal.space.weather.noteColumn')}</span>
+        <span><ToneText tone="warn" className="font-semibold">- -</ToneText> {t('terminal.space.weather.noteThreshold')}</span>
+      </LegendGrid>
       {alerts.length ? (
         <DataTable columns="auto minmax(0,1fr) auto" gap="2px 12px">
           {alerts.map((alert) => {
@@ -229,7 +235,7 @@ function SpaceNewsBody({ articles }: { articles: SpaceArticle[] }) {
       {articles.slice(0, NEWS_ITEMS).map((article) => (
         <div key={article.id} className="flex flex-col border-t border-line-subtle py-[4px]">
           <ExternalLink href={article.url}>{article.title}</ExternalLink>
-          <span className="text-dim">{article.site} · {t('terminal.space.ago', { age: formatAge(now - new Date(article.publishedAt).getTime()) })}</span>
+          <MetaLine segments={[article.site, t('terminal.space.ago', { age: formatAge(now - new Date(article.publishedAt).getTime()) })]} />
         </div>
       ))}
     </div>

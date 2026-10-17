@@ -8,7 +8,7 @@ import { combineQueries } from '@/components/terminal/panel-state'
 import { QueryPanel } from '@/components/terminal/query-panel'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
-import { ToneText } from '@/components/terminal/text'
+import { LegendGrid, ToneText } from '@/components/terminal/text'
 import { useISSPosition, useISSTLE } from '@/features/iss/api/iss'
 import { useRegionName } from '@/features/iss/lib/use-region-name'
 import { daylightShare, formatHemisphere, orbitalPeriodMinutes, propagateTrack, utcOffsetLabel, type TrackSample } from '@/features/iss/lib/iss-track'
@@ -24,6 +24,7 @@ const TABLE_STEP_MINUTES = 9
 const TABLE_ROWS = 10
 
 type NowKey = 'over' | 'lat' | 'lon' | 'altitude' | 'speed' | 'footprint' | 'light' | 'subsolar'
+const PHONE_HIDDEN: NowKey[] = ['footprint', 'subsolar']
 type ElementKey = 'inclination' | 'raan' | 'eccentricity' | 'argPerigee' | 'meanAnomaly' | 'meanMotion' | 'bstar'
 
 const trackColor = (sample: TrackSample) => (sample.minutes < 0 ? '--color-land' : sample.eclipsed ? '--color-info' : '--color-warn')
@@ -49,15 +50,17 @@ function NowView({ position }: { position: ISSPosition }) {
     <>
       <DataTable columns="96px minmax(0,1fr)" gap="3px 12px">
         {rows.map(([key, value]) => (
-          <TableRow key={key}>
+          <TableRow key={key} priority={PHONE_HIDDEN.includes(key) ? 'p2' : 'p1'}>
             <Cell className="text-dim">{t(`terminal.space.iss.${key}`)}</Cell>
             <Cell>{value}</Cell>
           </TableRow>
         ))}
       </DataTable>
-      <span className="whitespace-pre text-dim">
-        <ToneText tone="info">+</ToneText> iss  <ToneText tone="info">·</ToneText> {t('terminal.space.iss.legendNext')}  <ToneText tone="land">·</ToneText> {t('terminal.space.iss.legendLast')}
-      </span>
+      <LegendGrid minItem={150}>
+        <span><ToneText className="font-semibold" tone="info">+</ToneText> iss</span>
+        <span><ToneText className="font-semibold" tone="info">·</ToneText> {t('terminal.space.iss.legendNext')}</span>
+        <span><ToneText className="font-semibold" tone="land">·</ToneText> {t('terminal.space.iss.legendLast')}</span>
+      </LegendGrid>
     </>
   )
 }

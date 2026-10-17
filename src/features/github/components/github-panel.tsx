@@ -134,9 +134,9 @@ function GithubBody({ repos, selection, onSelection }: { repos: GithubRepo[]; se
     <>
       <StatLine>
         <Stat label="repos">{summary.count}</Stat>
-        <span>stars <span className="text-text">{formatStars(summary.stars)}</span> {t('terminal.tech.github.inList')}</span>
+        <Stat label="stars">{formatStars(summary.stars)} <span className="text-dim">{t('terminal.tech.github.inList')}</span></Stat>
         {summary.topLanguage && (
-          <span>{t('terminal.tech.github.language')} <span className="text-text">{summary.topLanguage}</span> {t('terminal.tech.github.repoCount', { count: summary.topLanguageCount })}</span>
+          <Stat label={t('terminal.tech.github.language')}>{summary.topLanguage} <span className="text-dim">{t('terminal.tech.github.repoCount', { count: summary.topLanguageCount })}</span></Stat>
         )}
         <Stat label="forks">{formatStars(summary.forks)}</Stat>
       </StatLine>

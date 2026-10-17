@@ -5,7 +5,7 @@ import { createProjection, DOT_PITCH, gridSize, type BBox, type GeoMarker } from
 import { DotMap } from '@/components/geo/dot-map'
 import { loadRainSampler, radarTiles, type RainBand, type RainRasterResult } from '@/components/geo/rain-raster'
 import { QueryPanel } from '@/components/terminal/query-panel'
-import { BracketButton, EmptyState, ToneText } from '@/components/terminal/text'
+import { BracketButton, EmptyState, LegendGrid, ToneText } from '@/components/terminal/text'
 import { DEFAULT_COORDS } from '@/features/weather/api/open-meteo'
 import { useRadarFrames } from '@/features/weather/api/rainviewer'
 import { frameOffsets, pastRadarFrames, radarBbox } from '@/features/weather/lib/weather-terminal'
@@ -150,10 +150,10 @@ function RadarBody({ allFrames }: { allFrames: RadarFrame[] }) {
           ))}
         </div>
       </div>
-      <div className="flex flex-wrap gap-x-[16px] gap-y-[4px] text-dim">
-        <span><ToneText tone="info">+</ToneText> {t('terminal.planet.radar.you', { city })}</span>
-        {BANDS.map(({ band, className }) => <span key={band}><span className={className}>■</span> {t(`terminal.planet.radar.bands.${band}`)}</span>)}
-      </div>
+      <LegendGrid minItem={130} gap="4px 16px">
+        <span><ToneText className="font-semibold" tone="info">+</ToneText> {t('terminal.planet.radar.you', { city })}</span>
+        {BANDS.map(({ band, className }) => <span key={band}><span className={`font-semibold ${className}`}>■</span> {t(`terminal.planet.radar.bands.${band}`)}</span>)}
+      </LegendGrid>
     </>
   )
 }

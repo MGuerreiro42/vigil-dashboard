@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { NaturalEvent } from '@/features/natural-events/types'
-import { countryCount, depthFromDescription, saffirSimpson, timelineAxis, timelineBuckets } from './event-terminal'
+import { countryCount, depthFromDescription, highAlertCounts, saffirSimpson, timelineAxis, timelineBuckets } from './event-terminal'
 
 const HOUR = 3_600_000
 const NOW = Date.UTC(2026, 9, 17, 12)
@@ -63,4 +63,12 @@ it('reads the depth from the GDACS severity text', () => {
 
 it('counts each country once, splitting multi-country events', () => {
   expect(countryCount([event(1, 'Green', 'Chile'), event(2, 'Green', 'Chile, Argentina'), event(3, 'Green', '')])).toBe(2)
+})
+
+describe('highAlertCounts', () => {
+  it('counts orange and red apart and leaves out empty colours', () => {
+    expect(highAlertCounts([event(1, 'Orange'), event(2, 'Green'), event(3, 'Orange')])).toEqual([['Orange', 2]])
+    expect(highAlertCounts([event(1, 'Red'), event(2, 'Orange')])).toEqual([['Orange', 1], ['Red', 1]])
+    expect(highAlertCounts([event(1, 'Green')])).toEqual([])
+  })
 })

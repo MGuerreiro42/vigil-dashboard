@@ -42,12 +42,13 @@ function QuakeSummary({ quakes }: { quakes: Earthquake[] }) {
   return (
     <StatLine>
       <Stat label={t('terminal.planet.quakes.events')}>{quakes.length}</Stat>
-      <span>{t('terminal.planet.quakes.largest')} <ToneText tone={quakeTone(largest.magnitude)}>M{largest.magnitude.toFixed(1)} {bandLabel(quakeBand(largest.magnitude))}</ToneText></span>
-      <span className="max-w-full overflow-hidden whitespace-nowrap">
+      <Stat label={t('terminal.planet.quakes.largest')}><ToneText tone={quakeTone(largest.magnitude)}>M{largest.magnitude.toFixed(1)} {bandLabel(quakeBand(largest.magnitude))}</ToneText></Stat>
+      {/* shortcut: the strip and run-on counts stay until the distribution table of batch 2 */}
+      <span className="max-w-full overflow-hidden whitespace-nowrap text-dim max-sm:hidden">
         {t('terminal.planet.quakes.distribution')}{' '}
         <span aria-hidden>{[...QUAKE_BANDS].reverse().map((band) => <ToneText key={band} tone={STRIP_TONE[band]}>{'▌'.repeat(bandCount(band))}</ToneText>)}</span>
       </span>
-      <span>
+      <span className="text-dim max-sm:hidden">
         {[...QUAKE_BANDS].reverse().map((band, index) => (
           <span key={band}>{index > 0 && ' · '}<ToneText tone={STRIP_TONE[band]}>{bandCount(band)}</ToneText> {bandLabel(band)}</span>
         ))}
