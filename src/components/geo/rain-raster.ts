@@ -54,6 +54,37 @@ export function tileRangeForBbox(bbox: BBox, zoom: number) {
   return { minX: clampTile(westX), maxX: clampTile(eastX), minY: clampTile(northY), maxY: clampTile(southY) }
 }
 
+/** Inverse of `lonLatToWorldPixel`. */
+export function worldPixelToLonLat(x: number, y: number, zoom: number): [lon: number, lat: number] {
+  const worldSize = TILE_SIZE * 2 ** zoom
+  const mercatorY = Math.PI * (1 - (2 * y) / worldSize)
+  return [(x / worldSize) * 360 - 180, (Math.atan(Math.sinh(mercatorY)) * 180) / Math.PI]
+}
+
+export interface RadarTile {
+  x: number
+  y: number
+  url: string
+  /** [west, south, east, north] of the tile */
+  bounds: BBox
+}
+
+/** The tiles of a `{z}/{x}/{y}` template that cover the bbox, at the zoom the sampler uses. */
+export function radarTiles(tileUrl: string, bbox: BBox) {
+  const zoom = zoomForBbox(bbox)
+  const range = tileRangeForBbox(bbox, zoom)
+  const tiles: RadarTile[] = []
+  for (let tileY = range.minY; tileY <= range.maxY; tileY++) {
+    for (let tileX = range.minX; tileX <= range.maxX; tileX++) {
+      const [west, north] = worldPixelToLonLat(tileX * TILE_SIZE, tileY * TILE_SIZE, zoom)
+      const [east, south] = worldPixelToLonLat((tileX + 1) * TILE_SIZE, (tileY + 1) * TILE_SIZE, zoom)
+      const url = tileUrl.replace('{z}', String(zoom)).replace('{x}', String(tileX)).replace('{y}', String(tileY))
+      tiles.push({ x: tileX, y: tileY, url, bounds: [west, south, east, north] })
+    }
+  }
+  return { zoom, range, tiles }
+}
+
 export type RainRasterResult =
   | { ok: true; sample: RainSampler }
   | { ok: false; reason: 'load' | 'tainted' }
@@ -76,14 +107,7 @@ function loadTile(url: string, signal?: AbortSignal) {
  * image overlay; an abort rejects.
  */
 export async function loadRainSampler(tileUrl: string, bbox: BBox, signal?: AbortSignal): Promise<RainRasterResult> {
-  const zoom = zoomForBbox(bbox)
-  const range = tileRangeForBbox(bbox, zoom)
-  const tiles: { x: number; y: number; url: string }[] = []
-  for (let tileY = range.minY; tileY <= range.maxY; tileY++) {
-    for (let tileX = range.minX; tileX <= range.maxX; tileX++) {
-      tiles.push({ x: tileX, y: tileY, url: tileUrl.replace('{z}', String(zoom)).replace('{x}', String(tileX)).replace('{y}', String(tileY)) })
-    }
-  }
+  const { zoom, range, tiles } = radarTiles(tileUrl, bbox)
 
   let images: HTMLImageElement[]
   try {

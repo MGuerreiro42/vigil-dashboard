@@ -5,8 +5,8 @@ export interface CanvasSize {
   height: number
 }
 
-/** CSS size of the canvas, tracked with a ResizeObserver. */
-export function useCanvasSize(canvasRef: RefObject<HTMLCanvasElement | null>) {
+/** CSS size of the canvas (or any element laid over one), tracked with a ResizeObserver. */
+export function useCanvasSize(canvasRef: RefObject<HTMLElement | null>) {
   const [size, setSize] = useState<CanvasSize>({ width: 0, height: 0 })
   useEffect(() => {
     const canvas = canvasRef.current

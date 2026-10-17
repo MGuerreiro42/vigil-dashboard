@@ -1,0 +1,293 @@
+import { useId, useMemo, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+import { DotGlobe } from '@/components/geo/dot-globe'
+import type { GeoMarker, Rotation } from '@/components/geo/dot-grid'
+import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
+import { TWO_PANE } from '@/components/terminal/grid'
+import { QueryPanel } from '@/components/terminal/query-panel'
+import { Stat, StatLine } from '@/components/terminal/stat-line'
+import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
+import { Tabs } from '@/components/terminal/tabs'
+import { BlockBar, EmptyState, ToneText } from '@/components/terminal/text'
+import { quakeTone } from '@/features/earthquakes/lib/quake-terminal'
+import { useNaturalEvents } from '@/features/natural-events/api/gdacs'
+import {
+  ALERT_COLOR, ALERT_TONE, alertOf, CATEGORY_GLYPH, countBy, countryCount, depthFromDescription, EVENT_CATEGORIES, eventGlyph,
+  isEventCategory, saffirSimpson, timelineAxis, timelineBuckets, type AlertLevel, type EventCategory,
+} from '@/features/natural-events/lib/event-terminal'
+import type { NaturalEvent } from '@/features/natural-events/types'
+import { useNow } from '@/hooks/use-now'
+import { intlLocale } from '@/i18n'
+import { formatAge } from '@/lib/terminal-format'
+
+type EventsView = 'globe' | 'seismic' | 'timeline' | 'categories'
+const VIEWS: EventsView[] = ['globe', 'seismic', 'timeline', 'categories']
+
+const HOUR_MS = 3_600_000
+const TIMELINE_DAYS = 7
+// Desktop 56 columns of 3 h, phones 28 of 6 h: both cover the same 7 days
+const TIMELINE_GRIDS = [{ columns: 56, hours: 3, className: 'max-sm:hidden' }, { columns: 28, hours: 6, className: 'sm:hidden' }]
+const ALWAYS_SHOWN_LANES: EventCategory[] = ['wildfires', 'earthquakes', 'severeStorms', 'floods']
+
+const FEED_ROWS = 11
+const SEISMIC_ROWS = 12
+const FIRE_ROWS = 7
+const GLOBE_ROTATION: Rotation = [30, -8]
+const ALERTS: AlertLevel[] = ['Green', 'Orange', 'Red']
+
+const byNewest = (left: NaturalEvent, right: NaturalEvent) => new Date(right.date).getTime() - new Date(left.date).getTime()
+const ofCategory = (events: NaturalEvent[], category: EventCategory) => events.filter((event) => event.categoryId === category)
+
+function useAge() {
+  const now = useNow(1_000)
+  return (date: string) => formatAge(now - new Date(date).getTime())
+}
+
+function AlertWord({ level }: { level: AlertLevel }) {
+  const { t } = useTranslation()
+  return <ToneText tone={ALERT_TONE[level]}>{t(`terminal.planet.events.alerts.${level}`)}</ToneText>
+}
+
+function EventsGlobe({ events }: { events: NaturalEvent[] }) {
+  const { t } = useTranslation()
+  const markers = useMemo<GeoMarker[]>(
+    () => events.map((event) => ({ lon: event.lng, lat: event.lat, glyph: eventGlyph(event), color: ALERT_COLOR[alertOf(event)] })),
+    [events],
+  )
+  const legend = EVENT_CATEGORIES.map((category) => `${CATEGORY_GLYPH[category]} ${t(`terminal.planet.events.singular.${category}`)}`).join('  ')
+  return (
+    <>
+      <div className="flex justify-center">
+        <DotGlobe label={t('terminal.planet.events.globeLabel')} markers={markers} initialRotation={GLOBE_ROTATION} autoRotate className="aspect-square h-auto w-[440px] max-w-full" />
+      </div>
+      <div className="flex flex-wrap justify-between gap-x-[16px] gap-y-[4px] text-dim">
+        <span className="whitespace-pre-wrap">{legend}</span>
+        <span>
+          {t('terminal.planet.events.alertLegend')} {ALERTS.map((level) => <span key={level}><AlertWord level={level} />{' '}</span>)}· {t('terminal.planet.events.dragHint')}
+        </span>
+      </div>
+    </>
+  )
+}
+
+function SeismicView({ quakes }: { quakes: NaturalEvent[] }) {
+  const { t } = useTranslation()
+  const age = useAge()
+  if (!quakes.length) return <EmptyState title={t('terminal.planet.events.noQuakes')} hint={t('terminal.planet.events.noQuakesHint')} />
+  const rows = [...quakes].sort((left, right) => (right.magnitude ?? 0) - (left.magnitude ?? 0)).slice(0, SEISMIC_ROWS)
+  const columns = 'terminal.planet.events.columns'
+  return (
+    <DataTable
+      columns="36px minmax(0,1fr) 80px 40px"
+      gap="2px 12px"
+      header={[{ label: t(`${columns}.magnitude`) }, { label: t(`${columns}.place`) }, { label: t(`${columns}.depth`), right: true }, { label: t(`${columns}.age`), right: true }]}
+    >
+      {rows.map((quake) => {
+        const depth = depthFromDescription(quake.description)
+        return (
+          <TableRow key={quake.id}>
+            <Cell><ToneText tone={quakeTone(quake.magnitude ?? 0)}>{(quake.magnitude ?? 0).toFixed(1)}</ToneText></Cell>
+            <Cell truncate>{quake.country ?? quake.title}</Cell>
+            <Cell right className="text-dim">{depth === null ? '—' : `${depth} km`}</Cell>
+            <Cell right className="text-dim">{age(quake.date)}</Cell>
+          </TableRow>
+        )
+      })}
+    </DataTable>
+  )
+}
+
+function TimelineView({ events }: { events: NaturalEvent[] }) {
+  const { t } = useTranslation()
+  const now = useNow(60_000)
+  const lanes = EVENT_CATEGORIES.filter((category) => ALWAYS_SHOWN_LANES.includes(category) || ofCategory(events, category).length > 0)
+  const nowLabel = t('terminal.planet.now')
+  const dayLabel = (count: number) => t('terminal.planet.daysAgo', { count })
+
+  return TIMELINE_GRIDS.map(({ columns, hours, className }) => (
+    <div key={columns} className={`flex flex-col gap-[12px] ${className}`}>
+      <div className="overflow-x-auto">
+        <div className="grid w-max gap-x-[12px] gap-y-[10px] whitespace-pre" style={{ gridTemplateColumns: 'auto max-content' }}>
+          {lanes.map((category) => (
+            <LaneRow key={category} category={category} buckets={timelineBuckets(ofCategory(events, category), now, columns, hours * HOUR_MS)} />
+          ))}
+          <span />
+          <span className="tracking-[2px] text-dim" aria-hidden>{timelineAxis(columns, TIMELINE_DAYS, nowLabel, dayLabel)}</span>
+        </div>
+      </div>
+      <span className="text-dim">{t('terminal.planet.events.timelineNote', { hours })}</span>
+    </div>
+  ))
+}
+
+function LaneRow({ category, buckets }: { category: EventCategory; buckets: (AlertLevel | null)[] }) {
+  const { t } = useTranslation()
+  const name = t(`terminal.planet.events.categories.${category}`)
+  return (
+    <>
+      <span className="text-dim">{CATEGORY_GLYPH[category]}<span className="max-sm:hidden"> {name}</span></span>
+      <span className="tracking-[2px]" role="img" aria-label={name}>
+        {buckets.map((level, index) => (level ? <ToneText key={index} tone={ALERT_TONE[level]}>●</ToneText> : <span key={index} className="text-rim">·</span>))}
+      </span>
+    </>
+  )
+}
+
+function SectionCaption({ children }: { children: ReactNode }) {
+  return <span className="text-dim">{children}</span>
+}
+
+function CategoriesView({ events }: { events: NaturalEvent[] }) {
+  const { t } = useTranslation()
+  const age = useAge()
+  const locale = intlLocale()
+  const counts = [...countBy(events.filter((event) => isEventCategory(event.categoryId)), (event) => event.categoryId)].sort((left, right) => right[1] - left[1])
+  const maxCount = counts[0]?.[1] ?? 0
+  const fires = ofCategory(events, 'wildfires')
+    .filter((fire) => fire.magnitudeUnit === 'hectare' && fire.magnitude)
+    .sort((left, right) => (right.magnitude ?? 0) - (left.magnitude ?? 0))
+    .slice(0, FIRE_ROWS)
+  const largestFire = fires[0]?.magnitude ?? 0
+  const storms = ofCategory(events, 'severeStorms').sort(byNewest)
+
+  return (
+    <>
+      <DataTable columns="24px 120px minmax(0,1fr) 40px" gap="2px 12px">
+        {counts.map(([category, count]) => (
+          <TableRow key={category}>
+            <Cell>{CATEGORY_GLYPH[category as EventCategory]}</Cell>
+            <Cell truncate>{t(`terminal.planet.events.categories.${category as EventCategory}`)}</Cell>
+            <Cell className="overflow-hidden"><BlockBar value={count} max={maxCount} width={32} tone="land" /></Cell>
+            <Cell right>{count}</Cell>
+          </TableRow>
+        ))}
+      </DataTable>
+
+      {fires.length > 0 && (
+        <>
+          <SectionCaption>{t('terminal.planet.events.largestFires')}</SectionCaption>
+          <DataTable columns="20px 120px minmax(0,1fr) minmax(64px,auto)" gap="2px 12px">
+            {fires.map((fire, index) => (
+              <TableRow key={fire.id}>
+                <Cell className="text-dim">{index + 1}</Cell>
+                <Cell truncate>{fire.country ?? fire.title}</Cell>
+                <Cell className="overflow-hidden"><BlockBar value={fire.magnitude ?? 0} max={largestFire} width={36} tone="warn" /></Cell>
+                <Cell right>{Math.round(fire.magnitude ?? 0).toLocaleString(locale)} ha</Cell>
+              </TableRow>
+            ))}
+          </DataTable>
+        </>
+      )}
+
+      <SectionCaption>{t('terminal.planet.events.activeStorms')}</SectionCaption>
+      {storms.length === 0 ? <span>{t('terminal.planet.events.noStorms')}</span> : (
+        <DataTable columns="auto minmax(0,1fr) auto auto auto" gap="2px 12px">
+          {storms.map((storm) => {
+            const knots = storm.magnitudeUnit === 'kts' ? storm.magnitude : null
+            return (
+              <TableRow key={storm.id}>
+                <Cell>{storm.eventName ?? storm.title}</Cell>
+                <Cell truncate>{storm.country}</Cell>
+                <Cell className="text-dim">{age(storm.date)}</Cell>
+                <Cell right className="text-err">{knots === null ? '—' : `${knots} kts`}</Cell>
+                <Cell className="text-err">{knots === null ? '' : saffirSimpson(knots)}</Cell>
+              </TableRow>
+            )
+          })}
+        </DataTable>
+      )}
+    </>
+  )
+}
+
+function feedName(event: NaturalEvent) {
+  const place = event.country || event.title
+  return event.categoryId === 'severeStorms' && event.eventName ? `${place} · ${event.eventName}` : place
+}
+
+function EventFeed({ events }: { events: NaturalEvent[] }) {
+  const { t } = useTranslation()
+  const age = useAge()
+  return (
+    <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-[4px]">
+      <div className="flex justify-between text-dim"><span>{t('terminal.planet.events.feed')}</span><span>{events.length}</span></div>
+      {[...events].sort(byNewest).slice(0, FEED_ROWS).map((event) => (
+        <div key={event.id} className="grid gap-x-[10px]" style={{ gridTemplateColumns: '16px minmax(0,1fr) auto auto' }}>
+          <span>{eventGlyph(event)}</span>
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap">{feedName(event)}</span>
+          <span className="text-right text-dim">{age(event.date)}</span>
+          <AlertWord level={alertOf(event)} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EventsSummary({ events, quakes }: { events: NaturalEvent[]; quakes: NaturalEvent[] }) {
+  const { t } = useTranslation()
+  const age = useAge()
+  const [topCategory, topCount] = [...countBy(events.filter((event) => isEventCategory(event.categoryId)), (event) => event.categoryId)].sort((left, right) => right[1] - left[1])[0] ?? []
+  const highAlert = events.filter((event) => event.alertLevel === 'Orange' || event.alertLevel === 'Red').length
+  const largest = quakes.reduce<NaturalEvent | null>((best, quake) => ((quake.magnitude ?? 0) > (best?.magnitude ?? -1) ? quake : best), null)
+  const latest = [...quakes].sort(byNewest)[0]
+
+  return (
+    <StatLine>
+      <Stat label={t('terminal.planet.events.active')}>{events.length}</Stat>
+      <Stat label={t('terminal.planet.events.countries')}>{countryCount(events)}</Stat>
+      {topCategory && <Stat label={t('terminal.planet.events.mostFrequent')}>{t(`terminal.planet.events.categories.${topCategory as EventCategory}`)} {topCount}</Stat>}
+      <span>{t('terminal.planet.events.highAlert')} <ToneText tone="warn">{highAlert}</ToneText> {t('terminal.planet.events.highAlertNote')}</span>
+      {largest && <span>{t('terminal.planet.events.largest')} <ToneText tone={quakeTone(largest.magnitude ?? 0)}>{(largest.magnitude ?? 0).toFixed(1)}</ToneText> {largest.country}</span>}
+      {latest && <span>{t('terminal.planet.events.latest')} <span className="text-text">{t('terminal.planet.events.latestQuake', { place: latest.country ?? latest.title })}</span> · {age(latest.date)}</span>}
+    </StatLine>
+  )
+}
+
+function EventsBody({ events, view, onView }: { events: NaturalEvent[]; view: EventsView; onView: (view: EventsView) => void }) {
+  const { t } = useTranslation()
+  const tabsId = useId()
+  if (!events.length) return <EmptyState title={t('terminal.planet.events.empty')} hint={t('terminal.planet.events.emptyHint')} />
+  const quakes = ofCategory(events, 'earthquakes')
+  const views: Record<EventsView, ReactNode> = {
+    globe: <EventsGlobe events={events} />,
+    seismic: <SeismicView quakes={quakes} />,
+    timeline: <TimelineView events={events} />,
+    categories: <CategoriesView events={events} />,
+  }
+
+  return (
+    <>
+      <EventsSummary events={events} quakes={quakes} />
+      <div className={TWO_PANE}>
+        <div className="flex min-w-0 flex-[3_1_560px] flex-col gap-[12px]">
+          <Tabs
+            label={t('terminal.planet.events.tabs.label')}
+            idBase={tabsId}
+            value={view}
+            onChange={onView}
+            items={VIEWS.map((id) => ({ id, label: t(`terminal.planet.events.tabs.${id}`, { count: quakes.length }) }))}
+          />
+          <div role="tabpanel" id={tabPanelId(tabsId, view)} aria-labelledby={tabId(tabsId, view)} className="flex min-w-0 flex-col gap-[12px]">
+            {views[view]}
+          </div>
+        </div>
+        <EventFeed events={events} />
+      </div>
+    </>
+  )
+}
+
+/** [3.1] GDACS events: globe, alerted quakes, 7-day timeline, categories, and the live feed. */
+export function NaturalEventsPanel() {
+  const { t } = useTranslation()
+  const query = useNaturalEvents()
+  const now = useNow(1_000)
+  // Kept here so a failed refetch, which swaps the panel frame, does not reset the tab
+  const [view, setView] = useState<EventsView>('globe')
+
+  return (
+    <QueryPanel id="3.1" title={t('terminal.planet.events.title')} gap={14} meta={`gdacs · ${formatAge(now - query.dataUpdatedAt)}`} query={query} source="gdacs">
+      {(events) => <EventsBody events={events} view={view} onView={setView} />}
+    </QueryPanel>
+  )
+}
