@@ -18,9 +18,3 @@ export interface NaturalEvent {
   /** GDACS storm name, e.g. CHAMPI-26 */
   eventName?: string
 }
-
-export interface EonetCategory {
-  id: string
-  title: string
-  count: number
-}

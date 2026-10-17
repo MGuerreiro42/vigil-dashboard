@@ -2,33 +2,27 @@ import { create } from 'zustand'
 
 interface AppState {
   cryptoIds: string[]
-  earthquakeMinMag: number
-  setCryptoIds: (ids: string[]) => void
-  setEarthquakeMinMag: (mag: number) => void
 }
 
+// CoinGecko ids of the tracked coins, every one with a Binance USDT pair for live prices
 const DEFAULT_CRYPTO = [
-  'bitcoin',       // BTC  — reserva de valor, top 1
-  'ethereum',      // ETH  — smart contracts, top 2
-  'binancecoin',   // BNB  — exchange token, top 3
-  'ripple',        // XRP  — pagamentos internacionais, top 4
-  'solana',        // SOL  — L1 de alta performance
-  'cardano',       // ADA  — L1 PoS estabelecida
-  'avalanche-2',   // AVAX — L1 / subnets
-  'chainlink',     // LINK — infraestrutura oracle
-  'polkadot',      // DOT  — interoperabilidade
-  'litecoin',      // LTC  — altcoin original
-  'cosmos',        // ATOM — hub interchain
-  'near',          // NEAR — L1 sharding
-  'uniswap',       // UNI  — maior DEX
-  'stellar',       // XLM  — rede de pagamentos
-  'monero',        // XMR  — privacidade estabelecida
+  'bitcoin',
+  'ethereum',
+  'binancecoin',
+  'ripple',
+  'solana',
+  'cardano',
+  'avalanche-2',
+  'chainlink',
+  'polkadot',
+  'litecoin',
+  'cosmos',
+  'near',
+  'uniswap',
+  'stellar',
+  'monero',
 ]
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>(() => ({
   cryptoIds: DEFAULT_CRYPTO,
-  earthquakeMinMag: 2.5,
-
-  setCryptoIds: (ids) => set({ cryptoIds: ids }),
-  setEarthquakeMinMag: (mag) => set({ earthquakeMinMag: mag }),
 }))

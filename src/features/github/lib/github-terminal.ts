@@ -66,3 +66,9 @@ export function meanForkRatio(repos: GithubRepo[]): number {
   const ratios = repos.map(forkRatio).filter((ratio) => ratio !== null)
   return ratios.length ? ratios.reduce((sum, ratio) => sum + ratio, 0) / ratios.length : 0
 }
+
+/** ★ counts as in the design: 980 · 3.5k. */
+export function formatStars(count: number): string {
+  if (count >= 1000) return `${(count / 1000).toFixed(1)}k`
+  return String(count)
+}

@@ -54,3 +54,14 @@ export function summarizeEdits(edits: LiveEdit[], now: number): EditStreamSummar
     perSecond,
   }
 }
+
+const SPARK_BUCKET_SECONDS = 4
+
+/** Edits per bucket of a few seconds, so the minute fits a short sparkline. */
+export function bucketedPerSecond(perSecond: number[]): number[] {
+  const buckets: number[] = []
+  for (let start = 0; start < perSecond.length; start += SPARK_BUCKET_SECONDS) {
+    buckets.push(perSecond.slice(start, start + SPARK_BUCKET_SECONDS).reduce((sum, count) => sum + count, 0))
+  }
+  return buckets
+}
