@@ -1,70 +1,96 @@
 @import "tailwindcss";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
 
+/* Vigil Terminal tokens: no radius, no shadow, no gradient anywhere */
 @theme {
-  /* Surfaces */
+  --color-bg: #0b0d0b;
+  --color-text: #c8d3c5;
+  --color-dim: #8d998a;
+  --color-line: #2a312a;
+  --color-line-subtle: #1a201a;
+  --color-row-hover: #121612;
+  --color-row-selected: #151a15;
+  --color-ok: #7ee08a;
+  --color-err: #ff7a6e;
+  --color-warn: #f2c46d;
+  --color-info: #7fd4e0;
+  --color-land: #5c6b58;
+  --color-land-iss: #4f5e4c;
+  --color-rim: #3d4a3b;
+  --color-grat: #1f271e;
+  --color-cross: #232b22;
+  --color-bid-bar: #3f6b45;
+  --color-ask-bar: #7a3d38;
+  --color-rain-weak: #2f5f66;
+
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --text-base: 13px;
+  --text-base--line-height: 1.55;
+  --text-tab: 12px;
+  --text-title: 20px;
+  --text-greet: 22px;
+  --text-price: 24px;
+  --text-count: 28px;
+  --text-count--line-height: 1.2;
+
+  --breakpoint-sm: 600px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  --animate-blink: vigil-blink 1s steps(1) infinite;
+  @keyframes vigil-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+}
+
+/* Old-UI tokens still used by the widgets that have not been migrated yet */
+@theme {
   --color-surface-base: #080b12;
   --color-surface-elevated: #0d1117;
   --color-surface-overlay: #131822;
-
-  /* Borders */
   --color-border-subtle: rgba(255, 255, 255, 0.05);
   --color-border-default: rgba(255, 255, 255, 0.09);
   --color-border-strong: rgba(255, 255, 255, 0.16);
-
-  /* Accents */
   --color-accent-cyan: #22d3ee;
   --color-accent-purple: #a855f7;
   --color-accent-amber: #f59e0b;
   --color-accent-emerald: #10b981;
   --color-accent-rose: #f43f5e;
-
-  /* Text on the dark surfaces. Floors chosen for WCAG AA (4.5:1) against #080b12:
-     white at 50% is 5.3:1, at 62% about 8:1. Anything dimmer fails for body text. */
   --color-fg: rgba(255, 255, 255, 0.92);
   --color-fg-muted: rgba(255, 255, 255, 0.62);
   --color-fg-subtle: rgba(255, 255, 255, 0.5);
-
-  /* Radius */
   --radius-widget: 1rem;
   --radius-card: 0.75rem;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
+@layer base {
+  html, body { background: var(--color-bg); }
+  body {
+    margin: 0;
+    color: var(--color-text);
+    font: 13px/1.55 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  a { color: var(--color-info); text-decoration: none; }
+  a:hover { color: var(--color-text); text-decoration: underline; }
+  ::selection { background: var(--color-line); }
+  input, button { font: inherit; }
+  button { color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
+  :focus-visible { outline: 1px solid var(--color-ok); outline-offset: 2px; }
+  [tabindex="0"]:focus-visible, [role="tab"]:focus-visible { background: var(--color-row-selected); outline-offset: 1px; }
+  a:focus-visible { text-decoration: underline; outline-offset: 1px; }
 }
 
-html {
-  font-size: 17px;
+@media (prefers-reduced-motion: reduce) {
+  .animate-blink { animation: none; }
 }
 
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background-color: #080b12;
-  color: rgba(255, 255, 255, 0.92);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
+/* Cached data is never shown in full text colour */
+.is-cached, .is-cached * { color: var(--color-dim) !important; }
 
 /* Leaflet dark override */
 .leaflet-container {

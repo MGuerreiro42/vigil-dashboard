@@ -7,7 +7,7 @@ const HackerNewsWidget = lazy(() => import('@/features/hacker-news/components/ha
 
 export function TechPage() {
   return (
-    <PageLayout stacked>
+    <PageLayout>
       <PageSection id="github">
         <Suspense fallback={<WidgetSkeleton />}><GithubWidget isFocused /></Suspense>
       </PageSection>

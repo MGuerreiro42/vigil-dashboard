@@ -12,6 +12,7 @@ export function useWebSocket(url: string | null, handlers: SocketHandlers) {
       onMessage: (data) => handlersRef.current.onMessage(data),
       onOpen: () => handlersRef.current.onOpen?.(),
       onClose: () => handlersRef.current.onClose?.(),
+      onStatus: (status) => handlersRef.current.onStatus?.(status),
     })
     return () => socket.close()
   }, [url])
