@@ -39,6 +39,7 @@ export const pt = {
     language: 'idioma',
     live: '● ao vivo',
     reconnecting: '↻ reconectando',
+    offline: '✕ sem conexão',
     keys: {
       screen: { key: '1–6', label: 'tela' },
       tabs: { key: '←/→ tab', label: 'abas' },

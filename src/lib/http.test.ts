@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { useSourceHealthStore } from '@/store/source-health-store'
-import { classifyError, fetchOk, HttpError, NetworkError, parseRetryAfter, PayloadError } from './http'
+import { classifyError, fetchOk, HttpError, MAX_RETRY_AFTER_MS, NetworkError, parseRetryAfter, PayloadError } from './http'
 
 const health = (source: string) => useSourceHealthStore.getState().sources[source]
 
@@ -63,5 +63,6 @@ it('parses Retry-After as seconds or an HTTP date', () => {
   expect(parseRetryAfter('120', now)).toBe(120_000)
   expect(parseRetryAfter('Sat, 17 Oct 2026 12:00:45 GMT', now)).toBe(45_000)
   expect(parseRetryAfter('Sat, 17 Oct 2026 11:00:00 GMT', now)).toBe(0)
+  expect(parseRetryAfter('86400', now)).toBe(MAX_RETRY_AFTER_MS)
   expect([null, '', 'soon'].map((header) => parseRetryAfter(header, now))).toEqual([null, null, null])
 })

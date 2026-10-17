@@ -15,13 +15,15 @@ export interface Failure {
   status: number | null
 }
 
-/** Parses a Retry-After header (delta-seconds or HTTP date) into a wait in ms. */
+// A source asking for hours would leave its panel frozen; check back sooner and let it answer 429 again
+export const MAX_RETRY_AFTER_MS = 5 * 60_000
+
+/** Parses a Retry-After header (delta-seconds or HTTP date) into a wait in ms, capped. */
 export function parseRetryAfter(header: string | null, now = Date.now()): number | null {
   const value = header?.trim()
   if (!value) return null
-  if (/^\d+$/.test(value)) return Number(value) * 1_000
-  const date = Date.parse(value)
-  return Number.isNaN(date) ? null : Math.max(0, date - now)
+  const waitMs = /^\d+$/.test(value) ? Number(value) * 1_000 : Date.parse(value) - now
+  return Number.isNaN(waitMs) ? null : Math.min(Math.max(0, waitMs), MAX_RETRY_AFTER_MS)
 }
 
 export class HttpError extends Error {

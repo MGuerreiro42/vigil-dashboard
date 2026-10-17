@@ -19,6 +19,23 @@ export interface PanelStatus {
   failure: Failure | null
 }
 
+// Keyed by source so a panel remounted by a screen switch keeps counting from the first wait
+const waitStarts = new Map<string, number>()
+// A wait abandoned this long ago (data arrived while no panel was mounted) starts over
+const STALE_WAIT_MS = 5 * 60_000
+
+/** When a source's current wait began, recording `now` if it is not waiting yet. */
+export function waitStart(source: string, now: number): number {
+  const started = waitStarts.get(source)
+  if (started !== undefined && now - started < STALE_WAIT_MS) return started
+  waitStarts.set(source, now)
+  return now
+}
+
+export function endWait(source: string): void {
+  waitStarts.delete(source)
+}
+
 /** Loading turns into an error after the request timeout even if the query is still retrying. */
 export function panelStatus(query: PanelQuery<unknown>, waitingSince: number, now: number): PanelStatus {
   const hasData = query.data !== undefined

@@ -4,7 +4,7 @@ import { useNow } from '@/hooks/use-now'
 import { HttpError, type Failure } from '@/lib/http'
 import { formatAge, formatCountdown } from '@/lib/terminal-format'
 import { Panel, type PanelProps } from './panel'
-import { panelStatus, type PanelQuery } from './panel-state'
+import { endWait, panelStatus, waitStart, type PanelQuery } from './panel-state'
 import { BracketButton, ToneText } from './text'
 
 const DEFAULT_RETRY_MS = 60_000
@@ -53,8 +53,12 @@ export function LoadingBody({ source, placeholder = DEFAULT_PLACEHOLDER, timeout
 export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOLDER, retryMs = DEFAULT_RETRY_MS, cacheNote, children, ...panel }: QueryPanelProps<Data>) {
   const { t } = useTranslation()
   const now = useNow(1_000)
-  const [waitingSince] = useState(() => Date.now())
+  const [waitingSince] = useState(() => waitStart(source, Date.now()))
   const status = panelStatus(query, waitingSince, now)
+  const settled = query.data !== undefined || query.isError
+  useEffect(() => {
+    if (settled) endWait(source)
+  }, [settled, source])
   const failing = status.phase === 'error' || status.phase === 'degraded'
   // A rate-limited source may ask for a longer wait than the panel's own cadence
   const retryAfterMs = query.error instanceof HttpError ? query.error.retryAfterMs ?? 0 : 0

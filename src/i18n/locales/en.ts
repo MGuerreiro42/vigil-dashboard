@@ -41,6 +41,7 @@ export const en: typeof pt = {
     language: 'language',
     live: '● live',
     reconnecting: '↻ reconnecting',
+    offline: '✕ offline',
     keys: {
       screen: { key: '1–6', label: 'screen' },
       tabs: { key: '←/→ tab', label: 'tabs' },

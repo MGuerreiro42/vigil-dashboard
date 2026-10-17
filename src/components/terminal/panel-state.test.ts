@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { HttpError } from '@/lib/http'
-import { combineQueries, panelStatus, type PanelQuery } from './panel-state'
+import { combineQueries, endWait, panelStatus, waitStart, type PanelQuery } from './panel-state'
 
 const query = (patch: Partial<PanelQuery<unknown>>): PanelQuery<unknown> => ({
   data: undefined, error: null, isError: false, dataUpdatedAt: 0, errorUpdatedAt: 0, refetch: () => {}, ...patch,
@@ -36,4 +36,12 @@ it('combines queries: ready when all have data, failing when any fails', () => {
   expect(ready).toMatchObject({ data: [1, 'a'], isError: false, dataUpdatedAt: 3 })
   expect(combineQueries(query({ data: 1 }), query({})).data).toBeUndefined()
   expect(combineQueries(query({ data: 1 }), query({ isError: true, error, errorUpdatedAt: 9 }))).toMatchObject({ isError: true, error, errorUpdatedAt: 9 })
+})
+
+it('keeps a source waiting across remounts until it settles or the wait goes stale', () => {
+  expect(waitStart('usgs', 1_000)).toBe(1_000)
+  expect(waitStart('usgs', 6_000)).toBe(1_000)
+  expect(waitStart('usgs', 1_000 + 5 * 60_000)).toBe(1_000 + 5 * 60_000)
+  endWait('usgs')
+  expect(waitStart('usgs', 9_000_000)).toBe(9_000_000)
 })
