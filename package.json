@@ -16,6 +16,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.99.0",
+    "d3-geo": "^3.1.1",
     "framer-motion": "^12.38.0",
     "i18next": "^26.4.6",
     "i18next-browser-languagedetector": "^8.2.1",
@@ -27,6 +28,8 @@
     "react-router-dom": "^7.14.1",
     "recharts": "^3.8.1",
     "tailwindcss": "^4.2.2",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
@@ -34,10 +37,13 @@
     "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^9.39.4",
     "@testing-library/react": "^16.3.3",
+    "@types/d3-geo": "^3.1.1",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
