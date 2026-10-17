@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { lonLatToWorldPixel, rainBandForIntensity, rainBandFromColor, RAIN_BAND_INTENSITY, tileRangeForBbox, zoomForBbox } from './rain-raster'
+import { lonLatToWorldPixel, radarTiles, rainBandForIntensity, rainBandFromColor, RAIN_BAND_INTENSITY, tileRangeForBbox, worldPixelToLonLat, zoomForBbox } from './rain-raster'
 
 describe('rainBandFromColor', () => {
   // Pixels sampled from real RainViewer scheme 2 tiles
@@ -44,5 +44,20 @@ describe('tile math', () => {
 
   it('covers the bbox with tiles', () => {
     expect(tileRangeForBbox([-56, -29, -38, -18], 6)).toEqual({ minX: 22, maxX: 25, minY: 35, maxY: 37 })
+  })
+
+  it('inverts the world pixel back to a coordinate', () => {
+    const [lon, lat] = worldPixelToLonLat(...lonLatToWorldPixel(-46.63, -23.55, 6), 6)
+    expect(lon).toBeCloseTo(-46.63, 6)
+    expect(lat).toBeCloseTo(-23.55, 6)
+  })
+
+  it('lists the covering tiles with their bounds', () => {
+    const { zoom, tiles } = radarTiles('https://tiles/{z}/{x}/{y}.png', [-56, -29, -38, -18])
+    expect(zoom).toBe(6)
+    expect(tiles).toHaveLength(12)
+    expect(tiles[0].url).toBe('https://tiles/6/22/35.png')
+    expect(tiles[0].bounds[0]).toBeCloseTo(-56.25, 6)
+    expect(tiles[0].bounds[2]).toBeCloseTo(-50.625, 6)
   })
 })
