@@ -12,8 +12,8 @@ import { useTrendingRepos } from '@/features/github/api/github'
 const CryptoWidget        = lazy(() => import('@/features/crypto/components/crypto-widget').then((module) => ({ default: module.CryptoWidget })))
 const NaturalEventsWidget = lazy(() => import('@/features/natural-events/components/natural-events-widget').then((module) => ({ default: module.NaturalEventsWidget })))
 const NewsWidget          = lazy(() => import('@/features/news/components/news-widget').then((module) => ({ default: module.NewsWidget })))
+const IssPanel            = lazy(() => import('@/features/iss/components/iss-panel').then((module) => ({ default: module.IssPanel })))
 const GithubWidget        = lazy(() => import('@/features/github/components/github-widget').then((module) => ({ default: module.GithubWidget })))
-const ISSWidget           = lazy(() => import('@/features/iss/components/iss-widget').then((module) => ({ default: module.ISSWidget })))
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -54,8 +54,8 @@ export function Dashboard() {
         <div className="lg:col-span-3 h-[480px]">
           <Suspense fallback={<WidgetSkeleton className="h-full" />}><GithubWidget /></Suspense>
         </div>
-        <div className="lg:col-span-2 h-[480px]">
-          <Suspense fallback={<WidgetSkeleton className="h-full" />}><ISSWidget /></Suspense>
+        <div className="lg:col-span-2">
+          <Suspense fallback={<WidgetSkeleton className="h-full" />}><IssPanel /></Suspense>
         </div>
       </div>
     </>

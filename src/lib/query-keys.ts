@@ -39,7 +39,6 @@ export const queryKeys = {
   iss: {
     position: () => ['iss', 'position'] as const,
     coordinates: (timeWindow: number | null) => ['iss', 'coordinates', timeWindow] as const,
-    futurePath: (timeWindow: number | null) => ['iss', 'future-path', timeWindow] as const,
     tle: () => ['iss', 'tle'] as const,
   },
 }

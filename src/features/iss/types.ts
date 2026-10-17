@@ -20,14 +20,6 @@ export interface ISSCoordinates {
   mapUrl: string
 }
 
-export interface ISSFuturePosition {
-  lat: number
-  lng: number
-  altitude: number
-  timestamp: number
-  visibility: 'daylight' | 'eclipsed'
-}
-
 export interface ISSTLE {
   requestedTimestamp: number
   tleTimestamp: number

@@ -1,14 +1,28 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchOk } from '@/lib/http'
 import { queryKeys } from '@/lib/query-keys'
-import type { ISSPosition, ISSCoordinates, ISSFuturePosition, ISSTLE } from '@/features/iss/types'
+import type { ISSPosition, ISSCoordinates, ISSTLE } from '@/features/iss/types'
 
 const BASE = 'https://api.wheretheiss.at/v1'
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
+type RawPosition = {
+  latitude: number
+  longitude: number
+  altitude: number
+  velocity: number
+  visibility: ISSPosition['visibility']
+  timestamp: number
+  footprint: number
+  solar_lat: number
+  solar_lon: number
+  daynum: number
+}
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizePosition(raw: any): ISSPosition {
+type RawCoordinates = { latitude: string; longitude: string; timezone_id: string; offset: number; country_code?: string | null; map_url: string }
+
+type RawTLE = { requested_timestamp: number; tle_timestamp: number; id: string; name: string; header: string; line1: string; line2: string }
+
+function normalizePosition(raw: RawPosition): ISSPosition {
   return {
     lat: raw.latitude,
     lng: raw.longitude,
@@ -18,7 +32,8 @@ function normalizePosition(raw: any): ISSPosition {
     timestamp: raw.timestamp,
     footprint: raw.footprint,
     solarLat: raw.solar_lat,
-    solarLng: raw.solar_lon,
+    // The API reports the subsolar longitude as 0–360° east
+    solarLng: ((raw.solar_lon + 540) % 360) - 180,
     daynum: raw.daynum,
   }
 }
@@ -53,8 +68,6 @@ export function parseTLE(line1: string, line2: string): Partial<ISSTLE> {
   return { inclination, raan, eccentricity, argPerigee, meanAnomaly, meanMotion, epochYear, epochDay, bstar }
 }
 
-// ─── hooks ────────────────────────────────────────────────────────────────────
-
 /** Current ISS position — polls every 5 s. */
 export function useISSPosition() {
   return useQuery({
@@ -81,7 +94,7 @@ export function useISSCoordinates(position: ISSPosition | undefined) {
     queryFn: async ({ signal }): Promise<ISSCoordinates> => {
       const { lat, lng } = position!
       const response = await fetchOk(`${BASE}/coordinates/${lat.toFixed(4)},${lng.toFixed(4)}`, 'ISS coordinates', { signal })
-      const raw = await response.json()
+      const raw: RawCoordinates = await response.json()
       return {
         lat: raw.latitude,
         lng: raw.longitude,
@@ -98,41 +111,14 @@ export function useISSCoordinates(position: ISSPosition | undefined) {
   })
 }
 
-/** Future trajectory — 10 positions spread over the next 90 min.
- *  Refreshes every 5 min (orbit prediction doesn't change quickly). */
-export function useISSFuturePath(currentTimestamp: number | undefined) {
-  return useQuery({
-    queryKey: queryKeys.iss.futurePath(currentTimestamp ? Math.floor(currentTimestamp / 300) : null),
-    queryFn: async ({ signal }): Promise<ISSFuturePosition[]> => {
-      const now = currentTimestamp ?? Math.floor(Date.now() / 1000)
-      // 10 points every 9 min → covers 90 min (≈ 1 full orbit)
-      const timestamps = Array.from({ length: 10 }, (_, i) => now + (i + 1) * 540)
-      const params = new URLSearchParams({ timestamps: timestamps.join(','), units: 'kilometers' })
-      const response = await fetchOk(`${BASE}/satellites/25544/positions?${params}`, 'ISS future path', { signal })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (await response.json()).map((point: any): ISSFuturePosition => ({
-        lat: point.latitude,
-        lng: point.longitude,
-        altitude: point.altitude,
-        timestamp: point.timestamp,
-        visibility: point.visibility,
-      }))
-    },
-    enabled: currentTimestamp != null,
-    staleTime: 5 * 60_000,
-    refetchInterval: 5 * 60_000,
-    placeholderData: (previous) => previous,
-  })
-}
-
 /** TLE (Two-Line Element) data — refreshes every hour. */
 export function useISSTLE() {
   return useQuery({
     queryKey: queryKeys.iss.tle(),
     queryFn: async ({ signal }): Promise<ISSTLE> => {
       const response = await fetchOk(`${BASE}/satellites/25544/tles`, 'ISS TLE', { signal })
-      const raw = await response.json()
-      const parsed = parseTLE(raw.line1 as string, raw.line2 as string)
+      const raw: RawTLE = await response.json()
+      const parsed = parseTLE(raw.line1, raw.line2)
       return {
         requestedTimestamp: raw.requested_timestamp,
         tleTimestamp: raw.tle_timestamp,

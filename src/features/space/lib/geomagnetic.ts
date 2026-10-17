@@ -17,12 +17,3 @@ export function kpToScale(kp: number): GeomagneticScale {
 export function auroraLatitude(kp: number): number {
   return Math.round(66 - kp * 2.5)
 }
-
-export const SCALE_COLORS: Record<GeomagneticScale, string> = {
-  G0: '#10b981',
-  G1: '#facc15',
-  G2: '#f59e0b',
-  G3: '#f97316',
-  G4: '#ef4444',
-  G5: '#a855f7',
-}
