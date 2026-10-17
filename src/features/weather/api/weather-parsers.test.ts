@@ -13,6 +13,17 @@ it('labels a place with its state and country', () => {
   expect(parsePlaces({})).toEqual([])
 })
 
+it('drops places that repeat the name, state and country of an earlier one', () => {
+  const place = { name: 'Curitiba', latitude: -22.9, longitude: -43.2, country: 'Brasil', admin1: 'Rio de Janeiro' }
+  const places = parsePlaces({ results: [
+    { ...place, id: 1, admin1: 'Paraná' },
+    { ...place, id: 2 },
+    { ...place, id: 3 },
+    { ...place, id: 4, country: 'México', admin1: 'Puebla' },
+  ] })
+  expect(places.map((entry) => entry.id)).toEqual([1, 2, 4])
+})
+
 it('builds a tile URL template for each radar frame, past then nowcast', () => {
   const frames = parseRadarFrames({ host: 'https://tilecache.rainviewer.com', radar: {
     past: [{ time: 100, path: '/v2/radar/aaa' }],
