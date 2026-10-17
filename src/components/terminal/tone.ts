@@ -8,4 +8,5 @@ export const TONE_CLASS: Record<Tone, string> = {
   warn: 'text-warn',
   err: 'text-err',
   info: 'text-info',
+  land: 'text-land',
 }

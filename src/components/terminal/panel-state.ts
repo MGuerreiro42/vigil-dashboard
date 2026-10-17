@@ -37,3 +37,18 @@ export function causeKey(cause: FailureCause): CauseKey {
   if (cause >= 500) return 'server'
   return 'other'
 }
+
+type QueryData<Queries> = { [Index in keyof Queries]: Queries[Index] extends PanelQuery<infer Data> ? Data : never }
+
+/** One panel fed by several queries: ready once all have data, failing when any fails. */
+export function combineQueries<Queries extends PanelQuery<unknown>[]>(...queries: Queries): PanelQuery<QueryData<Queries>> {
+  const failed = queries.find((query) => query.isError)
+  return {
+    data: queries.every((query) => query.data !== undefined) ? (queries.map((query) => query.data) as QueryData<Queries>) : undefined,
+    error: failed?.error ?? null,
+    isError: Boolean(failed),
+    dataUpdatedAt: Math.min(...queries.map((query) => query.dataUpdatedAt)),
+    errorUpdatedAt: Math.max(...queries.map((query) => query.errorUpdatedAt)),
+    refetch: () => queries.forEach((query) => query.refetch()),
+  }
+}
