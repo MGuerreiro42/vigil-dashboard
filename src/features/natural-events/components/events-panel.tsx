@@ -9,6 +9,7 @@ import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
 import { BlockBar, EmptyState, ToneText } from '@/components/terminal/text'
+import { AlertCounts } from '@/features/natural-events/components/alert-counts'
 import { quakeTone } from '@/features/earthquakes/lib/quake-terminal'
 import { useNaturalEvents } from '@/features/natural-events/api/gdacs'
 import {
@@ -134,7 +135,7 @@ function LaneRow({ category, buckets }: { category: EventCategory; buckets: (Ale
 }
 
 function SectionCaption({ children }: { children: ReactNode }) {
-  return <span className="text-dim">{children}</span>
+  return <span className="text-dim max-sm:text-text">{children}</span>
 }
 
 function CategoriesView({ events }: { events: NaturalEvent[] }) {
@@ -227,18 +228,17 @@ function EventsSummary({ events, quakes }: { events: NaturalEvent[]; quakes: Nat
   const { t } = useTranslation()
   const age = useAge()
   const [topCategory, topCount] = [...countBy(events.filter((event) => isEventCategory(event.categoryId)), (event) => event.categoryId)].sort((left, right) => right[1] - left[1])[0] ?? []
-  const highAlert = events.filter((event) => event.alertLevel === 'Orange' || event.alertLevel === 'Red').length
   const largest = quakes.reduce<NaturalEvent | null>((best, quake) => ((quake.magnitude ?? 0) > (best?.magnitude ?? -1) ? quake : best), null)
   const latest = [...quakes].sort(byNewest)[0]
 
   return (
     <StatLine>
       <Stat label={t('terminal.planet.events.active')}>{events.length}</Stat>
-      <Stat label={t('terminal.planet.events.countries')}>{countryCount(events)}</Stat>
-      {topCategory && <Stat label={t('terminal.planet.events.mostFrequent')}>{t(`terminal.planet.events.categories.${topCategory as EventCategory}`)} {topCount}</Stat>}
-      <span>{t('terminal.planet.events.highAlert')} <ToneText tone="warn">{highAlert}</ToneText> {t('terminal.planet.events.highAlertNote')}</span>
-      {largest && <span>{t('terminal.planet.events.largest')} <ToneText tone={quakeTone(largest.magnitude ?? 0)}>{(largest.magnitude ?? 0).toFixed(1)}</ToneText> {largest.country}</span>}
-      {latest && <span>{t('terminal.planet.events.latest')} <span className="text-text">{t('terminal.planet.events.latestQuake', { place: latest.country ?? latest.title })}</span> · {age(latest.date)}</span>}
+      <Stat label={t('terminal.planet.events.countries')} priority="p2">{countryCount(events)}</Stat>
+      {topCategory && <Stat label={t('terminal.planet.events.mostFrequent')} priority="p2">{t(`terminal.planet.events.categories.${topCategory as EventCategory}`)} {topCount}</Stat>}
+      <Stat label={t('terminal.planet.events.highAlert')}><AlertCounts events={events} /></Stat>
+      {largest && <Stat label={t('terminal.planet.events.largest')}><ToneText tone={quakeTone(largest.magnitude ?? 0)}>M{(largest.magnitude ?? 0).toFixed(1)}</ToneText> {largest.country ?? largest.title}</Stat>}
+      {latest && <Stat label={t('terminal.planet.events.latest')}>{t('terminal.planet.events.latestQuake', { place: latest.country ?? latest.title })} · {age(latest.date)}</Stat>}
     </StatLine>
   )
 }

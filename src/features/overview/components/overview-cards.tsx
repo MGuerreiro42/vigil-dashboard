@@ -26,7 +26,8 @@ import { propagateTrack, utcOffsetLabel, type TrackSample } from '@/features/iss
 import { useRegionName } from '@/features/iss/lib/use-region-name'
 import type { ISSPosition, ISSTLE } from '@/features/iss/types'
 import { useNaturalEvents } from '@/features/natural-events/api/gdacs'
-import { ALERT_COLOR, alertOf, eventGlyph } from '@/features/natural-events/lib/event-terminal'
+import { AlertCounts } from '@/features/natural-events/components/alert-counts'
+import { ALERT_COLOR, alertOf, eventGlyph, highAlertCounts } from '@/features/natural-events/lib/event-terminal'
 import { useFeaturedFeed } from '@/features/news/api/wikimedia-feed'
 import { useBlueskyTrends } from '@/features/pulse/api/bluesky-trends'
 import { useWikiEditStream } from '@/features/pulse/hooks/use-wiki-edit-stream'
@@ -50,9 +51,9 @@ import { useAppStore } from '@/store/app-store'
 import { useGeoStore } from '@/store/geo-store'
 
 const MAP_STYLE = { height: '180px' }
-// Label first gives way, down to a readable width (long launch names truncate); then values wrap
-const KEY_VALUES = 'minmax(10ch,1fr) auto'
-const KV_GAP = '2px 12px'
+// The key never truncates; the value takes the rest and ellipsises
+const KEY_VALUES = 'max-content minmax(0,1fr)'
+const KV_GAP = '2px 16px'
 const TOP_ROWS = 3
 const MARKET_ROWS = 5
 // 168 hourly points sampled down to an 11-character sparkline
@@ -81,8 +82,8 @@ function KeyValues({ divided = false, children }: { divided?: boolean; children:
 function KeyValue({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <TableRow>
-      <Cell truncate className="text-dim">{label}</Cell>
-      <Cell right>{children}</Cell>
+      <Cell className="whitespace-nowrap text-dim">{label}</Cell>
+      <Cell right truncate>{children}</Cell>
     </TableRow>
   )
 }
@@ -218,7 +219,6 @@ export function PlanetCard({ className }: CardProps) {
   return (
     <QueryPanel id="3" title={t('terminal.overview.planet.title')} query={query} source="usgs · gdacs" gap={8} onOpen={useOpen('/planet')} className={className}>
       {([quakeList, eventList]) => {
-        const highAlert = eventList.filter((event) => event.alertLevel === 'Orange' || event.alertLevel === 'Red').length
         return (
           <>
             <DotMap label={t('terminal.overview.planet.mapLabel')} markers={markers} graticule={false} style={MAP_STYLE} />
@@ -235,7 +235,7 @@ export function PlanetCard({ className }: CardProps) {
               <PlanetConditions city={city} />
               <KeyValue label={t('terminal.overview.planet.events')}>
                 {eventList.length}
-                {highAlert > 0 && <> · <ToneText tone="warn">{t('terminal.overview.planet.highAlert', { count: highAlert })}</ToneText></>}
+                {highAlertCounts(eventList).length > 0 && <> · <AlertCounts events={eventList} /></>}
               </KeyValue>
             </KeyValues>
           </>
@@ -296,7 +296,8 @@ function SpaceFacts() {
 
   return (
     <KeyValues divided>
-      <KeyValue label={next ? next.mission.toLowerCase() : t('terminal.overview.space.noLaunch')}>
+      {/* The key never truncates, so the "(dedicated rideshare)" kind of suffix goes */}
+      <KeyValue label={next ? next.mission.replace(/\s*\(.*\)$/, '').toLowerCase() : t('terminal.overview.space.noLaunch')}>
         {countdown ? <ToneText tone="info">T− {countdown}</ToneText> : <Missing />}
       </KeyValue>
       <KeyValue label="kp">
@@ -343,7 +344,7 @@ function NewsPulse({ wiki }: { wiki: string }) {
           : <Missing />}
       </KeyValue>
       <KeyValue label={t('terminal.overview.news.bluesky')}>
-        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{trends?.[0]?.name ?? '—'}</span>
+        {trends?.[0]?.name ?? <Missing />}
       </KeyValue>
     </KeyValues>
   )

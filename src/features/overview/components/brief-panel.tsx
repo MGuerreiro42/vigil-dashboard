@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Panel } from '@/components/terminal/panel'
-import { EmptyState, Level } from '@/components/terminal/text'
+import { EmptyState, Level, MetaLine } from '@/components/terminal/text'
 import { SCREENS } from '@/components/layout/sections'
 import { sinceLastVisit } from '@/features/brief/lib/last-visit'
 import type { BriefInsight, BriefText } from '@/features/brief/lib/generate-brief'
@@ -35,14 +35,16 @@ function BriefRow({ insight }: { insight: BriefInsight }) {
         </span>
         <span className="text-right text-info">[{insight.screen}]</span>
       </Link>
-      <Link to={path} className={`${ROW_LINK} col-span-full flex flex-col gap-[2px] border-t border-line-subtle py-[10px] sm:hidden`}>
+      <Link to={path} className={`${ROW_LINK} col-span-full flex flex-col gap-[4px] border-t border-line-subtle py-[12px] sm:hidden`}>
         <span className="flex gap-[10px]">
           <Level severity={insight.severity} />
-          <span className="text-dim">{source} · {time}</span>
+          <span>{source}</span>
+          <span className="text-dim">{time}</span>
           <span className="ml-auto text-info">[{insight.screen}]</span>
         </span>
-        <span className="text-pretty">{headline}</span>
-        <span className="text-pretty text-dim">{detail}</span>
+        <span className="line-clamp-3 text-pretty">{headline}</span>
+        {/* Details are written as " · "-joined segments in both locales */}
+        <MetaLine segments={detail.split(' · ')} />
       </Link>
     </>
   )
@@ -56,7 +58,7 @@ export function BriefPanel({ insights, className }: { insights: BriefInsight[]; 
       {insights.length === 0 ? (
         <EmptyState title={t('terminal.overview.brief.empty')} hint={t('terminal.overview.brief.emptyHint')} />
       ) : (
-        <div className="grid grid-cols-[44px_44px_64px_minmax(0,1fr)_28px] gap-x-[14px] max-sm:grid-cols-1">
+        <div className="grid grid-cols-[44px_44px_64px_minmax(0,1fr)_28px] gap-x-[14px] max-sm:grid-cols-[minmax(0,1fr)]">
           {insights.map((insight) => <BriefRow key={insight.id} insight={insight} />)}
         </div>
       )}
