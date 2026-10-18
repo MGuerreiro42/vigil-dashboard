@@ -41,7 +41,7 @@ export function SourcesPanel({ rows, className }: { rows: SourceRow[]; className
 
   return (
     <Panel id="1.2" title={t('terminal.overview.sources.title')} meta={meta} gap={6} className={className}>
-      <div className="grid grid-cols-[14px_minmax(0,1fr)_auto_52px_40px] gap-x-[10px] gap-y-[2px]">
+      <div className="grid grid-cols-[14px_minmax(0,1fr)_auto_8ch_40px] gap-x-[10px] gap-y-[2px]">
         {rows.map((row) => {
           const { glyph, tone } = STATUS_STYLE[row.status]
           // A waiting source is named in text: only its status is dim
@@ -51,7 +51,7 @@ export function SourcesPanel({ rows, className }: { rows: SourceRow[]; className
               <span aria-hidden className={TONE_CLASS[tone]}>{glyph}</span>
               <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${TONE_CLASS[nameTone]}`}>{row.entry.label}</span>
               <span className={TONE_CLASS[tone]}>{t(`terminal.overview.sources.statuses.${row.status}`)}</span>
-              <span className="text-right text-dim">{latencyLabel(row)}</span>
+              <span className="whitespace-nowrap text-right text-dim">{latencyLabel(row)}</span>
               <span className="text-right text-dim">{row.ageMs === null ? '—' : formatAge(row.ageMs)}</span>
             </div>
           )
