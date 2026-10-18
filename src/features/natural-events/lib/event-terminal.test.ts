@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { NaturalEvent } from '@/features/natural-events/types'
-import { countryCount, depthFromDescription, highAlertCounts, saffirSimpson, timelineAxis, timelineBuckets } from './event-terminal'
+import { countryCount, depthFromDescription, highAlertCounts, saffirSimpson, timelineAxis, timelineBuckets, timelineGrid } from './event-terminal'
 
 const HOUR = 3_600_000
 const NOW = Date.UTC(2026, 9, 17, 12)
@@ -39,20 +39,46 @@ describe('timelineBuckets', () => {
   })
 })
 
+describe('timelineGrid', () => {
+  const CH = 7.2
+
+  it('keeps 3 h buckets while 56 columns fit', () => {
+    expect(timelineGrid(60 * CH, CH, 7)).toEqual({ columns: 56, hours: 3 })
+  })
+
+  it('grows the bucket to 6 h and then 12 h on narrower tracks', () => {
+    // 390px phone: 358px panel minus the 2ch label, the 4ch count and two 8px gaps
+    expect(timelineGrid(358 - 6 * CH - 16, CH, 7)).toEqual({ columns: 28, hours: 6 })
+    expect(timelineGrid(20 * CH, CH, 7)).toEqual({ columns: 14, hours: 12 })
+  })
+
+  it('shows the newest 12 h columns when not even 7 days of 12 h fit', () => {
+    expect(timelineGrid(9.5 * CH, CH, 7)).toEqual({ columns: 9, hours: 12 })
+  })
+
+  it('falls back to the widest grid before the font is measured', () => {
+    expect(timelineGrid(0, 0, 7)).toEqual({ columns: 56, hours: 3 })
+  })
+})
+
 describe('timelineAxis', () => {
   const dayLabel = (days: number) => `−${days}d`
 
-  it('places day marks on the desktop grid', () => {
-    const axis = timelineAxis(56, 7, 'agora', dayLabel)
+  it('labels start, middle and now on the desktop grid', () => {
+    const axis = timelineAxis(56, 3, 'agora', dayLabel)
     expect(axis).toHaveLength(56)
-    expect([axis.indexOf('−7d'), axis.indexOf('−5d'), axis.indexOf('−3d'), axis.indexOf('−1d'), axis.indexOf('agora')]).toEqual([0, 16, 32, 48, 51])
+    expect([axis.indexOf('−7d'), axis.indexOf('−3d'), axis.indexOf('agora')]).toEqual([0, 32, 51])
   })
 
-  it('drops the marks that would overlap "now" on the phone grid', () => {
-    const axis = timelineAxis(28, 7, 'agora', dayLabel)
-    expect(axis.includes('−1d')).toBe(false)
+  it('puts the middle mark at 4/7 on the phone grid', () => {
+    const axis = timelineAxis(28, 6, 'agora', dayLabel)
+    expect(axis.trim().split(/ +/)).toEqual(['−7d', '−3d', 'agora'])
     expect(axis.indexOf('−3d')).toBe(16)
     expect(axis.endsWith('agora')).toBe(true)
+  })
+
+  it('drops the marks that do not fit a short window', () => {
+    expect(timelineAxis(9, 12, 'agora', dayLabel).trim().split(/ +/)).toEqual(['−4d', 'agora'])
   })
 })
 

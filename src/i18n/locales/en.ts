@@ -240,7 +240,7 @@ export const en: typeof pt = {
         columns: { magnitude: 'M', place: 'PLACE', depth: 'DEPTH', age: 'AGE' },
         noQuakes: 'no GDACS-alerted earthquake right now',
         noQuakesHint: 'gdacs only lists quakes with potential impact · the full list is in [3.2]',
-        timelineNote: '1 column = {{hours}} h · ● at least one event started · colour = highest alert in the interval',
+        timelineNote: { bucket: '1 column = {{hours}} h', mark: '● at least one event', colour: 'colour = highest alert' },
         largestFires: 'largest active wildfires · area in hectares (gdacs)',
         activeStorms: 'active storms',
         noStorms: 'no active tropical storm on gdacs',

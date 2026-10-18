@@ -1,5 +1,6 @@
-import { useId, useMemo, useState, type ReactNode } from 'react'
+import { useId, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useCanvasSize } from '@/components/geo/dot-canvas'
 import { DotGlobe } from '@/components/geo/dot-globe'
 import type { GeoMarker, Rotation } from '@/components/geo/dot-grid'
 import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
@@ -8,13 +9,13 @@ import { QueryPanel } from '@/components/terminal/query-panel'
 import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
-import { BlockBar, EmptyState, ToneText } from '@/components/terminal/text'
+import { BlockBar, EmptyState, LegendGrid, ToneText } from '@/components/terminal/text'
 import { AlertCounts } from '@/features/natural-events/components/alert-counts'
 import { quakeTone } from '@/features/earthquakes/lib/quake-terminal'
 import { useNaturalEvents } from '@/features/natural-events/api/gdacs'
 import {
   ALERT_COLOR, ALERT_TONE, alertOf, CATEGORY_GLYPH, countBy, countryCount, depthFromDescription, EVENT_CATEGORIES, eventGlyph,
-  isEventCategory, saffirSimpson, timelineAxis, timelineBuckets, type AlertLevel, type EventCategory,
+  isEventCategory, saffirSimpson, timelineAxis, timelineBuckets, timelineGrid, type AlertLevel, type EventCategory,
 } from '@/features/natural-events/lib/event-terminal'
 import type { NaturalEvent } from '@/features/natural-events/types'
 import { useNow } from '@/hooks/use-now'
@@ -26,8 +27,9 @@ const VIEWS: EventsView[] = ['globe', 'seismic', 'timeline', 'categories']
 
 const HOUR_MS = 3_600_000
 const TIMELINE_DAYS = 7
-// Desktop 56 columns of 3 h, phones 28 of 6 h: both cover the same 7 days
-const TIMELINE_GRIDS = [{ columns: 56, hours: 3, className: 'max-sm:hidden' }, { columns: 28, hours: 6, className: 'sm:hidden' }]
+const CHAR_PROBE = '0'.repeat(10)
+const COUNT_CHARS = 4
+const COUNT_GAP_PX = 8
 const ALWAYS_SHOWN_LANES: EventCategory[] = ['wildfires', 'earthquakes', 'severeStorms', 'floods']
 
 const FEED_ROWS = 11
@@ -101,34 +103,52 @@ function SeismicView({ quakes }: { quakes: NaturalEvent[] }) {
 function TimelineView({ events }: { events: NaturalEvent[] }) {
   const { t } = useTranslation()
   const now = useNow(60_000)
+  const trackRef = useRef<HTMLSpanElement>(null)
+  const probeRef = useRef<HTMLSpanElement>(null)
+  const trackWidth = useCanvasSize(trackRef).width
+  const charWidth = useCanvasSize(probeRef).width / CHAR_PROBE.length
+  // The count sits right after the dots, so it is taken out of the measured track
+  const { columns, hours } = timelineGrid(trackWidth - COUNT_CHARS * charWidth - COUNT_GAP_PX, charWidth, TIMELINE_DAYS)
+  const windowMs = columns * hours * HOUR_MS
   const lanes = EVENT_CATEGORIES.filter((category) => ALWAYS_SHOWN_LANES.includes(category) || ofCategory(events, category).length > 0)
-  const nowLabel = t('terminal.planet.now')
-  const dayLabel = (count: number) => t('terminal.planet.daysAgo', { count })
+  const inWindow = (event: NaturalEvent) => {
+    const age = now - new Date(event.date).getTime()
+    return age >= 0 && age < windowMs
+  }
 
-  return TIMELINE_GRIDS.map(({ columns, hours, className }) => (
-    <div key={columns} className={`flex flex-col gap-[12px] ${className}`}>
-      <div className="overflow-x-auto">
-        <div className="grid w-max gap-x-[12px] gap-y-[10px] whitespace-pre" style={{ gridTemplateColumns: 'auto max-content' }}>
-          {lanes.map((category) => (
-            <LaneRow key={category} category={category} buckets={timelineBuckets(ofCategory(events, category), now, columns, hours * HOUR_MS)} />
-          ))}
-          <span />
-          <span className="tracking-[2px] text-dim" aria-hidden>{timelineAxis(columns, TIMELINE_DAYS, nowLabel, dayLabel)}</span>
-        </div>
+  return (
+    <div className="flex flex-col gap-[12px]">
+      <div className="grid gap-x-[8px] gap-y-[10px] whitespace-pre sm:gap-x-[12px]" style={{ gridTemplateColumns: 'auto minmax(0,1fr)' }}>
+        {lanes.map((category) => {
+          const laneEvents = ofCategory(events, category)
+          return <LaneRow key={category} category={category} count={laneEvents.filter(inWindow).length} buckets={timelineBuckets(laneEvents, now, columns, hours * HOUR_MS)} />
+        })}
+        <span />
+        <span ref={trackRef} className="relative overflow-hidden text-dim" aria-hidden>
+          {timelineAxis(columns, hours, t('terminal.planet.now'), (count) => t('terminal.planet.daysAgo', { count }))}
+          <span ref={probeRef} className="invisible absolute left-0 inline-block">{CHAR_PROBE}</span>
+        </span>
       </div>
-      <span className="text-dim">{t('terminal.planet.events.timelineNote', { hours })}</span>
+      <LegendGrid minItem={160} className="text-dim">
+        <span>{t('terminal.planet.events.timelineNote.bucket', { hours })}</span>
+        <span>{t('terminal.planet.events.timelineNote.mark')}</span>
+        <span>{t('terminal.planet.events.timelineNote.colour')}</span>
+      </LegendGrid>
     </div>
-  ))
+  )
 }
 
-function LaneRow({ category, buckets }: { category: EventCategory; buckets: (AlertLevel | null)[] }) {
+function LaneRow({ category, count, buckets }: { category: EventCategory; count: number; buckets: (AlertLevel | null)[] }) {
   const { t } = useTranslation()
   const name = t(`terminal.planet.events.categories.${category}`)
   return (
     <>
       <span className="text-dim">{CATEGORY_GLYPH[category]}<span className="max-sm:hidden"> {name}</span></span>
-      <span className="tracking-[2px]" role="img" aria-label={name}>
-        {buckets.map((level, index) => (level ? <ToneText key={index} tone={ALERT_TONE[level]}>●</ToneText> : <span key={index} className="text-rim">·</span>))}
+      <span className="flex min-w-0" style={{ gap: COUNT_GAP_PX }}>
+        <span className="overflow-hidden" role="img" aria-label={name}>
+          {buckets.map((level, index) => (level ? <ToneText key={index} tone={ALERT_TONE[level]}>●</ToneText> : <span key={index} className="text-rim">·</span>))}
+        </span>
+        <span className="shrink-0 text-right text-dim" style={{ width: `${COUNT_CHARS}ch` }}>{count}</span>
       </span>
     </>
   )

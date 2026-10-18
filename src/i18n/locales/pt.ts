@@ -238,7 +238,7 @@ export const pt = {
         columns: { magnitude: 'M', place: 'LOCAL', depth: 'PROF.', age: 'IDADE' },
         noQuakes: 'nenhum sismo com alerta do gdacs no momento',
         noQuakesHint: 'o gdacs só lista sismos com impacto potencial · a lista completa está em [3.2]',
-        timelineNote: '1 coluna = {{hours}} h · ● ao menos um evento iniciado · cor = alerta mais alto do intervalo',
+        timelineNote: { bucket: '1 coluna = {{hours}} h', mark: '● ao menos um evento', colour: 'cor = alerta mais alto' },
         largestFires: 'maiores incêndios ativos · área em hectares (gdacs)',
         activeStorms: 'tempestades ativas',
         noStorms: 'nenhuma tempestade tropical ativa no gdacs',
