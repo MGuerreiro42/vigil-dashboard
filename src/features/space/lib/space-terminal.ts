@@ -36,7 +36,29 @@ export function noaaTag(kind: SpaceAlert['kind']): { tag: NoaaTag; tone: Tone } 
   return { tag, tone: NOAA_TONE[tag] }
 }
 
-/** Launch Library "Go" is confirmed; TBC, TBD, Hold and the rest are not yet. */
-export const isLaunchConfirmed = (status: string) => status === 'Go'
+export type LaunchStatus = 'go' | 'tbc' | 'tbd' | 'hold' | 'inFlight' | 'success' | 'partial' | 'failure'
+
+const LAUNCH_STATUS: Record<string, { status: LaunchStatus; tone: Tone }> = {
+  Go: { status: 'go', tone: 'ok' },
+  TBC: { status: 'tbc', tone: 'warn' },
+  TBD: { status: 'tbd', tone: 'dim' },
+  Hold: { status: 'hold', tone: 'warn' },
+  'In Flight': { status: 'inFlight', tone: 'info' },
+  Success: { status: 'success', tone: 'ok' },
+  'Partial Failure': { status: 'partial', tone: 'warn' },
+  Failure: { status: 'failure', tone: 'err' },
+}
+
+/** Launch Library status abbreviation → label key and tone; an unknown status reads as "no date yet". */
+export const launchStatus = (abbrev: string) => LAUNCH_STATUS[abbrev] ?? LAUNCH_STATUS.TBD
+
+/** "144900 (2004 VG64)" → "2004 VG64", "433 Eros (A898 PA)" → "Eros": the catalogue number stays in the title. */
+export function asteroidLabel(name: string): string {
+  const numbered = /^\d+ (?:\((.+)\)|(.+?) \(.+\))$/.exec(name)
+  return numbered ? (numbered[1] ?? numbered[2]) : name
+}
+
+/** kp with two decimals in the active language: pt "3,67", en "3.67". */
+export const formatKp = (kp: number, locale: string) => kp.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export const meanDiameter = (neo: NearEarthObject) => (neo.diameterMinMeters + neo.diameterMaxMeters) / 2

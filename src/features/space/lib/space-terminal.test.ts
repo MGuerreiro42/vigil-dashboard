@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isLaunchConfirmed, kpColumn, kpTone, noaaTag } from './space-terminal'
+import { asteroidLabel, formatKp, kpColumn, kpTone, launchStatus, noaaTag } from './space-terminal'
 
 const chars = (kp: number) => kpColumn(kp).map((cell) => cell.char).join('')
 
@@ -25,7 +25,24 @@ describe('labels', () => {
     expect(noaaTag('other')).toEqual({ tag: 'summary', tone: 'dim' })
   })
 
-  it('confirms only launches with a Go status', () => {
-    expect(['Go', 'TBC', 'TBD', 'Hold'].map(isLaunchConfirmed)).toEqual([true, false, false, false])
+  it('maps every Launch Library status to a label key and tone', () => {
+    const statuses = ['Go', 'TBC', 'TBD', 'Hold', 'In Flight', 'Success', 'Partial Failure', 'Failure'].map(launchStatus)
+    expect(statuses.map((entry) => entry.status)).toEqual(['go', 'tbc', 'tbd', 'hold', 'inFlight', 'success', 'partial', 'failure'])
+    expect(statuses.map((entry) => entry.tone)).toEqual(['ok', 'warn', 'dim', 'warn', 'info', 'ok', 'warn', 'err'])
+    expect(launchStatus('Something New')).toEqual({ status: 'tbd', tone: 'dim' })
+  })
+
+  it('formats kp with the locale decimal separator', () => {
+    expect(formatKp(3.67, 'pt-BR')).toBe('3,67')
+    expect(formatKp(4, 'en-US')).toBe('4.00')
+  })
+})
+
+describe('asteroidLabel', () => {
+  it('drops the catalogue number and keeps the designation or the name', () => {
+    expect(asteroidLabel('144900 (2004 VG64)')).toBe('2004 VG64')
+    expect(asteroidLabel('433 Eros (A898 PA)')).toBe('Eros')
+    expect(asteroidLabel('2026 TX3')).toBe('2026 TX3')
+    expect(asteroidLabel('2019 GT3')).toBe('2019 GT3')
   })
 })

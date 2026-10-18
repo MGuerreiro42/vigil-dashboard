@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChartLegend } from '@/components/terminal/chart-legend'
 import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
-import { SPACE_SPAN, autoFitGrid } from '@/components/terminal/grid'
+import { SPACE_SPAN } from '@/components/terminal/grid'
 import { combineQueries } from '@/components/terminal/panel-state'
 import { QueryPanel } from '@/components/terminal/query-panel'
 import { Stat, StatLine } from '@/components/terminal/stat-line'
@@ -14,11 +14,11 @@ import { useKpIndex, useSpaceAlerts } from '@/features/space/api/space-weather'
 import { useSpaceNews } from '@/features/space/api/spaceflight-news'
 import { formatCountdown } from '@/features/space/lib/countdown'
 import { auroraLatitude, kpToScale } from '@/features/space/lib/geomagnetic'
-import { isLaunchConfirmed, kpColumn, kpTone, meanDiameter, noaaTag } from '@/features/space/lib/space-terminal'
+import { asteroidLabel, formatKp, kpColumn, kpTone, launchStatus, meanDiameter, noaaTag } from '@/features/space/lib/space-terminal'
 import type { KpReading, Launch, NearEarthObject, SpaceAlert, SpaceArticle } from '@/features/space/types'
 import { useNow } from '@/hooks/use-now'
 import { intlLocale } from '@/i18n'
-import { formatAge, formatClock, formatShortDate } from '@/lib/terminal-format'
+import { formatAge, formatClock, formatDayMonth, formatShortDate } from '@/lib/terminal-format'
 
 const LIST_LAUNCHES = 7
 const PHONE_KP_COLUMNS = 36
@@ -57,17 +57,20 @@ function LaunchesBody({ launches, updatedAt }: { launches: Launch[]; updatedAt: 
         <LaunchCountdown net={next.net} />
         <MetaLine segments={[next.rocket.toLowerCase(), next.provider && { text: next.provider.toLowerCase(), priority: 'p2' }, `${weekday} ${launchDate(next.net, locale)}`.toLowerCase(), pad && { text: pad.toLowerCase(), priority: 'p2' }]} />
       </div>
-      <DataTable columns="104px minmax(0,1fr) auto" gap="6px 12px">
+      <DataTable columns="auto minmax(0,1fr) 9ch" gap="8px 14px">
         {later.slice(0, LIST_LAUNCHES).map((launch) => {
-          const confirmed = isLaunchConfirmed(launch.status)
+          const { status, tone } = launchStatus(launch.status)
           return (
             <TableRow key={launch.id}>
-              <Cell className="text-dim">{launchDate(launch.net, locale)}</Cell>
+              <Cell className="text-dim">
+                <span className="max-sm:hidden">{launchDate(launch.net, locale)}</span>
+                <span className="sm:hidden">{formatDayMonth(new Date(launch.net), locale)} {formatClock(new Date(launch.net))}</span>
+              </Cell>
               <Cell className="flex flex-col">
                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">{launch.mission}</span>
                 <MetaLine segments={[launch.rocket, launch.provider && { text: launch.provider, priority: 'p2' }, launch.orbit && { text: launch.orbit, priority: 'p2' }]} />
               </Cell>
-              <Cell><ToneText tone={confirmed ? 'ok' : 'dim'}>{t(confirmed ? 'terminal.space.launches.go' : 'terminal.space.launches.tbc')}</ToneText></Cell>
+              <Cell><ToneText tone={tone}>{t(`terminal.space.launches.statuses.${status}`)}</ToneText></Cell>
             </TableRow>
           )
         })}
@@ -94,7 +97,7 @@ function KpGrid({ readings }: { readings: KpReading[] }) {
   const reading = cursor === null ? null : readings[cursor]
   const readout = reading && t('terminal.space.weather.readout', {
     time: launchDate(reading.time, intlLocale()),
-    kp: reading.kp.toFixed(2),
+    kp: formatKp(reading.kp, intlLocale()),
     scale: kpToScale(reading.kp),
   })
 
@@ -136,7 +139,7 @@ function SpaceWeatherBody({ readings, alerts }: { readings: KpReading[]; alerts:
     <>
       <StatLine>
         <Stat label={t('terminal.space.weather.kpNow')}>
-          <ToneText tone={kpTone(latest.kp)}>{latest.kp.toFixed(2)} {scale} {t(`terminal.space.weather.scales.${scale}`)}</ToneText>
+          <ToneText tone={kpTone(latest.kp)}>{formatKp(latest.kp, locale)} {scale} {t(`terminal.space.weather.scales.${scale}`)}</ToneText>
         </Stat>
         <span className="text-dim max-sm:hidden">{t('terminal.space.weather.aurora', { latitude: auroraLatitude(latest.kp) })}</span>
       </StatLine>
@@ -188,21 +191,32 @@ function AsteroidsBody({ objects }: { objects: NearEarthObject[] }) {
   return (
     <>
       <DataTable
-        columns="minmax(0,1fr) 80px 64px 44px"
+        columns="minmax(0,1fr) 3ch 6ch 5ch 5ch"
+        phoneColumns="minmax(0,1fr) 3ch 6ch 5ch"
         gap="2px 12px"
-        header={[{ label: t(`${columns}.object`) }, { label: t(`${columns}.distance`), right: true }, { label: t(`${columns}.diameter`), right: true }, { label: t(`${columns}.time`), right: true }]}
+        header={[
+          { label: t(`${columns}.object`) },
+          { label: '' },
+          { label: t(`${columns}.distance`), right: true },
+          { label: t(`${columns}.diameter`), right: true },
+          { label: t(`${columns}.time`), right: true, priority: 'p2' },
+        ]}
       >
         {rows.map((neo) => (
           <TableRow key={neo.id}>
-            <Cell className={neo.hazardous ? 'text-warn' : ''}>{neo.name}{neo.hazardous && ' PHA'}</Cell>
+            <Cell truncate title={neo.name}>{asteroidLabel(neo.name)}</Cell>
+            <Cell className="text-warn">{neo.hazardous && 'PHA'}</Cell>
             <Cell right>{neo.missDistanceLunar.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</Cell>
             <Cell right className={neo.hazardous ? 'text-warn' : ''}>{Math.round(meanDiameter(neo)).toLocaleString(locale)}</Cell>
-            <Cell right className="text-dim">{formatClock(new Date(neo.closestApproach))}</Cell>
+            <Cell right priority="p2" className="text-dim">{formatClock(new Date(neo.closestApproach))}</Cell>
           </TableRow>
         ))}
       </DataTable>
       {objects.length > rows.length && <span className="text-dim">{t('terminal.space.asteroids.more', { count: objects.length - rows.length })}</span>}
-      <span className="text-dim">{t('terminal.space.asteroids.footnote')}</span>
+      <LegendGrid minItem={150} gap="2px 16px" className="text-dim">
+        <span>{t('terminal.space.asteroids.footnotePha')}</span>
+        <span>{t('terminal.space.asteroids.footnoteLd')}</span>
+      </LegendGrid>
     </>
   )
 }
@@ -231,7 +245,7 @@ function SpaceNewsBody({ articles }: { articles: SpaceArticle[] }) {
   const now = useNow(60_000)
   if (!articles.length) return <EmptyState title={t('terminal.space.news.empty')} hint={t('terminal.space.news.emptyHint')} />
   return (
-    <div style={{ ...autoFitGrid(420), gap: '0 32px' }}>
+    <div className="grid gap-x-[32px] xl:grid-cols-2">
       {articles.slice(0, NEWS_ITEMS).map((article) => (
         <div key={article.id} className="flex flex-col border-t border-line-subtle py-[4px]">
           <ExternalLink href={article.url}>{article.title}</ExternalLink>
