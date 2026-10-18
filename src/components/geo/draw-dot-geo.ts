@@ -1,6 +1,7 @@
 import { geoPath, type GeoProjection } from 'd3-geo'
 import { DOT_PITCH, maskCellAt, type GeoMarker, type GeoTrackPoint, type ScreenPoint } from './dot-grid'
 import { LABEL_FONT, MARKER_FONT, type ColorResolver } from './dot-palette'
+import { layoutLabels, type LabelRequest } from './marker-labels'
 import { rainBandForIntensity, type RainBand, type RainSampler } from './rain-raster'
 import type { LandLayers } from './land-layers'
 
@@ -54,24 +55,18 @@ export interface GeoScene {
   track: GeoTrackPoint[]
   rain?: RainSampler | null
   crosshair?: ScreenPoint | null
+  /** Where the dot grid starts inside the canvas, so it sits centred */
+  offset?: ScreenPoint
 }
 
-function drawMarker(context: CanvasRenderingContext2D, x: number, y: number, marker: GeoMarker, color: string, background: string) {
+function drawGlyph(context: CanvasRenderingContext2D, x: number, y: number, glyph: string, color: string, background: string) {
   context.font = MARKER_FONT
   context.textAlign = 'center'
   context.textBaseline = 'middle'
   context.fillStyle = background
   context.fillRect(x - 5, y - 7, 10, 14)
   context.fillStyle = color
-  context.fillText(marker.glyph, x, y + 0.5)
-  if (!marker.label) return
-  context.font = LABEL_FONT
-  context.textAlign = 'left'
-  const textWidth = context.measureText(marker.label).width
-  context.fillStyle = background
-  context.fillRect(x + 8, y - 8, textWidth + 6, 16)
-  context.fillStyle = color
-  context.fillText(marker.label, x + 11, y + 0.5)
+  context.fillText(glyph, x, y + 0.5)
 }
 
 export function drawDotGeo(context: CanvasRenderingContext2D, scene: GeoScene, resolveColor: ColorResolver) {
@@ -81,6 +76,9 @@ export function drawDotGeo(context: CanvasRenderingContext2D, scene: GeoScene, r
 
   context.fillStyle = background
   context.fillRect(0, 0, scene.width, scene.height)
+  const [offsetX, offsetY] = scene.offset ?? [0, 0]
+  context.save()
+  context.translate(offsetX, offsetY)
 
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
@@ -104,11 +102,6 @@ export function drawDotGeo(context: CanvasRenderingContext2D, scene: GeoScene, r
     }
   }
 
-  if (scene.crosshair) {
-    context.fillStyle = resolveColor('--color-cross')
-    context.fillRect(0, scene.crosshair[1], scene.width, 1)
-    context.fillRect(scene.crosshair[0], 0, 1, scene.height)
-  }
 
   for (const point of scene.track) {
     if (!scene.isVisible(point.lon, point.lat)) continue
@@ -118,10 +111,34 @@ export function drawDotGeo(context: CanvasRenderingContext2D, scene: GeoScene, r
     context.fillRect(screen[0] - 1.2, screen[1] - 1.2, 2.4, 2.4)
   }
 
+  context.restore()
+
+  if (scene.crosshair) {
+    context.fillStyle = resolveColor('--color-cross')
+    context.fillRect(0, scene.crosshair[1], scene.width, 1)
+    context.fillRect(scene.crosshair[0], 0, 1, scene.height)
+  }
+
+  const labels: LabelRequest[] = []
   for (const marker of scene.markers) {
     if (!scene.isVisible(marker.lon, marker.lat)) continue
     const screen = projection([marker.lon, marker.lat])
     if (!screen) continue
-    drawMarker(context, screen[0], screen[1], marker, resolveColor(marker.color), background)
+    const x = screen[0] + offsetX
+    const y = screen[1] + offsetY
+    const color = resolveColor(marker.color)
+    drawGlyph(context, x, y, marker.glyph, color, background)
+    if (marker.label) labels.push({ x, y, text: marker.label, color, rank: marker.labelRank, pinned: marker.pinned })
+  }
+
+  // Labels go on top of every marker, each on its own background box
+  context.font = LABEL_FONT
+  context.textAlign = 'left'
+  context.textBaseline = 'middle'
+  for (const label of layoutLabels(labels, (text) => context.measureText(text).width, scene.width)) {
+    context.fillStyle = background
+    context.fillRect(label.box.left, label.box.top, label.box.width, label.box.height)
+    context.fillStyle = label.color
+    context.fillText(label.text, label.textX, label.y + 0.5)
   }
 }

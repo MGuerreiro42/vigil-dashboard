@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { createProjection, DOT_PITCH, gridSize, invertInsideWorld, nearestMarkerIndex, type BBox, type GeoMarker, type GeoTrackPoint, type ScreenPoint } from './dot-grid'
+import { createProjection, DOT_PITCH, gridOffset, gridSize, invertInsideWorld, nearestMarkerIndex, type BBox, type GeoMarker, type GeoTrackPoint, type ScreenPoint } from './dot-grid'
 import { drawDotGeo, rasterizeMask } from './draw-dot-geo'
 import { prepareCanvas, useCanvasSize } from './dot-canvas'
 import { createColorResolver } from './dot-palette'
@@ -40,6 +40,7 @@ export function DotMap({ label, markers = NO_MARKERS, track = NO_TRACK, bbox, gr
   const layers = useLandLayers()
   const [crosshair, setCrosshair] = useState<ScreenPoint | null>(null)
   const { columns, rows } = gridSize(size.width, size.height)
+  const [offsetX, offsetY] = gridOffset(size.width, size.height)
   const bboxKey = bbox?.join(',')
 
   // The mask only depends on the grid and the extent, so markers and hover redraw without re-rasterizing
@@ -58,16 +59,17 @@ export function DotMap({ label, markers = NO_MARKERS, track = NO_TRACK, bbox, gr
     if (!canvas || !geometry) return
     const context = prepareCanvas(canvas, size)
     if (!context) return
-    drawDotGeo(context, { ...size, columns, rows, ...geometry, isVisible: () => true, landColor, markers, track, rain, crosshair }, createColorResolver())
-  }, [size, columns, rows, geometry, landColor, markers, track, rain, crosshair])
+    drawDotGeo(context, { ...size, columns, rows, ...geometry, isVisible: () => true, landColor, markers, track, rain, crosshair, offset: [offsetX, offsetY] }, createColorResolver())
+  }, [size, columns, rows, offsetX, offsetY, geometry, landColor, markers, track, rain, crosshair])
 
   const inspect = (event: PointerEvent<HTMLCanvasElement>) => {
     if (!onInspect || !geometry) return
     const rect = event.currentTarget.getBoundingClientRect()
     const pointer: ScreenPoint = [event.clientX - rect.left, event.clientY - rect.top]
-    const lonLat = invertInsideWorld(geometry.projection, pointer)
+    const onGrid: ScreenPoint = [pointer[0] - offsetX, pointer[1] - offsetY]
+    const lonLat = invertInsideWorld(geometry.projection, onGrid)
     setCrosshair(lonLat && pointer)
-    onInspect(lonLat && { lon: lonLat[0], lat: lonLat[1], markerIndex: nearestMarkerIndex(markers, geometry.projection, pointer) })
+    onInspect(lonLat && { lon: lonLat[0], lat: lonLat[1], markerIndex: nearestMarkerIndex(markers, geometry.projection, onGrid) })
   }
 
   const interactive = Boolean(onInspect)
