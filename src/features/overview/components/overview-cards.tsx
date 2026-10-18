@@ -2,7 +2,7 @@ import { useMemo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { DotMap } from '@/components/geo/dot-map'
-import type { GeoMarker, GeoTrackPoint } from '@/components/geo/dot-grid'
+import type { BBox, GeoMarker, GeoTrackPoint } from '@/components/geo/dot-grid'
 import { DataTable, Cell, TableRow } from '@/components/terminal/data-table'
 import { PanelDivider } from '@/components/terminal/panel'
 import { combineQueries } from '@/components/terminal/panel-state'
@@ -13,6 +13,7 @@ import { useLiveQuote } from '@/features/crypto/hooks/use-live-quote'
 import { sortCoins } from '@/features/crypto/lib/market-math'
 import type { CryptoAsset } from '@/features/crypto/types'
 import { useEarthquakes } from '@/features/earthquakes/api/usgs'
+import { QuakeLegend } from '@/features/earthquakes/components/quake-scale'
 import { quakeGlyph, quakeTone, sortQuakes } from '@/features/earthquakes/lib/quake-terminal'
 import { useBcbSeries } from '@/features/economy/api/bcb'
 import { useFearGreed } from '@/features/economy/api/crypto-pulse'
@@ -51,6 +52,9 @@ import { useAppStore } from '@/store/app-store'
 import { useGeoStore } from '@/store/geo-store'
 
 const MAP_STYLE = { height: '180px' }
+// Contain: the width sets the height, so the whole 75°N–56°S world always fits
+const PLANET_MAP_STYLE = { aspectRatio: '2.2 / 1' }
+const PLANET_BBOX: BBox = [-180, -56, 180, 75]
 // The key never truncates; the value takes the rest and ellipsises
 const KEY_VALUES = 'max-content minmax(0,1fr)'
 const KV_GAP = '2px 16px'
@@ -212,6 +216,7 @@ export function PlanetCard({ className }: CardProps) {
       glyph: quakeGlyph(quake.magnitude),
       color: `--color-${quakeTone(quake.magnitude)}`,
       label: quake.magnitude >= LABELLED_MAGNITUDE ? quake.magnitude.toFixed(1) : null,
+      labelRank: quake.magnitude,
     }))
     return [...eventMarkers, ...quakeMarkers]
   }, [quakes.data, events.data])
@@ -221,7 +226,8 @@ export function PlanetCard({ className }: CardProps) {
       {([quakeList, eventList]) => {
         return (
           <>
-            <DotMap label={t('terminal.overview.planet.mapLabel')} markers={markers} graticule={false} style={MAP_STYLE} />
+            <DotMap label={t('terminal.overview.planet.mapLabel')} markers={markers} bbox={PLANET_BBOX} graticule={false} style={PLANET_MAP_STYLE} />
+            <QuakeLegend />
             <DataTable columns="36px minmax(0,1fr) 36px">
               {sortQuakes(quakeList, 'magnitudeDown').slice(0, TOP_ROWS).map((quake) => (
                 <TableRow key={quake.id}>
