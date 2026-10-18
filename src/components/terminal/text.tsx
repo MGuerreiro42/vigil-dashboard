@@ -48,25 +48,20 @@ export function ExternalLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
 }
 
 /**
- * Metadata line: every segment joined by " · " from 600px; below, the first two p1 segments and the
- * last of them truncates. Never wraps.
+ * Metadata line: every segment joined by " · " from 600px; below, the first two p1 segments. One inline
+ * run cut by a single ellipsis, so only the last visible segment truncates; an earlier one does only
+ * when it alone is wider than the line. Never wraps.
  */
 export function MetaLine({ segments, className = '' }: { segments: (MetaSegment | null | undefined | false)[]; className?: string }) {
   const pieces = metaPieces(segments)
   return (
-    <span className={`flex min-w-0 overflow-hidden whitespace-pre text-dim ${className}`}>
-      {pieces.map((piece, index) => {
-        const last = index === pieces.length - 1
-        // The truncating segment gives way first; the others shrink only once it is gone, so nothing overflows
-        const shrink = last ? 'shrink-[999]' : piece.phoneLast ? 'shrink max-sm:shrink-[999]' : 'shrink'
-        const fit = `min-w-0 overflow-hidden text-ellipsis ${shrink}`
-        return (
-          <span key={index} className={`${fit} ${piece.phone ? '' : 'max-sm:hidden'}`}>
-            {index > 0 && <span className={piece.phoneFirst ? 'max-sm:hidden' : ''}> · </span>}
-            {piece.text}
-          </span>
-        )
-      })}
+    <span className={`block min-w-0 overflow-hidden text-ellipsis whitespace-pre text-dim ${className}`}>
+      {pieces.map((piece, index) => (
+        <span key={index} className={piece.phone ? '' : 'max-sm:hidden'}>
+          {index > 0 && <span className={piece.phoneFirst ? 'max-sm:hidden' : ''}> · </span>}
+          {piece.text}
+        </span>
+      ))}
     </span>
   )
 }

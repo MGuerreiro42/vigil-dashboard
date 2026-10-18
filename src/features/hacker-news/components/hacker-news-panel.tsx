@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { autoFitGrid } from '@/components/terminal/grid'
 import { QueryPanel } from '@/components/terminal/query-panel'
-import { EmptyState, ExternalLink, ToneText } from '@/components/terminal/text'
+import { EmptyState, ExternalLink, MetaLine, ToneText } from '@/components/terminal/text'
 import { useHackerNewsFrontPage } from '@/features/hacker-news/api/hacker-news'
 import type { HackerNewsStory } from '@/features/hacker-news/types'
 import { useNow } from '@/hooks/use-now'
@@ -23,10 +23,13 @@ function Story({ story, rank, now }: { story: HackerNewsStory; rank: number; now
           <ExternalLink href={story.url ?? story.discussionUrl} className="text-text">{story.title}</ExternalLink>
           {story.domain && <span className="text-dim"> ({story.domain})</span>}
         </span>
-        <span className="text-dim">
-          <ToneText tone="warn">▲{story.points}</ToneText> · {story.author} · {t('terminal.tech.hn.ago', { age: formatAge(now - story.createdAt * 1000) })} ·{' '}
-          <ExternalLink href={story.discussionUrl} className="text-dim">{t('terminal.tech.hn.comments', { count: story.comments })}</ExternalLink>
-        </span>
+        {/* Phones keep the score and the discussion link */}
+        <MetaLine segments={[
+          { text: <ToneText tone="warn">▲{story.points}</ToneText>, priority: 'p1' },
+          { text: story.author, priority: 'p2' },
+          { text: t('terminal.tech.hn.ago', { age: formatAge(now - story.createdAt * 1000) }), priority: 'p2' },
+          { text: <ExternalLink href={story.discussionUrl} className="text-dim">{t('terminal.tech.hn.comments', { count: story.comments })}</ExternalLink>, priority: 'p1' },
+        ]} />
       </span>
     </div>
   )

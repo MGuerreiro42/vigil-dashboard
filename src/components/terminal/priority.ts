@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 /** p1 always shown, p2 hidden below 600px, p3 hidden below 1024px. */
 export type Priority = 'p1' | 'p2' | 'p3'
 
@@ -8,17 +10,15 @@ export const PRIORITY_CLASS: Record<Priority, string> = {
   p3: 'max-lg:hidden',
 }
 
-/** Metadata segment: plain text is p1. */
-export type MetaSegment = string | { text: string; priority: Priority }
+/** Metadata segment: plain text is p1; the object form also carries coloured text or links. */
+export type MetaSegment = string | { text: ReactNode; priority: Priority }
 
 export interface MetaPiece {
-  text: string
+  text: ReactNode
   /** Shown below 600px */
   phone: boolean
   /** First segment shown below 600px: its " · " separator is dropped there */
   phoneFirst: boolean
-  /** Last segment shown below 600px: it truncates there */
-  phoneLast: boolean
 }
 
 const PHONE_SEGMENTS = 2
@@ -27,13 +27,10 @@ const PHONE_SEGMENTS = 2
 export function metaPieces(segments: (MetaSegment | null | undefined | false)[]): MetaPiece[] {
   const present = segments.filter((segment): segment is MetaSegment => Boolean(segment))
   let phoneCount = 0
-  const pieces = present.map((segment) => {
+  return present.map((segment) => {
     const { text, priority } = typeof segment === 'string' ? { text: segment, priority: 'p1' as Priority } : segment
     const phone = priority === 'p1' && phoneCount < PHONE_SEGMENTS
     if (phone) phoneCount += 1
-    return { text, phone, phoneFirst: phone && phoneCount === 1, phoneLast: false }
+    return { text, phone, phoneFirst: phone && phoneCount === 1 }
   })
-  const lastPhone = pieces.findLastIndex((piece) => piece.phone)
-  if (lastPhone >= 0) pieces[lastPhone].phoneLast = true
-  return pieces
 }

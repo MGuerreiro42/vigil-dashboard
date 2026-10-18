@@ -263,7 +263,7 @@ function EventsSummary({ events, quakes }: { events: NaturalEvent[]; quakes: Nat
       <Stat label={t('terminal.planet.events.active')}>{events.length}</Stat>
       <Stat label={t('terminal.planet.events.countries')} priority="p2">{countryCount(events)}</Stat>
       {topCategory && <Stat label={t('terminal.planet.events.mostFrequent')} priority="p2">{t(`terminal.planet.events.categories.${topCategory as EventCategory}`)} {topCount}</Stat>}
-      <Stat label={t('terminal.planet.events.highAlert')}><AlertCounts events={events} /></Stat>
+      <Stat label={t('terminal.planet.events.highAlert')}><AlertCounts events={events} wrapOnPhones /></Stat>
       {largest && <Stat label={t('terminal.planet.events.largest')}><ToneText tone={quakeTone(largest.magnitude ?? 0)}>M{(largest.magnitude ?? 0).toFixed(1)}</ToneText> {largest.country ?? largest.title}</Stat>}
       {latest && <Stat label={t('terminal.planet.events.latest')}>{t('terminal.planet.events.latestQuake', { place: latest.country ?? latest.title })} · {age(latest.date)}</Stat>}
     </StatLine>

@@ -12,7 +12,6 @@ describe('metaPieces', () => {
     const pieces = metaPieces(['falcon 9', 'spacex', 'sex 19/10 16:41', 'slc-40'])
     expect(pieces.map((piece) => piece.text)).toEqual(['falcon 9', 'spacex', 'sex 19/10 16:41', 'slc-40'])
     expect(pieces.map((piece) => piece.phone)).toEqual([true, true, false, false])
-    expect(pieces.map((piece) => piece.phoneLast)).toEqual([false, true, false, false])
   })
 
   it('skips empty and p2 segments when choosing the phone ones', () => {
@@ -20,10 +19,9 @@ describe('metaPieces', () => {
     expect(pieces.map((piece) => piece.text)).toEqual(['spacex', 'falcon 9', 'sex 16:41', 'slc-40'])
     expect(pieces.map((piece) => piece.phone)).toEqual([false, true, true, false])
     expect(pieces.map((piece) => piece.phoneFirst)).toEqual([false, true, false, false])
-    expect(pieces.map((piece) => piece.phoneLast)).toEqual([false, false, true, false])
   })
 
-  it('marks a single segment as both first and last', () => {
-    expect(metaPieces(['wikipedia'])).toEqual([{ text: 'wikipedia', phone: true, phoneFirst: true, phoneLast: true }])
+  it('marks a single segment as the first one on phones', () => {
+    expect(metaPieces(['wikipedia'])).toEqual([{ text: 'wikipedia', phone: true, phoneFirst: true }])
   })
 })
