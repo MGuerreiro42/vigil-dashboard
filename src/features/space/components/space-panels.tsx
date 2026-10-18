@@ -213,10 +213,10 @@ function AsteroidsBody({ objects }: { objects: NearEarthObject[] }) {
         ))}
       </DataTable>
       {objects.length > rows.length && <span className="text-dim">{t('terminal.space.asteroids.more', { count: objects.length - rows.length })}</span>}
-      <LegendGrid minItem={150} gap="2px 16px" className="text-dim">
+      <span className="flex flex-wrap gap-x-[16px] gap-y-[2px] whitespace-nowrap text-dim">
         <span>{t('terminal.space.asteroids.footnotePha')}</span>
         <span>{t('terminal.space.asteroids.footnoteLd')}</span>
-      </LegendGrid>
+      </span>
     </>
   )
 }
