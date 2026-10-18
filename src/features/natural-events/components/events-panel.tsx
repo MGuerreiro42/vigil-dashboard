@@ -57,17 +57,24 @@ function EventsGlobe({ events }: { events: NaturalEvent[] }) {
     () => events.map((event) => ({ lon: event.lng, lat: event.lat, glyph: eventGlyph(event), color: ALERT_COLOR[alertOf(event)] })),
     [events],
   )
-  const legend = EVENT_CATEGORIES.map((category) => `${CATEGORY_GLYPH[category]} ${t(`terminal.planet.events.singular.${category}`)}`).join('  ')
   return (
     <>
       <div className="flex justify-center">
         <DotGlobe label={t('terminal.planet.events.globeLabel')} markers={markers} initialRotation={GLOBE_ROTATION} autoRotate className="aspect-square h-auto w-[440px] max-w-full" />
       </div>
-      <div className="flex flex-wrap justify-between gap-x-[16px] gap-y-[4px] text-dim">
-        <span className="whitespace-pre-wrap">{legend}</span>
-        <span>
-          {t('terminal.planet.events.alertLegend')} {ALERTS.map((level) => <span key={level}><AlertWord level={level} />{' '}</span>)}· {t('terminal.planet.events.dragHint')}
-        </span>
+      <div className="flex flex-col gap-[8px] max-sm:gap-[12px]">
+        <LegendGrid minItem={110} className="max-sm:grid-cols-3!">
+          {EVENT_CATEGORIES.map((category) => (
+            <span key={category}><span className="font-semibold">{CATEGORY_GLYPH[category]}</span> {t(`terminal.planet.events.singular.${category}`)}</span>
+          ))}
+        </LegendGrid>
+        <div className="flex flex-wrap justify-between gap-x-[16px] gap-y-[4px] max-sm:flex-col max-sm:gap-y-[12px]">
+          <span className="flex flex-wrap gap-x-[14px] gap-y-[4px]">
+            <span className="text-dim">{t('terminal.planet.events.alertLegend')}</span>
+            {ALERTS.map((level) => <AlertWord key={level} level={level} />)}
+          </span>
+          <span className="text-dim">{t('terminal.planet.events.dragHint')}</span>
+        </div>
       </div>
     </>
   )
@@ -129,7 +136,7 @@ function TimelineView({ events }: { events: NaturalEvent[] }) {
           <span ref={probeRef} className="invisible absolute left-0 inline-block">{CHAR_PROBE}</span>
         </span>
       </div>
-      <LegendGrid minItem={160} className="text-dim">
+      <LegendGrid minItem={180} className="text-dim">
         <span>{t('terminal.planet.events.timelineNote.bucket', { hours })}</span>
         <span>{t('terminal.planet.events.timelineNote.mark')}</span>
         <span>{t('terminal.planet.events.timelineNote.colour')}</span>
