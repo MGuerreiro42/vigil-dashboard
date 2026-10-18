@@ -190,7 +190,7 @@ function spaceInsight(input: BriefInput): BriefInsight | null {
       ...base,
       severity: latestKp.kp >= 7 ? 'critical' : 'warning',
       at: Date.parse(latestKp.time),
-      headline: text('geomagneticStorm', { kp: latestKp.kp.toFixed(2), scale: kpToScale(latestKp.kp) }),
+      headline: text('geomagneticStorm', { kp: latestKp.kp, scale: kpToScale(latestKp.kp) }),
       detail: text('geomagneticStormDetail', { latitude: auroraLatitude(latestKp.kp) }),
     }
   }
@@ -203,7 +203,7 @@ function spaceInsight(input: BriefInput): BriefInsight | null {
     at: input.launches.at,
     headline: text('launch', { name: next.mission.toLowerCase(), countdown: launchIn(Date.parse(next.net) - input.now) }),
     detail: latestKp
-      ? text('launchDetailKp', { where, kp: latestKp.kp.toFixed(2), scale: kpToScale(latestKp.kp) })
+      ? text('launchDetailKp', { where, kp: latestKp.kp, scale: kpToScale(latestKp.kp) })
       : text('launchDetail', { where }),
   }
 }

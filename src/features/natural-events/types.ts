@@ -11,9 +11,9 @@ export interface NaturalEvent {
   magnitude: number | null
   magnitudeUnit: string | null
   description: string | null
-  /** GDACS alert level (Green / Orange / Red) — undefined for EONET events */
+  /** GDACS alert level (Green / Orange / Red); undefined when the feed omits it */
   alertLevel?: 'Green' | 'Orange' | 'Red'
-  /** Country name from GDACS — undefined for EONET events */
+  /** Country name from GDACS; undefined when the feed omits it */
   country?: string
   /** GDACS storm name, e.g. CHAMPI-26 */
   eventName?: string

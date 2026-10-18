@@ -79,4 +79,11 @@ describe('brief texts', () => {
     const text = i18n.t('terminal.overview.brief.rows.airOver', { pollutant: 'NO₂', value: 42.34, city: 'são paulo', ratio: 1.69 })
     expect(text).toBe('NO₂ 42,3 µg/m³ em são paulo, 1,7× o limite da oms')
   })
+
+  it('formats kp with two decimals in the UI language', async () => {
+    await i18n.changeLanguage('pt')
+    expect(i18n.t('terminal.overview.brief.rows.geomagneticStorm', { kp: 5.33, scale: 'G1' })).toBe('tempestade geomagnética: kp 5,33 G1')
+    await i18n.changeLanguage('en')
+    expect(i18n.t('terminal.alerts.kinds.geomagnetic.title', { kp: 5, scale: 'G1' })).toBe('geomagnetic storm kp 5.00 G1')
+  })
 })

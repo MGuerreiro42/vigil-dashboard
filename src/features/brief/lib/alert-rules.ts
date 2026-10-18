@@ -59,7 +59,7 @@ export function thresholdAlerts({ now, quakes = [], air, city = '', kp = [], coi
       type: 'geomagnetic',
       severity: latestKp.kp >= 7 ? 'critical' : 'warning',
       timestamp: Date.parse(latestKp.time),
-      params: { kp: latestKp.kp.toFixed(2), scale: kpToScale(latestKp.kp), latitude: auroraLatitude(latestKp.kp) },
+      params: { kp: latestKp.kp, scale: kpToScale(latestKp.kp), latitude: auroraLatitude(latestKp.kp) },
     })
   }
 
