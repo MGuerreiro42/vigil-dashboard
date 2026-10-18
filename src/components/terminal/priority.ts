@@ -17,8 +17,6 @@ export interface MetaPiece {
   phone: boolean
   /** First segment shown below 600px: its " · " separator is dropped there */
   phoneFirst: boolean
-  /** Last segment shown below 600px: it truncates there */
-  phoneLast: boolean
 }
 
 const PHONE_SEGMENTS = 2
@@ -27,13 +25,10 @@ const PHONE_SEGMENTS = 2
 export function metaPieces(segments: (MetaSegment | null | undefined | false)[]): MetaPiece[] {
   const present = segments.filter((segment): segment is MetaSegment => Boolean(segment))
   let phoneCount = 0
-  const pieces = present.map((segment) => {
+  return present.map((segment) => {
     const { text, priority } = typeof segment === 'string' ? { text: segment, priority: 'p1' as Priority } : segment
     const phone = priority === 'p1' && phoneCount < PHONE_SEGMENTS
     if (phone) phoneCount += 1
-    return { text, phone, phoneFirst: phone && phoneCount === 1, phoneLast: false }
+    return { text, phone, phoneFirst: phone && phoneCount === 1 }
   })
-  const lastPhone = pieces.findLastIndex((piece) => piece.phone)
-  if (lastPhone >= 0) pieces[lastPhone].phoneLast = true
-  return pieces
 }
