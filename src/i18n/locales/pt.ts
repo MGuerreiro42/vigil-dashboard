@@ -236,9 +236,9 @@ export const pt = {
       },
       quakes: {
         title: 'atividade sísmica',
-        events: 'eventos',
-        largest: 'maior',
-        distribution: 'distribuição',
+        distributionNote_one: '{{count}} evento · 7 dias · maior',
+        distributionNote_other: '{{count}} eventos · 7 dias · maior',
+        barNote: 'barra = contagem',
         bands: { severe: 'severo', strong: 'forte', moderate: 'moderado', minor: 'menor' },
         sort: { label: 'ordenar sismos', recent: 'recente', magnitudeDown: 'M↓', magnitudeUp: 'M↑' },
         more_one: '+ {{count}} evento',

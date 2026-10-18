@@ -238,9 +238,9 @@ export const en: typeof pt = {
       },
       quakes: {
         title: 'seismic activity',
-        events: 'events',
-        largest: 'largest',
-        distribution: 'distribution',
+        distributionNote_one: '{{count}} event · 7 days · largest',
+        distributionNote_other: '{{count}} events · 7 days · largest',
+        barNote: 'bar = count',
         bands: { severe: 'severe', strong: 'strong', moderate: 'moderate', minor: 'minor' },
         sort: { label: 'sort quakes', recent: 'recent', magnitudeDown: 'M↓', magnitudeUp: 'M↑' },
         more_one: '+ {{count}} event',
