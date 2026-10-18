@@ -445,8 +445,8 @@ export const en: typeof pt = {
     },
     tech: {
       github: {
-        title: 'github rising',
-        meta: 'github · rising this week · {{age}}',
+        title: 'github · rising this week',
+        meta: 'github search · {{age}}',
         inList: 'in list',
         language: 'language',
         repoCount_one: '({{count}} repo)',
