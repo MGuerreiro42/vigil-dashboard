@@ -6,18 +6,17 @@ import type { GeoMarker } from '@/components/geo/dot-grid'
 import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
 import { TWO_PANE } from '@/components/terminal/grid'
 import { QueryPanel } from '@/components/terminal/query-panel'
-import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
 import { BlockBar, EmptyState, ToneText } from '@/components/terminal/text'
-import { TONE_CLASS } from '@/components/terminal/tone'
+import { QuakeDistribution, QuakeLegend } from '@/features/earthquakes/components/quake-scale'
 import { useEarthquakes } from '@/features/earthquakes/api/usgs'
 import {
-  DEPTH_RANGES, depthHistogram, formatLonLat, QUAKE_BANDS, quakeBand, quakeGlyph, quakeTone, shallowShare, shortPlace, sortQuakes, type QuakeBand, type QuakeSort,
+  DEPTH_RANGES, depthHistogram, formatLonLat, QUAKE_BANDS_DOWN, QUAKE_SCALE, quakeBandCounts, quakeGlyph, quakeTone, shallowShare, shortPlace, sortQuakes, type QuakeSort,
 } from '@/features/earthquakes/lib/quake-terminal'
 import type { Earthquake } from '@/features/earthquakes/types'
 import { useNow } from '@/hooks/use-now'
-import { formatAge, type Tone } from '@/lib/terminal-format'
+import { formatAge } from '@/lib/terminal-format'
 
 type QuakeView = 'map' | 'analysis'
 const VIEWS: QuakeView[] = ['map', 'analysis']
@@ -25,37 +24,9 @@ const SORTS: QuakeSort[] = ['recent', 'magnitudeDown', 'magnitudeUp']
 const MIN_MAGNITUDE = 2.5
 const LIST_ROWS = 16
 const PHONE_LIST_ROWS = 6
-const LABELLED_MAGNITUDE = 5.3
 const LIST_COLUMNS = '32px minmax(0,1fr) 48px 36px'
 
-const STRIP_TONE: Record<QuakeBand, Tone> = { severe: 'err', strong: 'warn', moderate: 'text', minor: 'dim' }
-const BAND_LABEL: Record<QuakeBand, string> = { minor: '< 3', moderate: '3–4.5', strong: '4.5–6', severe: '≥ 6' }
 const depthLabel = ([from, to]: readonly [number, number]) => (to === Infinity ? `> ${from} km` : `${from}–${to} km`)
-
-function QuakeSummary({ quakes }: { quakes: Earthquake[] }) {
-  const { t } = useTranslation()
-  const byMagnitude = sortQuakes(quakes, 'magnitudeDown')
-  const largest = byMagnitude[0]
-  const bandCount = (band: QuakeBand) => quakes.filter((quake) => quakeBand(quake.magnitude) === band).length
-  const bandLabel = (band: QuakeBand) => t(`terminal.planet.quakes.bands.${band}`)
-
-  return (
-    <StatLine>
-      <Stat label={t('terminal.planet.quakes.events')}>{quakes.length}</Stat>
-      <Stat label={t('terminal.planet.quakes.largest')}><ToneText tone={quakeTone(largest.magnitude)}>M{largest.magnitude.toFixed(1)} {bandLabel(quakeBand(largest.magnitude))}</ToneText></Stat>
-      {/* shortcut: the strip and run-on counts stay until the distribution table of batch 2 */}
-      <span className="max-w-full overflow-hidden whitespace-nowrap text-dim max-sm:hidden">
-        {t('terminal.planet.quakes.distribution')}{' '}
-        <span aria-hidden>{[...QUAKE_BANDS].reverse().map((band) => <ToneText key={band} tone={STRIP_TONE[band]}>{'▌'.repeat(bandCount(band))}</ToneText>)}</span>
-      </span>
-      <span className="text-dim max-sm:hidden">
-        {[...QUAKE_BANDS].reverse().map((band, index) => (
-          <span key={band}>{index > 0 && ' · '}<ToneText tone={STRIP_TONE[band]}>{bandCount(band)}</ToneText> {bandLabel(band)}</span>
-        ))}
-      </span>
-    </StatLine>
-  )
-}
 
 function QuakeList({ quakes, sort, onSort, highlightedId }: { quakes: Earthquake[]; sort: QuakeSort; onSort: (sort: QuakeSort) => void; highlightedId: string | null }) {
   const { t } = useTranslation()
@@ -95,7 +66,9 @@ function QuakeMap({ quakes, inspection, onInspect }: { quakes: Earthquake[]; ins
       lat: quake.location.lat,
       glyph: quakeGlyph(quake.magnitude),
       color: isHovered ? '--color-info' : `--color-${quakeTone(quake.magnitude)}`,
-      label: isHovered || quake.magnitude >= LABELLED_MAGNITUDE ? `${quake.magnitude.toFixed(1)} ${quake.place}` : null,
+      label: `${quake.magnitude.toFixed(1)} ${quake.place}`,
+      labelRank: quake.magnitude,
+      pinned: isHovered,
     }
   }), [ordered, hovered])
 
@@ -110,10 +83,8 @@ function QuakeMap({ quakes, inspection, onInspect }: { quakes: Earthquake[]; ins
   return (
     <>
       <DotMap label={t('terminal.planet.quakes.mapLabel')} markers={markers} onInspect={onInspect} style={{ height: 'clamp(180px, 28vw, 400px)' }} />
-      <div className="flex flex-wrap justify-between gap-x-[16px] gap-y-[4px] text-dim">
-        <span aria-live="polite">{cursorLine}</span>
-        <span className="whitespace-pre"><span className={TONE_CLASS.text}>· {'<'}3  o 3–4.5</span>  <ToneText tone="warn">O 4.5–6</ToneText>  <ToneText tone="err">@ ≥6</ToneText></span>
-      </div>
+      <span aria-live="polite" className="text-dim">{cursorLine}</span>
+      <QuakeLegend />
     </>
   )
 }
@@ -121,16 +92,17 @@ function QuakeMap({ quakes, inspection, onInspect }: { quakes: Earthquake[]; ins
 function QuakeAnalysis({ quakes }: { quakes: Earthquake[] }) {
   const { t } = useTranslation()
   const largest = sortQuakes(quakes, 'magnitudeDown')[0]
+  const bandCounts = quakeBandCounts(quakes)
   return (
     <>
       <span className="text-dim">{t('terminal.planet.quakes.magnitudeCount')}</span>
-      <DataTable columns="72px minmax(0,1fr) 40px" gap="2px 12px">
-        {QUAKE_BANDS.map((band) => {
-          const count = quakes.filter((quake) => quakeBand(quake.magnitude) === band).length
+      <DataTable columns="auto minmax(0,1fr) 40px" gap="2px 12px">
+        {QUAKE_BANDS_DOWN.map((band) => {
+          const count = bandCounts[band]
           return (
             <TableRow key={band}>
-              <Cell>{BAND_LABEL[band]}</Cell>
-              <Cell className="overflow-hidden">{count ? <BlockBar value={count} max={quakes.length} width={40} tone={STRIP_TONE[band] === 'dim' ? 'text' : STRIP_TONE[band]} /> : <span className="text-line">·</span>}</Cell>
+              <Cell className="whitespace-nowrap">{t(`terminal.planet.quakes.bands.${band}`)} <span className="text-dim">{QUAKE_SCALE[band].range}</span></Cell>
+              <Cell className="overflow-hidden">{count ? <BlockBar value={count} max={quakes.length} width={40} tone={QUAKE_SCALE[band].tone} /> : <span className="text-line">·</span>}</Cell>
               <Cell right>{count}</Cell>
             </TableRow>
           )
@@ -170,7 +142,7 @@ function SeismicBody({ quakes, selection, onSelection }: { quakes: Earthquake[];
 
   return (
     <>
-      <QuakeSummary quakes={quakes} />
+      <QuakeDistribution quakes={quakes} />
       <div className={TWO_PANE}>
         <QuakeList quakes={quakes} sort={selection.sort} onSort={(sort) => onSelection({ sort })} highlightedId={view === 'map' ? highlightedId : null} />
         <div className="flex min-w-0 flex-[3_1_520px] flex-col gap-[10px]">

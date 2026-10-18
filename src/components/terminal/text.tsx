@@ -19,8 +19,8 @@ export function Level({ severity }: { severity: AlertSeverity }) {
   return <ToneText tone={LEVEL_TONE[severity]}>{t(`terminal.levels.${severity}`)}</ToneText>
 }
 
-export function BlockBar({ value, max, width, tone = 'text' }: { value: number; max: number; width: number; tone?: Tone }) {
-  return <ToneText tone={tone} className="overflow-hidden whitespace-nowrap">{blockBar(value, max, width)}</ToneText>
+export function BlockBar({ value, max, width, tone = 'text', className = '' }: { value: number; max: number; width: number; tone?: Tone; className?: string }) {
+  return <ToneText tone={tone} className={`overflow-hidden whitespace-nowrap ${className}`}>{blockBar(value, max, width)}</ToneText>
 }
 
 export function Sparkline({ values, tone = 'info' }: { values: number[]; tone?: Tone }) {
