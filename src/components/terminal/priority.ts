@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 /** p1 always shown, p2 hidden below 600px, p3 hidden below 1024px. */
 export type Priority = 'p1' | 'p2' | 'p3'
 
@@ -8,11 +10,11 @@ export const PRIORITY_CLASS: Record<Priority, string> = {
   p3: 'max-lg:hidden',
 }
 
-/** Metadata segment: plain text is p1. */
-export type MetaSegment = string | { text: string; priority: Priority }
+/** Metadata segment: plain text is p1; the object form also carries coloured text or links. */
+export type MetaSegment = string | { text: ReactNode; priority: Priority }
 
 export interface MetaPiece {
-  text: string
+  text: ReactNode
   /** Shown below 600px */
   phone: boolean
   /** First segment shown below 600px: its " · " separator is dropped there */
