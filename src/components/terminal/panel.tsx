@@ -19,7 +19,7 @@ export interface PanelProps {
   children: ReactNode
 }
 
-const LABEL = 'absolute -top-[10px] m-0 bg-bg px-[6px] font-normal leading-[1.55]'
+const LABEL = 'm-0 overflow-hidden text-ellipsis whitespace-nowrap bg-bg px-[6px] font-normal'
 
 /** Bordered box with `[n.m] title` cut into the top border and an optional meta on the right. */
 export function Panel({ id, title, meta, metaTone = 'dim', gap = 10, onOpen, className = '', children }: PanelProps) {
@@ -42,11 +42,14 @@ export function Panel({ id, title, meta, metaTone = 'dim', gap = 10, onOpen, cla
       className={`relative flex min-w-0 flex-col border border-line px-[16px] pt-[18px] pb-[14px] ${GAP_CLASS[gap]} max-sm:gap-[12px] ${onOpen ? 'cursor-pointer hover:border-rim focus-visible:bg-transparent' : ''} ${className}`}
       {...openProps}
     >
-      <h2 id={headingId} className={`${LABEL} left-[12px] text-ok`}>[{id}] {title}</h2>
-      {rightLabel && (
-        // Plain source labels make room on phones; status labels stay because they carry state
-        <span className={`${LABEL} right-[12px] ${TONE_CLASS[metaTone]} ${metaTone === 'dim' ? 'max-sm:hidden' : ''}`}>{rightLabel}</span>
-      )}
+      {/* The title keeps its width; the right label truncates before the two can touch */}
+      <div className="absolute inset-x-[12px] -top-[10px] flex gap-[12px] leading-[1.55]">
+        <h2 id={headingId} className={`${LABEL} max-w-full shrink-0 text-ok`}>[{id}] {title}</h2>
+        {rightLabel && (
+          // Plain source labels make room on phones; status labels stay because they carry state
+          <span className={`${LABEL} ml-auto min-w-0 ${TONE_CLASS[metaTone]} ${metaTone === 'dim' ? 'max-sm:hidden' : ''}`}>{rightLabel}</span>
+        )}
+      </div>
       {children}
     </section>
   )
