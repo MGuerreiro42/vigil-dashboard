@@ -305,6 +305,7 @@ export const pt = {
         play: '[espaço] reproduzir',
         pause: '[espaço] pausar',
         frames: 'quadros do radar',
+        minutesAgo: '−{{count}} min',
         mapLabel: 'radar de chuva ao redor de {{city}}',
         you: 'você · {{city}}',
         bands: { weak: 'fraca', moderate: 'moderada', strong: 'forte', extreme: 'extrema' },

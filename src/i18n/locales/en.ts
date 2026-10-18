@@ -307,6 +307,7 @@ export const en: typeof pt = {
         play: '[space] play',
         pause: '[space] pause',
         frames: 'radar frames',
+        minutesAgo: '−{{count}} min',
         mapLabel: 'rain radar around {{city}}',
         you: 'you · {{city}}',
         bands: { weak: 'light', moderate: 'moderate', strong: 'heavy', extreme: 'extreme' },
