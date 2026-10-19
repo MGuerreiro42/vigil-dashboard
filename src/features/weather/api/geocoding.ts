@@ -28,5 +28,7 @@ export function useCitySearch(query: string) {
     },
     enabled: query.length >= 2,
     staleTime: Infinity,
+    // One entry per typed term: no need to keep them all for the day
+    gcTime: 5 * 60_000,
   })
 }

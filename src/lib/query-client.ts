@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query'
+import { defaultShouldDehydrateQuery, matchQuery, QueryClient, type Query } from '@tanstack/react-query'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { removeOldestQuery, type PersistQueryClientOptions } from '@tanstack/react-query-persist-client'
 import { classifyError, HttpError, type ErrorCode } from './http'
@@ -28,6 +28,12 @@ export function retryDelay(failureCount: number, error: Error): number {
   return Math.min(BASE_DELAY_MS * 2 ** failureCount, MAX_DELAY_MS)
 }
 
+// Live positions are stale by the next reload, and a search only matters while it is typed
+const NOT_PERSISTED = [['iss', 'position'], ['iss', 'coordinates'], ['city-search']]
+
+export const shouldPersist = (query: Query) =>
+  defaultShouldDehydrateQuery(query) && !NOT_PERSISTED.some((queryKey) => matchQuery({ queryKey }, query))
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -49,6 +55,7 @@ export const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
     retry: removeOldestQuery,
   }),
   maxAge: CACHE_MAX_AGE_MS,
+  dehydrateOptions: { shouldDehydrateQuery: shouldPersist },
   // Bump when a parsed payload changes shape, so old entries are not restored into new code
   buster: '2',
 }
