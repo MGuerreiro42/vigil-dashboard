@@ -36,7 +36,7 @@ export function formatTradeUsd(value: number): string {
   return value >= 1000 ? `$${(value / 1000).toFixed(1)}K` : `$${value.toFixed(1)}`
 }
 
-const FLOW_WINDOW_MS = 60_000
+export const FLOW_WINDOW_MS = 60_000
 
 /** Quantity-weighted share of buyer-initiated trades in the last minute. */
 export function tradeFlow(trades: BinanceTrade[], now: number) {
