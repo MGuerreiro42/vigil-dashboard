@@ -4,6 +4,7 @@ import { pt } from '@/i18n/locales/pt'
 import type { CryptoAsset } from '@/features/crypto/types'
 import type { Earthquake } from '@/features/earthquakes/types'
 import type { SourceRow } from '@/lib/source-registry'
+import { thresholdAlerts } from './alert-rules'
 import { generateDailyBrief } from './generate-brief'
 
 const NOW = Date.parse('2026-10-16T18:00:00Z')
@@ -52,9 +53,9 @@ describe('generateDailyBrief', () => {
     expect(rows[0]).toMatchObject({ sourceName: 'nasa', at: NOW - 60_000, headline: { key: 'healthDegraded', params: { cause: 'rate_limited', code: ' (429)' } } })
   })
 
-  it('flags a big mover and escalates past 15%', () => {
-    expect(generateDailyBrief({ now: NOW, crypto: { data: [coin('bitcoin', 1), coin('solana', -9)], at: NOW } })[0]).toMatchObject({ severity: 'warning', headline: { key: 'cryptoMover', params: { symbol: 'SOL', change: '−9.00' } } })
-    expect(generateDailyBrief({ now: NOW, crypto: { data: [coin('solana', 16)], at: NOW } })[0].severity).toBe('critical')
+  it('flags a big mover and escalates at the alert limit', () => {
+    expect(generateDailyBrief({ now: NOW, crypto: { data: [coin('bitcoin', 1), coin('solana', -11)], at: NOW } })[0]).toMatchObject({ severity: 'warning', headline: { key: 'cryptoMover', params: { symbol: 'SOL', change: '−11.00' } } })
+    expect(generateDailyBrief({ now: NOW, crypto: { data: [coin('solana', 20)], at: NOW } })[0].severity).toBe('critical')
   })
 
   it('reports a calm week when no quake reaches M5', () => {
@@ -86,4 +87,10 @@ describe('brief texts', () => {
     await i18n.changeLanguage('en')
     expect(i18n.t('terminal.alerts.kinds.geomagnetic.title', { kp: 5, scale: 'G1' })).toBe('geomagnetic storm kp 5.00 G1')
   })
+})
+
+it('gives a quake the same severity as the alerts popover', () => {
+  const strong = quake('us9', 6.2)
+  const [row] = generateDailyBrief({ now: NOW, quakes: { data: [strong], at: NOW } })
+  expect(row.severity).toBe(thresholdAlerts({ now: NOW, quakes: [strong] })[0].severity)
 })

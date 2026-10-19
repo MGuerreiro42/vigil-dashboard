@@ -77,7 +77,7 @@ export const pt = {
       active_one: 'alertas · {{count}} ativo',
       active_other: 'alertas · {{count}} ativos',
       empty: 'nenhum alerta ativo',
-      emptyHint: 'um alerta aparece aqui quando uma fonte cruza um limiar: sismo ≥ M5, iqa ≥ 100, kp ≥ 5, variação ≥ 10% em 24 h',
+      emptyHint: 'um alerta aparece aqui quando uma fonte cruza um limiar: sismo ≥ M{{quake}}, iqa ≥ {{aqi}}, kp ≥ {{kp}}, variação ≥ {{change}}% em 24 h',
       ago: 'há {{age}}',
       kinds: {
         earthquake: { title: 'M{{magnitude}} {{place}} · {{depth}} km', body_one: '{{count}} sismo ≥ M5 em 7 dias · usgs', body_other: '{{count}} sismos ≥ M5 em 7 dias · usgs' },

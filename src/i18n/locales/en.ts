@@ -79,7 +79,7 @@ export const en: typeof pt = {
       active_one: 'alerts · {{count}} active',
       active_other: 'alerts · {{count}} active',
       empty: 'no active alerts',
-      emptyHint: 'an alert shows up here when a source crosses a threshold: quake ≥ M5, aqi ≥ 100, kp ≥ 5, 24 h change ≥ 10%',
+      emptyHint: 'an alert shows up here when a source crosses a threshold: quake ≥ M{{quake}}, aqi ≥ {{aqi}}, kp ≥ {{kp}}, 24 h change ≥ {{change}}%',
       ago: '{{age}} ago',
       kinds: {
         earthquake: { title: 'M{{magnitude}} {{place}} · {{depth}} km', body_one: '{{count}} quake ≥ M5 in 7 days · usgs', body_other: '{{count}} quakes ≥ M5 in 7 days · usgs' },

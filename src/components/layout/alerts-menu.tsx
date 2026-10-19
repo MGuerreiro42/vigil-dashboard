@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BracketButton, Level } from '@/components/terminal/text'
 import { useNow } from '@/hooks/use-now'
+import { AQI, CHANGE_PERCENT, KP, QUAKE_MAGNITUDE } from '@/lib/alert-thresholds'
 import { formatAge } from '@/lib/terminal-format'
 import { useAlertsStore, type Alert } from '@/store/alerts-store'
 
@@ -62,7 +63,7 @@ export function AlertsMenu() {
           {alerts.length === 0 ? (
             <>
               <span>{t('terminal.alerts.empty')}</span>
-              <span className="text-dim">{t('terminal.alerts.emptyHint')}</span>
+              <span className="text-dim">{t('terminal.alerts.emptyHint', { quake: QUAKE_MAGNITUDE.warning, aqi: AQI.warning, kp: KP.warning, change: CHANGE_PERCENT.warning })}</span>
             </>
           ) : (
             alerts.map((alert) => <AlertItem key={alert.id} alert={alert} onDismiss={() => dismiss(alert.id)} />)

@@ -10,6 +10,7 @@ import { formatStars, repoSummary } from '@/features/github/lib/github-terminal'
 import { auroraLatitude, kpToScale } from '@/features/space/lib/geomagnetic'
 import { conditionKey } from '@/features/weather/lib/conditions'
 import { POLLUTANT_LABEL, worstPollutant } from '@/features/weather/lib/weather-terminal'
+import { AQI, CHANGE_PERCENT, KP, QUAKE_MAGNITUDE, severityOf } from '@/lib/alert-thresholds'
 import { formatAge, formatPrice, formatSigned } from '@/lib/terminal-format'
 import type { SourceRow } from '@/lib/source-registry'
 import type { AlertSeverity } from '@/store/alerts-store'
@@ -72,16 +73,9 @@ export interface BriefInput {
 }
 
 const SEVERITY_ORDER: Record<AlertSeverity, number> = { critical: 0, warning: 1, info: 2 }
-const SIGNIFICANT_QUAKE = 5
-const CRITICAL_QUAKE = 6.5
-const MOVER_PERCENT = 8
-const CRITICAL_MOVER_PERCENT = 15
-const STORM_KP = 5
 const RAIN_PERCENT = 70
 const HEAT_CELSIUS = 35
 const COLD_CELSIUS = 5
-const UNHEALTHY_AQI = 150
-const HAZARDOUS_AQI = 300
 
 const text = (key: BriefKey, params: BriefText['params'] = {}): BriefText => ({ key, params })
 
@@ -105,7 +99,7 @@ function quakeInsight({ data: quakes }: Stamped<Earthquake[]>): BriefInsight | n
   if (!quakes.length) return null
   const strongest = quakes.reduce((top, quake) => (quake.magnitude > top.magnitude ? quake : top))
   const base = { id: 'seismic', category: 'seismic' as const, at: strongest.time, screen: 3 }
-  const significant = quakes.filter((quake) => quake.magnitude >= SIGNIFICANT_QUAKE).length
+  const significant = quakes.filter((quake) => quake.magnitude >= QUAKE_MAGNITUDE.warning).length
   if (!significant) {
     return {
       ...base,
@@ -116,7 +110,7 @@ function quakeInsight({ data: quakes }: Stamped<Earthquake[]>): BriefInsight | n
   }
   return {
     ...base,
-    severity: strongest.magnitude >= CRITICAL_QUAKE ? 'critical' : 'warning',
+    severity: severityOf(strongest.magnitude, QUAKE_MAGNITUDE) ?? 'warning',
     headline: text('quake', { magnitude: strongest.magnitude.toFixed(1), place: strongest.place }),
     detail: text('quakeDetail', { depth: Math.round(strongest.depth), count: significant }),
   }
@@ -125,11 +119,11 @@ function quakeInsight({ data: quakes }: Stamped<Earthquake[]>): BriefInsight | n
 function airInsight({ data: air, at }: Stamped<AirQuality>, city: string): BriefInsight | null {
   const worst = worstPollutant(air)
   const base = { id: 'air', category: 'air' as const, at, screen: 3, detail: text('airDetail', { aqi: air.aqi, band: air.category }) }
-  const severity: AlertSeverity = air.aqi > HAZARDOUS_AQI ? 'critical' : 'warning'
+  const severity = severityOf(air.aqi, AQI) ?? 'warning'
   if (worst.ratio > 1) {
     return { ...base, severity, headline: text('airOver', { pollutant: POLLUTANT_LABEL[worst.pollutant], value: air[worst.pollutant], city, ratio: worst.ratio }) }
   }
-  if (air.aqi > UNHEALTHY_AQI) return { ...base, severity, headline: text('airAqi', { band: air.category, city, aqi: air.aqi }) }
+  if (air.aqi >= AQI.warning) return { ...base, severity, headline: text('airAqi', { band: air.category, city, aqi: air.aqi }) }
   return null
 }
 
@@ -156,10 +150,10 @@ function cryptoInsight({ data: coins, at }: Stamped<CryptoAsset[]>): BriefInsigh
   const falling = coins.filter((coin) => coin.change24h < 0).length
   const mover = [...coins].sort((left, right) => Math.abs(right.change24h) - Math.abs(left.change24h))[0]
   const base = { id: 'crypto', category: 'crypto' as const, at, screen: 2 }
-  if (Math.abs(mover.change24h) >= MOVER_PERCENT) {
+  if (Math.abs(mover.change24h) >= CHANGE_PERCENT.warning) {
     return {
       ...base,
-      severity: Math.abs(mover.change24h) >= CRITICAL_MOVER_PERCENT ? 'critical' : 'warning',
+      severity: severityOf(Math.abs(mover.change24h), CHANGE_PERCENT) ?? 'warning',
       headline: text('cryptoMover', { symbol: mover.symbol.toUpperCase(), change: formatSigned(mover.change24h) }),
       detail: text('cryptoMoverDetail', { price: formatPrice(mover.price), falling, total: coins.length }),
     }
@@ -185,10 +179,10 @@ function launchIn(remainingMs: number): string {
 function spaceInsight(input: BriefInput): BriefInsight | null {
   const latestKp = input.kp?.data.at(-1)
   const base = { id: 'space', category: 'space' as const, screen: 4 }
-  if (latestKp && latestKp.kp >= STORM_KP) {
+  if (latestKp && latestKp.kp >= KP.warning) {
     return {
       ...base,
-      severity: latestKp.kp >= 7 ? 'critical' : 'warning',
+      severity: severityOf(latestKp.kp, KP) ?? 'warning',
       at: Date.parse(latestKp.time),
       headline: text('geomagneticStorm', { kp: latestKp.kp, scale: kpToScale(latestKp.kp) }),
       detail: text('geomagneticStormDetail', { latitude: auroraLatitude(latestKp.kp) }),
