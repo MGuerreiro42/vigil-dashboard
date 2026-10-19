@@ -120,8 +120,10 @@ function GithubBody({ repos, selection, onSelection }: { repos: GithubRepo[]; se
   const tabsId = useId()
   if (!repos.length) return <EmptyState title={t('terminal.tech.github.empty')} hint={t('terminal.tech.github.emptyHint')} />
 
-  const { language, sort, view, pickerOpen } = selection
+  const { sort, view, pickerOpen } = selection
   const languages = repoLanguages(repos)
+  // A refetch can drop every repo of the chosen language: fall back to all instead of an empty list
+  const language = languages.includes(selection.language) ? selection.language : ALL
   const listed = sortRepos(language === ALL ? repos : repos.filter((repo) => repo.language === language), sort)
   const selected = listed.find((repo) => repo.id === selection.repoId) ?? listed[0] ?? repos[0]
   const byStars = sortRepos(repos, 'starsDesc')
