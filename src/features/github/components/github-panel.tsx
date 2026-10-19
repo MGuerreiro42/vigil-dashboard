@@ -21,6 +21,8 @@ type View = 'repo' | 'languages' | 'analysis'
 const ALL = 'all'
 const LIST_COLUMNS = 'minmax(0,1fr) 88px 56px'
 const BAR_WIDTH = 40
+// What fits the ~190px bar column at 390px
+const PHONE_BAR_WIDTH = 20
 const SORTS: RepoSort[] = ['starsDesc', 'starsAsc', 'forks', 'name']
 const VIEWS: View[] = ['repo', 'languages', 'analysis']
 const PLACEHOLDER = [
@@ -71,7 +73,7 @@ function LanguagesView({ repos }: { repos: GithubRepo[] }) {
         {rows.map((row) => (
           <div key={row.language ?? ''} className="contents">
             <span className="overflow-hidden text-ellipsis whitespace-nowrap">{languageLabel(row.language)}</span>
-            <BlockBar value={row.stars} max={max} width={BAR_WIDTH} tone="land" />
+            <BlockBar value={row.stars} max={max} width={BAR_WIDTH} phoneWidth={PHONE_BAR_WIDTH} tone="land" />
             <span className="text-right">{formatStars(row.stars)}</span>
           </div>
         ))}
@@ -96,7 +98,7 @@ function AnalysisView({ repos }: { repos: GithubRepo[] }) {
         {buckets.map((bucket) => (
           <div key={bucket.label} className="contents">
             <span>{bucket.label}</span>
-            {bucket.count ? <BlockBar value={bucket.count} max={max} width={BAR_WIDTH} tone="land" /> : <span className="text-line">·</span>}
+            {bucket.count ? <BlockBar value={bucket.count} max={max} width={BAR_WIDTH} phoneWidth={PHONE_BAR_WIDTH} tone="land" /> : <span className="text-line">·</span>}
             <span className="text-right">{bucket.count}</span>
           </div>
         ))}

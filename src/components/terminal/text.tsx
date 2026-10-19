@@ -22,7 +22,16 @@ export function Level({ severity }: { severity: AlertSeverity }) {
   return <ToneText tone={LEVEL_TONE[severity]}>{t(`terminal.levels.${severity}`)}</ToneText>
 }
 
-export function BlockBar({ value, max, width, tone = 'text', className = '' }: { value: number; max: number; width: number; tone?: Tone; className?: string }) {
+/** `phoneWidth` swaps in a shorter bar below 640px, where the full one would be cut and stop comparing. */
+export function BlockBar({ value, max, width, phoneWidth, tone = 'text', className = '' }: { value: number; max: number; width: number; phoneWidth?: number; tone?: Tone; className?: string }) {
+  if (phoneWidth !== undefined) {
+    return (
+      <>
+        <BlockBar value={value} max={max} width={width} tone={tone} className={`max-sm:hidden ${className}`} />
+        <BlockBar value={value} max={max} width={phoneWidth} tone={tone} className={`sm:hidden ${className}`} />
+      </>
+    )
+  }
   return <ToneText tone={tone} className={`overflow-hidden whitespace-nowrap ${className}`}>{blockBar(value, max, width)}</ToneText>
 }
 

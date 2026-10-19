@@ -42,10 +42,7 @@ export function QuakeDistribution({ quakes }: { quakes: Earthquake[] }) {
               <span>{t(`terminal.planet.quakes.bands.${band}`)}</span>
               <span className="text-dim max-sm:hidden">{range}</span>
               <span className="min-w-0 overflow-hidden">
-                {count > 0 && <>
-                  <BlockBar value={count} max={maxCount} width={BAR_WIDTH} tone={tone} className="max-sm:hidden" />
-                  <BlockBar value={count} max={maxCount} width={PHONE_BAR_WIDTH} tone={tone} className="sm:hidden" />
-                </>}
+                {count > 0 && <BlockBar value={count} max={maxCount} width={BAR_WIDTH} phoneWidth={PHONE_BAR_WIDTH} tone={tone} />}
               </span>
               <ToneText tone={band === 'minor' ? 'text' : tone} className="text-right">{count}</ToneText>
             </div>
