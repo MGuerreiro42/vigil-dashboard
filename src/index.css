@@ -35,6 +35,8 @@
   --text-greet: 22px;
   --text-price: 24px;
   --text-count: 28px;
+  /* Minimum tap target on phones */
+  --spacing-touch: 44px;
   --text-count--line-height: 1.2;
 
   --breakpoint-sm: 600px;

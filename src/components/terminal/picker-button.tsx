@@ -10,7 +10,7 @@ export function PickerButton({ open, onToggle, controls, children }: { open: boo
       aria-expanded={open}
       aria-controls={controls}
       onClick={onToggle}
-      className="flex min-h-[44px] flex-[1_1_100%] items-center justify-between gap-[12px] border border-line px-[12px]"
+      className="flex min-h-touch flex-[1_1_100%] items-center justify-between gap-[12px] border border-line px-[12px]"
     >
       <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{children}</span>
       <span className="text-ok">{t(open ? 'terminal.picker.close' : 'terminal.picker.change')}</span>

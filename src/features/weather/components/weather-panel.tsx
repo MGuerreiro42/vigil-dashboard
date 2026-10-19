@@ -98,7 +98,7 @@ function CitySearch() {
                   onPointerDown={(event) => event.preventDefault()}
                   onClick={() => choose(place)}
                   onMouseEnter={() => setActiveIndex(index)}
-                  className={`flex min-h-[32px] cursor-pointer items-center justify-between gap-[12px] ${index === activeIndex ? 'bg-row-selected' : ''}`}
+                  className={`flex min-h-[32px] max-sm:min-h-touch cursor-pointer items-center justify-between gap-[12px] ${index === activeIndex ? 'bg-row-selected' : ''}`}
                 >
                   <span>{place.name}</span>
                   <span className="min-w-0 truncate text-dim">{place.region}</span>

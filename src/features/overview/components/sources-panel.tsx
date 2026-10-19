@@ -57,9 +57,9 @@ export function SourcesPanel({ rows, className }: { rows: SourceRow[]; className
           )
         })}
       </div>
-      <div className="flex min-h-[32px] items-center justify-between gap-[12px] sm:hidden">
+      <div className="flex min-h-touch items-center justify-between gap-[12px] sm:hidden">
         <span><ToneText tone="ok">●</ToneText> {t('terminal.overview.sources.okCount', { count: counts.ok })}</span>
-        <BracketButton aria-expanded={expanded} className="min-h-[32px]" onClick={() => setExpanded(!expanded)}>
+        <BracketButton aria-expanded={expanded} className="min-h-touch" onClick={() => setExpanded(!expanded)}>
           {expanded ? t('terminal.overview.sources.collapse') : t('terminal.overview.sources.showAll', { count: rows.length })}
         </BracketButton>
       </div>
