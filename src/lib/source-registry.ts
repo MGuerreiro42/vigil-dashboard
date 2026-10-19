@@ -73,8 +73,10 @@ function streamRow(entry: SourceEntry, stream: StreamHealth | undefined, now: nu
 export function sourceRow(entry: SourceEntry, records: (SourceHealth | undefined)[], stream: StreamHealth | undefined, cache: CacheState, now: number): SourceRow {
   if (entry.stream) return streamRow(entry, stream, now)
   const known = records.filter((record): record is SourceHealth => record !== undefined)
-  const failing = known.filter((record) => record.lastFailure !== null).sort((left, right) => (right.lastFailureAt ?? 0) - (left.lastFailureAt ?? 0))[0]
+  const lastFailure = known.filter((record) => record.lastFailure !== null).sort((left, right) => (right.lastFailureAt ?? 0) - (left.lastFailureAt ?? 0))[0]
   const lastSuccess = known.filter((record) => record.lastSuccessAt !== null).sort((left, right) => (right.lastSuccessAt ?? 0) - (left.lastSuccessAt ?? 0))[0]
+  // An old failure of a rarely called endpoint (a city search) does not outweigh the source answering since
+  const failing = lastFailure && (lastFailure.lastFailureAt ?? 0) >= (lastSuccess?.lastSuccessAt ?? 0) ? lastFailure : undefined
   const updatedAt = Math.max(cache.updatedAt, lastSuccess?.lastSuccessAt ?? 0)
   const ageMs = updatedAt > 0 ? now - updatedAt : null
 

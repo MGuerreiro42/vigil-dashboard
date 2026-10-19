@@ -9,6 +9,7 @@ const quake = (magnitude: number, depth: number): Earthquake => ({
 describe('quakeBand', () => {
   it('splits at 3, 4.5 and 6', () => {
     expect([2.9, 3, 4.4, 4.5, 5.9, 6].map(quakeBand)).toEqual(['minor', 'moderate', 'moderate', 'strong', 'strong', 'severe'])
+    expect([2.94, 2.95, 5.96].map(quakeBand)).toEqual(['minor', 'moderate', 'severe'])
     expect([2, 3.2, 5, 6.9].map(quakeGlyph)).toEqual(['·', 'o', 'O', '@'])
     expect([2, 3.2, 5, 6.9].map(quakeTone)).toEqual(['dim', 'text', 'warn', 'err'])
   })

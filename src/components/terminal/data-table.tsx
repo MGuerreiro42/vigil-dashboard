@@ -68,7 +68,7 @@ export function SelectableRow({ selected, onSelect, columns, gap = '0 10px', chi
       type="button"
       aria-pressed={selected}
       onClick={onSelect}
-      className={`grid w-full items-center px-[8px] py-[3px] max-sm:min-h-[32px] hover:bg-row-selected focus-visible:bg-row-selected focus-visible:outline-offset-[-1px] ${selected ? 'bg-row-selected [&>*:first-child]:text-ok' : ''}`}
+      className={`grid w-full items-center px-[8px] py-[3px] max-sm:min-h-touch hover:bg-row-selected focus-visible:bg-row-selected focus-visible:outline-offset-[-1px] ${selected ? 'bg-row-selected [&>*:first-child]:text-ok' : ''}`}
       style={{ gridTemplateColumns: columns, gap }}
     >
       {children}

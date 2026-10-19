@@ -14,7 +14,7 @@ import { useRegionName } from '@/features/iss/lib/use-region-name'
 import { daylightShare, formatHemisphere, orbitalPeriodMinutes, propagateTrack, utcOffsetLabel, type TrackSample } from '@/features/iss/lib/iss-track'
 import type { ISSPosition, ISSTLE } from '@/features/iss/types'
 import { intlLocale } from '@/i18n'
-import { formatShortDate } from '@/lib/terminal-format'
+import { formatShortDate, type Tone } from '@/lib/terminal-format'
 
 type IssView = 'now' | 'track' | 'tle'
 const VIEWS: IssView[] = ['now', 'track', 'tle']
@@ -47,21 +47,31 @@ function NowView({ position }: { position: ISSPosition }) {
     ['subsolar', <ToneText tone="dim">{formatHemisphere(position.solarLat, 'N', 'S')} · {formatHemisphere(position.solarLng, 'E', 'W', 1)}</ToneText>],
   ]
   return (
-    <>
-      <DataTable columns="96px minmax(0,1fr)" gap="3px 12px">
-        {rows.map(([key, value]) => (
-          <TableRow key={key} priority={PHONE_HIDDEN.includes(key) ? 'p2' : 'p1'}>
-            <Cell className="text-dim">{t(`terminal.space.iss.${key}`)}</Cell>
-            <Cell>{value}</Cell>
-          </TableRow>
-        ))}
-      </DataTable>
-      <LegendGrid minItem={150}>
-        <span><ToneText className="font-semibold" tone="info">+</ToneText> iss</span>
-        <span><ToneText className="font-semibold" tone="info">·</ToneText> {t('terminal.space.iss.legendNext')}</span>
-        <span><ToneText className="font-semibold" tone="land">·</ToneText> {t('terminal.space.iss.legendLast')}</span>
-      </LegendGrid>
-    </>
+    <DataTable columns="96px minmax(0,1fr)" gap="3px 12px">
+      {rows.map(([key, value]) => (
+        <TableRow key={key} priority={PHONE_HIDDEN.includes(key) ? 'p2' : 'p1'}>
+          <Cell className="text-dim">{t(`terminal.space.iss.${key}`)}</Cell>
+          <Cell>{value}</Cell>
+        </TableRow>
+      ))}
+    </DataTable>
+  )
+}
+
+/** Matches `trackColor`: the coming track is amber in daylight and blue in the shadow. */
+function GlobeLegend() {
+  const { t } = useTranslation()
+  const next = t('terminal.space.iss.legendNext')
+  const items: [Tone, string, string][] = [
+    ['info', '+', 'iss'],
+    ['warn', '·', `${next} · ${t('terminal.space.iss.day')}`],
+    ['info', '·', `${next} · ${t('terminal.space.iss.night')}`],
+    ['land', '·', t('terminal.space.iss.legendLast')],
+  ]
+  return (
+    <LegendGrid minItem={150}>
+      {items.map(([tone, glyph, label]) => <span key={label}><ToneText className="font-semibold" tone={tone}>{glyph}</ToneText> {label}</span>)}
+    </LegendGrid>
   )
 }
 
@@ -137,7 +147,7 @@ function IssBody({ position, tle }: { position: ISSPosition; tle: ISSTLE }) {
 
   return (
     <div className={TWO_PANE}>
-      <div className="flex min-w-0 flex-[3_1_480px] justify-center">
+      <div className="flex min-w-0 flex-[3_1_480px] flex-col items-center gap-[12px]">
         <DotGlobe
           label={t('terminal.space.iss.globeLabel')}
           markers={markers}
@@ -147,6 +157,7 @@ function IssBody({ position, tle }: { position: ISSPosition; tle: ISSTLE }) {
           focus={focus}
           className="aspect-square w-[460px] max-w-full"
         />
+        <div className="w-[460px] max-w-full"><GlobeLegend /></div>
       </div>
       <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-[12px]">
         <Tabs label={t('terminal.space.iss.tabs.label')} idBase={tabsId} value={view} onChange={setView} items={VIEWS.map((id) => ({ id, label: t(`terminal.space.iss.tabs.${id}`) }))} />

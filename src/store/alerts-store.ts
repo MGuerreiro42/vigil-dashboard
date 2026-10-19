@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 export type AlertType = 'earthquake' | 'air_quality' | 'geomagnetic' | 'price_spike'
 export type AlertSeverity = 'info' | 'warning' | 'critical'
@@ -26,7 +27,10 @@ interface AlertsState {
   dismiss: (id: string) => void
 }
 
-export const useAlertsStore = create<AlertsState>((set, get) => ({
+// Ids name one quake or one coin-day, so the newest few hundred cover anything a producer could still emit
+const MAX_DISMISSED = 300
+
+export const useAlertsStore = create<AlertsState>()(persist((set, get) => ({
   alerts: [],
   unreadCount: 0,
   dismissedIds: [],
@@ -50,8 +54,13 @@ export const useAlertsStore = create<AlertsState>((set, get) => ({
       return {
         alerts: state.alerts.filter((existing) => existing.id !== id),
         unreadCount: state.unreadCount - (dismissed.read ? 0 : 1),
-        dismissedIds: [...state.dismissedIds, id],
+        dismissedIds: [...state.dismissedIds, id].slice(-MAX_DISMISSED),
       }
     })
   },
+}), {
+  name: 'vigil-dismissed-alerts',
+  storage: createJSONStorage(() => localStorage),
+  // Alerts come back from fresh data on every visit; only what the user dismissed has to survive a reload
+  partialize: (state) => ({ dismissedIds: state.dismissedIds }),
 }))

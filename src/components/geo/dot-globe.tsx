@@ -88,7 +88,8 @@ export function DotGlobe({ label, markers = NO_MARKERS, track = NO_TRACK, gratic
       role="img"
       aria-label={label}
       className={`block ${className}`}
-      style={{ cursor: 'grab', touchAction: 'none', ...style }}
+      // Vertical swipes scroll the page on phones; horizontal ones still spin the globe
+      style={{ cursor: 'grab', touchAction: 'pan-y', ...style }}
       onPointerDown={startDrag}
       onPointerMove={moveDrag}
       onPointerUp={endDrag}

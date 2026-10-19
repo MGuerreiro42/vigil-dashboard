@@ -5,9 +5,11 @@ export type QuakeBand = 'severe' | 'strong' | 'moderate' | 'minor'
 export const QUAKE_BANDS: QuakeBand[] = ['minor', 'moderate', 'strong', 'severe']
 
 export function quakeBand(magnitude: number): QuakeBand {
-  if (magnitude >= 6) return 'severe'
-  if (magnitude >= 4.5) return 'strong'
-  if (magnitude >= 3) return 'moderate'
+  // Banded as displayed (toFixed(1)), so a 2.95 shown as "3.0" is moderate like the legend says
+  const shown = Number(magnitude.toFixed(1))
+  if (shown >= 6) return 'severe'
+  if (shown >= 4.5) return 'strong'
+  if (shown >= 3) return 'moderate'
   return 'minor'
 }
 

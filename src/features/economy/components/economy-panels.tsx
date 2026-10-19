@@ -4,7 +4,7 @@ import { DotChart } from '@/components/charts/dot-chart'
 import { ChartLegend } from '@/components/terminal/chart-legend'
 import { combineQueries } from '@/components/terminal/panel-state'
 import { QueryPanel } from '@/components/terminal/query-panel'
-import { ToneText } from '@/components/terminal/text'
+import { Missing, ToneText } from '@/components/terminal/text'
 import { formatUsdCompact } from '@/features/crypto/lib/market-math'
 import { useBcbSeries } from '@/features/economy/api/bcb'
 import { useBitcoinFees, useCryptoGlobal, useFearGreed } from '@/features/economy/api/crypto-pulse'
@@ -117,16 +117,17 @@ const lastOf = (points: SeriesPoint[]) => points[points.length - 1]
 /** [2.3] Selic, IPCA and the real rate from Banco Central's SGS series. */
 export function RatesPanel() {
   const { t } = useTranslation()
-  const query = combineQueries(useBcbSeries('selic'), useBcbSeries('ipca12m'), useBcbSeries('ipcaMonthly'))
+  // The monthly IPCA is a detail: without it the panel still has Selic and the real rate
+  const query = combineQueries(useBcbSeries('selic'), useBcbSeries('ipca12m'))
+  const ipcaMonthly = useBcbSeries('ipcaMonthly').data?.at(-1)
   const locale = intlLocale()
 
   return (
     <QueryPanel id="2.3" title={t('terminal.markets.rates.title')} meta="bcb · sgs" query={query} source="bcb · sgs">
-      {([selicPoints, ipca12mPoints, ipcaMonthlyPoints]) => {
+      {([selicPoints, ipca12mPoints]) => {
         const selic = lastOf(selicPoints)
         const ipca12m = lastOf(ipca12mPoints)
-        const ipcaMonthly = lastOf(ipcaMonthlyPoints)
-        if (!selic || !ipca12m || !ipcaMonthly) return <span className="text-dim">{t('terminal.markets.rates.empty')}</span>
+        if (!selic || !ipca12m) return <span className="text-dim">{t('terminal.markets.rates.empty')}</span>
         const real = realRate(selic.value, ipca12m.value)
         const month = (point: SeriesPoint) => formatMonthYear(parseIsoDay(point.date), locale)
         return (
@@ -134,7 +135,7 @@ export function RatesPanel() {
             <KeyValues>
               <KeyValue label={t('terminal.markets.rates.selic')}><ToneText tone="warn">{formatBrazil(selic.value, 2)}%</ToneText> <ToneText tone="dim">{t('terminal.markets.rates.selicNote')}</ToneText></KeyValue>
               <KeyValue label={t('terminal.markets.rates.ipca12m')}>{formatBrazil(ipca12m.value, 2)}% <ToneText tone="dim">{month(ipca12m)}</ToneText></KeyValue>
-              <KeyValue label={t('terminal.markets.rates.ipcaMonth')}>{formatBrazil(ipcaMonthly.value, 2)}% <ToneText tone="dim">{month(ipcaMonthly)}</ToneText></KeyValue>
+              <KeyValue label={t('terminal.markets.rates.ipcaMonth')}>{ipcaMonthly ? <>{formatBrazil(ipcaMonthly.value, 2)}% <ToneText tone="dim">{month(ipcaMonthly)}</ToneText></> : <Missing />}</KeyValue>
               <KeyValue label={t('terminal.markets.rates.realRate')}><ToneText tone={changeTone(real)}>{formatBrazil(real, 2)}%</ToneText> <ToneText tone="dim">{t('terminal.markets.rates.realRateNote')}</ToneText></KeyValue>
             </KeyValues>
             {ipca12mPoints.length > 1 && <IpcaTrend points={ipca12mPoints.slice(-IPCA_MONTHS)} />}
@@ -169,11 +170,14 @@ function FearGreedTrend({ points }: { points: SeriesPoint[] }) {
 /** [2.4] Fear & Greed, total market cap, BTC dominance and mempool fees. */
 export function CryptoPulsePanel() {
   const { t } = useTranslation()
-  const query = combineQueries(useFearGreed(), useCryptoGlobal(), useBitcoinFees())
+  const query = useFearGreed()
+  // Market cap and fees come from other sources: one of them failing leaves a dash, not an empty panel
+  const global = useCryptoGlobal().data
+  const fees = useBitcoinFees().data
 
   return (
-    <QueryPanel id="2.4" title={t('terminal.markets.pulse.title')} meta="alt.me · paprika · mempool" query={query} source="alt.me · paprika · mempool">
-      {([fearGreed, global, fees]) => {
+    <QueryPanel id="2.4" title={t('terminal.markets.pulse.title')} meta="alt.me · paprika · mempool" query={query} source="alt.me">
+      {(fearGreed) => {
         const gauge = fearGreedGauge(fearGreed.value)
         const tone = fearGreedTone(fearGreed.value)
         return (
@@ -185,9 +189,9 @@ export function CryptoPulsePanel() {
                   <ToneText tone="dim">[</ToneText><ToneText tone={tone}>{gauge.filled}</ToneText><span className="text-line">{gauge.rest}</span><ToneText tone="dim">]</ToneText>
                 </span>
               </KeyValue>
-              <KeyValue label={t('terminal.markets.pulse.marketCap')}>{formatUsdCompact(global.marketCapUsd, 1)} <ToneText tone="dim">{t('terminal.markets.pulse.volume', { value: formatUsdCompact(global.volume24hUsd, 1) })}</ToneText></KeyValue>
-              <KeyValue label={t('terminal.markets.pulse.dominance')}>BTC {global.btcDominance.toFixed(1)}%</KeyValue>
-              <KeyValue label={t('terminal.markets.pulse.fee')}>{fees.fastest} sat/vB <ToneText tone="dim">{t('terminal.markets.pulse.feeNote', { halfHour: fees.halfHour, hour: fees.hour })}</ToneText></KeyValue>
+              <KeyValue label={t('terminal.markets.pulse.marketCap')}>{global ? <>{formatUsdCompact(global.marketCapUsd, 1)} <ToneText tone="dim">{t('terminal.markets.pulse.volume', { value: formatUsdCompact(global.volume24hUsd, 1) })}</ToneText></> : <Missing />}</KeyValue>
+              <KeyValue label={t('terminal.markets.pulse.dominance')}>{global ? `BTC ${global.btcDominance.toFixed(1)}%` : <Missing />}</KeyValue>
+              <KeyValue label={t('terminal.markets.pulse.fee')}>{fees ? <>{fees.fastest} sat/vB <ToneText tone="dim">{t('terminal.markets.pulse.feeNote', { halfHour: fees.halfHour, hour: fees.hour })}</ToneText></> : <Missing />}</KeyValue>
             </KeyValues>
             {fearGreed.history.length > 1 && <FearGreedTrend points={fearGreed.history} />}
           </>
