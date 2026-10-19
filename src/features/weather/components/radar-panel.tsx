@@ -160,8 +160,11 @@ function RadarBody({ allFrames }: { allFrames: RadarFrame[] }) {
               aria-pressed={index === activeIndex}
               aria-label={frameLabel(index)}
               onClick={() => selectFrame(index)}
-              className={`h-[20px] ${index === activeIndex ? 'bg-ok' : index < activeIndex ? 'bg-frame-played' : 'bg-line'}`}
-            />
+              className="flex h-touch items-center"
+            >
+              {/* The bar stays 20px; the button around it is the 44px tap target */}
+              <span className={`h-[20px] w-full ${index === activeIndex ? 'bg-ok' : index < activeIndex ? 'bg-frame-played' : 'bg-line'}`} />
+            </button>
           ))}
         </div>
         <span className="flex justify-between text-dim" aria-hidden>
