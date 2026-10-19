@@ -146,6 +146,9 @@ function TimelineView({ events }: { events: NaturalEvent[] }) {
   )
 }
 
+// ● is outside the font's subset and falls back to a system font of another width: pin every bucket to the measured 1ch
+const BUCKET = 'inline-block w-[1ch] text-center'
+
 function LaneRow({ category, count, buckets }: { category: EventCategory; count: number; buckets: (AlertLevel | null)[] }) {
   const { t } = useTranslation()
   const name = t(`terminal.planet.events.categories.${category}`)
@@ -154,7 +157,7 @@ function LaneRow({ category, count, buckets }: { category: EventCategory; count:
       <span className="text-dim">{CATEGORY_GLYPH[category]}<span className="max-sm:hidden"> {name}</span></span>
       <span className="flex min-w-0" style={{ gap: COUNT_GAP_PX }}>
         <span className="overflow-hidden" role="img" aria-label={name}>
-          {buckets.map((level, index) => (level ? <ToneText key={index} tone={ALERT_TONE[level]}>●</ToneText> : <span key={index} className="text-rim">·</span>))}
+          {buckets.map((level, index) => (level ? <ToneText key={index} tone={ALERT_TONE[level]} className={BUCKET}>●</ToneText> : <span key={index} className={`${BUCKET} text-rim`}>·</span>))}
         </span>
         <span className="shrink-0 text-right text-dim" style={{ width: `${COUNT_CHARS}ch` }}>{count}</span>
       </span>
