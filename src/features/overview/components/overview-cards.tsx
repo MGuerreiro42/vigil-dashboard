@@ -7,7 +7,7 @@ import { DataTable, Cell, TableRow } from '@/components/terminal/data-table'
 import { PanelDivider } from '@/components/terminal/panel'
 import { combineQueries } from '@/components/terminal/panel-state'
 import { QueryPanel } from '@/components/terminal/query-panel'
-import { Sparkline, ToneText } from '@/components/terminal/text'
+import { Missing, Sparkline, ToneText } from '@/components/terminal/text'
 import { useCryptoMarket } from '@/features/crypto/api/coingecko'
 import { useLiveQuote } from '@/features/crypto/hooks/use-live-quote'
 import { sortCoins } from '@/features/crypto/lib/market-math'
@@ -92,7 +92,6 @@ function KeyValue({ label, children }: { label: ReactNode; children: ReactNode }
   )
 }
 
-const Missing = () => <ToneText tone="dim">—</ToneText>
 
 // ─── [2] markets ─────────────────────────────────────────────────────────────
 

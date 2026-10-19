@@ -11,6 +11,9 @@ export function ToneText({ tone, className = '', children }: { tone: Tone; class
   return <span className={`${TONE_CLASS[tone]} ${className}`}>{children}</span>
 }
 
+/** Dim dash for a value whose source has not answered. */
+export const Missing = () => <ToneText tone="dim">—</ToneText>
+
 const LEVEL_TONE: Record<AlertSeverity, Tone> = { critical: 'err', warning: 'warn', info: 'info' }
 
 /** ERRO / AVISO / INFO. */
