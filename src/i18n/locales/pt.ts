@@ -100,6 +100,7 @@ export const pt = {
       degradedTag: '◐ DEGRADADO',
       noPrior: 'sem dados anteriores neste dispositivo',
       retryIn: 'nova tentativa em {{time}}',
+      retrying: 'tentando de novo…',
       retryNow: '[r] tentar agora',
       cachedFrom: 'exibindo cache de há {{age}}',
       streamLost: '{{source}}: conexão perdida há {{lost}} s · nova tentativa em {{retry}} s',

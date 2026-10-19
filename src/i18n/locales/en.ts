@@ -102,6 +102,7 @@ export const en: typeof pt = {
       degradedTag: '◐ DEGRADED',
       noPrior: 'no previous data on this device',
       retryIn: 'retrying in {{time}}',
+      retrying: 'retrying…',
       retryNow: '[r] retry now',
       cachedFrom: 'showing cache from {{age}} ago',
       streamLost: '{{source}}: connection lost {{lost}} s ago · retrying in {{retry}} s',

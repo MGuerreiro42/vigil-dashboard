@@ -15,6 +15,17 @@ describe('QueryPanel', () => {
   beforeEach(() => vi.useFakeTimers())
   afterEach(() => vi.useRealTimers())
 
+  it('retries once per window even when every render brings a new refetch', () => {
+    const refetch = vi.fn()
+    const failed = { isError: true, error: new Error('down'), errorUpdatedAt: Date.now(), refetch: () => refetch() }
+    const { rerender } = render(panel(failed))
+    for (let second = 0; second < 70; second += 1) {
+      rerender(panel({ ...failed, refetch: () => refetch() }))
+      act(() => vi.advanceTimersByTime(1_000))
+    }
+    expect(refetch).toHaveBeenCalledTimes(1)
+  })
+
   it('waits again instead of timing out when the data goes away', () => {
     const { rerender, container } = render(panel({ data: 1 }))
     act(() => vi.advanceTimersByTime(30_000))

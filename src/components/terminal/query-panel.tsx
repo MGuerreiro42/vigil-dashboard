@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNow } from '@/hooks/use-now'
 import { HttpError, type Failure } from '@/lib/http'
@@ -61,21 +61,27 @@ export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOL
   useEffect(() => {
     if (settled) endWait(source)
   }, [settled, source])
-  const failing = status.phase === 'error' || status.phase === 'degraded'
+  // Past the timeout but not failed yet: the query is between its own retries, and a refetch would only join them
+  const retrying = !query.isError
   // A rate-limited source may ask for a longer wait than the panel's own cadence
-  const retryAfterMs = query.error instanceof HttpError ? query.error.retryAfterMs ?? 0 : 0
-  const retryAt = (query.errorUpdatedAt || wait.since) + Math.max(retryMs, retryAfterMs)
+  const failure = query.error ?? query.failureReason
+  const retryAfterMs = failure instanceof HttpError ? failure.retryAfterMs ?? 0 : 0
+  const retryAt = query.errorUpdatedAt + Math.max(retryMs, retryAfterMs)
 
-  const { refetch } = query
+  // Read through a ref: a combined query builds a new refetch on every render, which would re-arm the timer
+  const refetchRef = useRef(query.refetch)
+  useEffect(() => { refetchRef.current = query.refetch })
   useEffect(() => {
-    if (!failing) return
-    const timer = setTimeout(() => refetch(), Math.max(0, retryAt - Date.now()))
+    if (!query.isError) return
+    const timer = setTimeout(() => refetchRef.current(), Math.max(0, retryAt - Date.now()))
     return () => clearTimeout(timer)
-  }, [failing, retryAt, refetch])
+  }, [query.isError, retryAt])
 
-  const retryLine = (
+  const retryLine = retrying ? (
+    <span className="text-dim">{t('terminal.panel.retrying')}</span>
+  ) : (
     <span className="text-dim">
-      {t('terminal.panel.retryIn', { time: formatCountdown(retryAt - now) })} · <BracketButton onClick={() => refetch()}>{t('terminal.panel.retryNow')}</BracketButton>
+      {t('terminal.panel.retryIn', { time: formatCountdown(retryAt - now) })} · <BracketButton onClick={() => query.refetch()}>{t('terminal.panel.retryNow')}</BracketButton>
     </span>
   )
 
