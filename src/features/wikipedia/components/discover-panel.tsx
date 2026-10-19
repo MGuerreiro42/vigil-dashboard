@@ -12,6 +12,7 @@ import { intlLocale } from '@/i18n'
 import { formatShortDate } from '@/lib/terminal-format'
 
 const AUTO_ADVANCE_MS = 120_000
+const HISTORY_SIZE = 50
 const LANGUAGE_ITEMS = WIKI_LANGUAGES.map((language) => ({ id: language.code, label: language.code }))
 
 /** n / p step through articles while the news screen is open. */
@@ -50,15 +51,22 @@ export function DiscoverPanel() {
   const { t, i18n } = useTranslation()
   const [language, setLanguage] = useState<WikiLangCode>(i18n.resolvedLanguage === 'en' ? 'en' : 'pt')
   // Seeds start at the clock so a reload draws a new article instead of the cached one
-  const [firstSeed] = useState(() => Date.now())
-  const [seed, setSeed] = useState(firstSeed)
+  const [seed, setSeed] = useState(() => Date.now())
   const [paused, setPaused] = useState(false)
   const query = useRandomWikipedia(language, seed)
+  // Articles already shown, so p goes back to them whatever the cache, language or a refresh did since
+  const [seen, setSeen] = useState<WikiSummary[]>([])
+  const [cursor, setCursor] = useState<number | null>(null)
+  const fresh = query.isPlaceholderData ? undefined : query.data
+  if (fresh && seen.at(-1) !== fresh) setSeen([...seen, fresh].slice(-HISTORY_SIZE))
+  const position = cursor ?? seen.length - 1
 
-  const next = () => setSeed((current) => current + 1)
-  // Earlier seeds are still cached, so going back shows the same article again
-  const previous = () => setSeed((current) => Math.max(firstSeed, current - 1))
-  const progress = useAutoAdvance(AUTO_ADVANCE_MS, `${language}-${seed}`, next, paused)
+  const next = () => {
+    if (cursor === null) setSeed((current) => current + 1)
+    else setCursor(cursor + 1 >= seen.length - 1 ? null : cursor + 1)
+  }
+  const previous = () => setCursor(Math.max(0, position - 1))
+  const progress = useAutoAdvance(AUTO_ADVANCE_MS, `${language}-${seed}-${cursor}`, next, paused)
   useDiscoverKeys(next, previous)
   const timer = discoverTimer(progress, AUTO_ADVANCE_MS)
 
@@ -70,11 +78,11 @@ export function DiscoverPanel() {
             <Tabs variant="text" label={t('terminal.news.discover.language')} items={LANGUAGE_ITEMS} value={language} onChange={setLanguage} />
             <div className="flex flex-wrap gap-x-[16px]">
               <BracketButton onClick={() => setPaused((current) => !current)}>{t(paused ? 'terminal.news.discover.resume' : 'terminal.news.discover.pause')}</BracketButton>
-              <BracketButton onClick={previous} disabled={seed === firstSeed} className="disabled:cursor-default disabled:text-dim disabled:no-underline">{t('terminal.news.discover.previous')}</BracketButton>
+              <BracketButton onClick={previous} disabled={position <= 0} className="disabled:cursor-default disabled:text-dim disabled:no-underline">{t('terminal.news.discover.previous')}</BracketButton>
               <BracketButton onClick={next}>{t('terminal.news.discover.next')}</BracketButton>
             </div>
           </div>
-          <Article article={article} />
+          <Article article={cursor === null ? article : seen[cursor]} />
           <span className="whitespace-pre text-dim max-sm:whitespace-pre-wrap">
             {paused ? t('terminal.news.discover.paused') : `${t('terminal.news.discover.nextIn', { time: timer.left })}  ${timer.bar}`}
           </span>
