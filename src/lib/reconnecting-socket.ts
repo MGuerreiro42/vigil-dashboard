@@ -1,4 +1,6 @@
 export const MAX_RECONNECT_ATTEMPTS = 5
+// After giving up, a dropped network that comes back still gets the stream again
+const GAVE_UP_RETRY_MS = 60_000
 
 /** 1·2·4·8·16 s for attempts 1 to 5; the design shows the attempt count, so no jitter. */
 export function reconnectDelay(attempt: number): number {
@@ -55,7 +57,7 @@ export function openEventSource(url: string): StreamConnection {
 
 const openWebSocket = (url: string): StreamConnection => new WebSocket(url)
 
-/** Reconnects with backoff and gives up after MAX_RECONNECT_ATTEMPTS; stays closed while the tab is hidden. */
+/** Reconnects with backoff, then once a minute after MAX_RECONNECT_ATTEMPTS; stays closed while the tab is hidden. */
 export function createReconnectingSocket(url: string, handlers: SocketHandlers, open: (url: string) => StreamConnection = openWebSocket) {
   let socket: StreamConnection | null = null
   let retry: ReturnType<typeof setTimeout> | undefined
@@ -83,7 +85,8 @@ export function createReconnectingSocket(url: string, handlers: SocketHandlers, 
       handlers.onClose?.()
       if (stopped || document.hidden) return
       if (attempt >= MAX_RECONNECT_ATTEMPTS) {
-        report('error')
+        report('error', Date.now() + GAVE_UP_RETRY_MS)
+        retry = setTimeout(restart, GAVE_UP_RETRY_MS)
         return
       }
       attempt += 1
@@ -112,8 +115,6 @@ export function createReconnectingSocket(url: string, handlers: SocketHandlers, 
   if (!document.hidden) connect()
 
   return {
-    /** Starts over after giving up, e.g. from a "retry now" action */
-    retry: restart,
     close() {
       stopped = true
       clearTimeout(retry)

@@ -100,19 +100,22 @@ describe('createReconnectingSocket', () => {
     expect(FakeSocket.instances).toHaveLength(6)
 
     latest().close()
-    expect(onStatus).toHaveBeenLastCalledWith({ state: 'error', attempt: 5, nextRetryAt: null })
-    vi.advanceTimersByTime(60_000)
+    expect(onStatus).toHaveBeenLastCalledWith({ state: 'error', attempt: 5, nextRetryAt: Date.now() + 60_000 })
+    vi.advanceTimersByTime(59_999)
     expect(FakeSocket.instances).toHaveLength(6)
   })
 
-  it('starts over on retry() after giving up', () => {
-    const socket = open({ onMessage: vi.fn() })
+  it('starts over a minute after giving up', () => {
+    open({ onMessage: vi.fn() })
     for (let attempt = 0; attempt < 6; attempt++) {
       latest().close()
       vi.advanceTimersByTime(16_000)
     }
-    socket.retry()
+    vi.advanceTimersByTime(60_000)
     expect(FakeSocket.instances).toHaveLength(7)
+    latest().close()
+    vi.advanceTimersByTime(1_000)
+    expect(FakeSocket.instances).toHaveLength(8)
   })
 
   it('stops reconnecting after close()', () => {

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MAX_RECONNECT_ATTEMPTS } from '@/lib/reconnecting-socket'
+import { formatCountdown } from '@/lib/terminal-format'
 import type { StreamHealth } from '@/store/source-health-store'
 import { Clock } from './clock'
 import { Panel, type PanelProps } from './panel'
@@ -32,7 +33,7 @@ export function StreamPanel({ stream, source, frozenNote, children, meta, metaTo
       >
         <span>
           {failed
-            ? <><ToneText tone="err">{t('terminal.panel.errorTag')}</ToneText> {source}: {t('terminal.errors.stream_lost')}</>
+            ? <><ToneText tone="err">{t('terminal.panel.errorTag')}</ToneText> {source}: {t('terminal.errors.stream_lost')} · <Clock>{(now) => t('terminal.panel.retryIn', { time: formatCountdown((stream.nextRetryAt ?? now) - now) })}</Clock></>
             : <><ToneText tone="info">↻</ToneText> <Clock>{(now) => t('terminal.panel.streamLost', { source, lost: seconds(now - (stream.lostAt ?? now)), retry: seconds((stream.nextRetryAt ?? now) - now) })}</Clock></>}
         </span>
         {frozenNote && <span className="text-dim">{frozenNote}</span>}
