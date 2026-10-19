@@ -5,6 +5,7 @@ import { DotGlobe } from '@/components/geo/dot-globe'
 import type { GeoMarker, Rotation } from '@/components/geo/dot-grid'
 import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
 import { TWO_PANE } from '@/components/terminal/grid'
+import { Clock } from '@/components/terminal/clock'
 import { QueryPanel } from '@/components/terminal/query-panel'
 import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
@@ -308,12 +309,11 @@ function EventsBody({ events, view, onView }: { events: NaturalEvent[]; view: Ev
 export function NaturalEventsPanel() {
   const { t } = useTranslation()
   const query = useNaturalEvents()
-  const now = useNow(1_000)
   // Kept here so a failed refetch, which swaps the panel frame, does not reset the tab
   const [view, setView] = useState<EventsView>('globe')
 
   return (
-    <QueryPanel id="3.1" title={t('terminal.planet.events.title')} gap={14} meta={`gdacs · ${formatAge(now - query.dataUpdatedAt)}`} query={query} source="gdacs">
+    <QueryPanel id="3.1" title={t('terminal.planet.events.title')} gap={14} meta={<Clock>{(now) => `gdacs · ${formatAge(now - query.dataUpdatedAt)}`}</Clock>} query={query} source="gdacs">
       {(events) => <EventsBody events={events} view={view} onView={setView} />}
     </QueryPanel>
   )

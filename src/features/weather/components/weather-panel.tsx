@@ -5,6 +5,7 @@ import type { ChartAxis } from '@/components/charts/draw-dot-chart'
 import { ChartLegend } from '@/components/terminal/chart-legend'
 import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
 import { PromptInput } from '@/components/terminal/prompt-input'
+import { Clock } from '@/components/terminal/clock'
 import { QueryPanel } from '@/components/terminal/query-panel'
 import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
@@ -17,7 +18,6 @@ import { useWeather } from '@/features/weather/api/open-meteo'
 import { aqiTone, POLLUTANT_LABEL, POLLUTANTS, precipTone, uvBand, uvTone, WHO_LIMITS, worstPollutant } from '@/features/weather/lib/weather-terminal'
 import { conditionLabel } from '@/features/weather/lib/conditions'
 import type { AirQuality, HourlyPoint, Place, WeatherData } from '@/features/weather/types'
-import { useNow } from '@/hooks/use-now'
 import { intlLocale } from '@/i18n'
 import { formatAge, parseIsoDay } from '@/lib/terminal-format'
 import { useGeoStore } from '@/store/geo-store'
@@ -251,11 +251,10 @@ export function WeatherPanel() {
   const coords = useGeoStore((state) => state.coords) ?? undefined
   const weather = useWeather(coords)
   const air = useAirQuality(coords)
-  const now = useNow(1_000)
   const [view, setView] = useState<WeatherView>('hourly')
 
   return (
-    <QueryPanel id="3.3" title={t('terminal.planet.weather.title')} gap={12} meta={`open-meteo · ${formatAge(now - weather.dataUpdatedAt)}`} query={weather} source="open-meteo">
+    <QueryPanel id="3.3" title={t('terminal.planet.weather.title')} gap={12} meta={<Clock>{(now) => `open-meteo · ${formatAge(now - weather.dataUpdatedAt)}`}</Clock>} query={weather} source="open-meteo">
       {(data) => (
         <>
           <CitySearch />

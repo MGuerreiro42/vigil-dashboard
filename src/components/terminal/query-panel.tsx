@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNow } from '@/hooks/use-now'
 import { HttpError, type Failure } from '@/lib/http'
 import { formatAge, formatCountdown } from '@/lib/terminal-format'
+import { Clock } from './clock'
 import { Panel, type PanelProps } from './panel'
 import { endWait, panelStatus, waitStart, type PanelQuery } from './panel-state'
 import { BracketButton, ToneText } from './text'
@@ -53,7 +54,8 @@ export function LoadingBody({ source, placeholder = DEFAULT_PLACEHOLDER, timeout
 export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOLDER, retryMs = DEFAULT_RETRY_MS, cacheNote, children, ...panel }: QueryPanelProps<Data>) {
   const { t } = useTranslation()
   const settled = query.data !== undefined || query.isError
-  const now = useNow(1_000)
+  // Only a panel still waiting needs the clock, to turn its loading into a timeout
+  const now = useNow(settled ? null : 1_000)
   const [wait, setWait] = useState(() => ({ settled, since: waitStart(source, Date.now()) }))
   // A new query key (another city) leaves the panel without data again: its wait starts over
   if (wait.settled !== settled) setWait((current) => ({ settled, since: settled ? current.since : waitStart(source, Date.now()) }))
@@ -81,7 +83,7 @@ export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOL
     <span className="text-dim">{t('terminal.panel.retrying')}</span>
   ) : (
     <span className="text-dim">
-      {t('terminal.panel.retryIn', { time: formatCountdown(retryAt - now) })} · <BracketButton onClick={() => query.refetch()}>{t('terminal.panel.retryNow')}</BracketButton>
+      <Clock>{(tick) => t('terminal.panel.retryIn', { time: formatCountdown(retryAt - tick) })}</Clock> · <BracketButton onClick={() => query.refetch()}>{t('terminal.panel.retryNow')}</BracketButton>
     </span>
   )
 
@@ -104,12 +106,12 @@ export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOL
   }
 
   if (status.phase === 'degraded') {
-    const age = formatAge(now - query.dataUpdatedAt, true)
+    const age = (tick: number) => formatAge(tick - query.dataUpdatedAt, true)
     return (
-      <Panel {...panel} gap={6} meta={t('terminal.panel.cache', { age })} metaTone="warn">
+      <Panel {...panel} gap={6} meta={<Clock>{(tick) => t('terminal.panel.cache', { age: age(tick) })}</Clock>} metaTone="warn">
         <span><ToneText tone="warn">{t('terminal.panel.degradedTag')}</ToneText> {source}: <FailureText failure={status.failure ?? UNKNOWN_FAILURE} /></span>
         {retryLine}
-        {cacheNote && <span className="text-dim">{t('terminal.panel.cachedFrom', { age })} · {cacheNote(query.data)}</span>}
+        {cacheNote && <span className="text-dim"><Clock>{(tick) => t('terminal.panel.cachedFrom', { age: age(tick) })}</Clock> · {cacheNote(query.data)}</span>}
         <div className="is-cached contents">{children(query.data)}</div>
       </Panel>
     )

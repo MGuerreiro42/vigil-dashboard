@@ -5,6 +5,7 @@ import { DotMap } from '@/components/geo/dot-map'
 import type { GeoMarker } from '@/components/geo/dot-grid'
 import { Cell, DataTable, TableRow } from '@/components/terminal/data-table'
 import { TWO_PANE } from '@/components/terminal/grid'
+import { Clock } from '@/components/terminal/clock'
 import { QueryPanel } from '@/components/terminal/query-panel'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
@@ -160,7 +161,6 @@ function SeismicBody({ quakes, selection, onSelection }: { quakes: Earthquake[];
 export function SeismicPanel() {
   const { t } = useTranslation()
   const query = useEarthquakes(MIN_MAGNITUDE)
-  const now = useNow(1_000)
   const [selection, setSelection] = useState<Selection>({ sort: 'recent', view: 'map' })
   const onSelection = (patch: Partial<Selection>) => setSelection((current) => ({ ...current, ...patch }))
 
@@ -169,7 +169,7 @@ export function SeismicPanel() {
       id="3.2"
       title={t('terminal.planet.quakes.title')}
       gap={14}
-      meta={`usgs · 7d · M≥${MIN_MAGNITUDE} · ${formatAge(now - query.dataUpdatedAt)}`}
+      meta={<Clock>{(now) => `usgs · 7d · M≥${MIN_MAGNITUDE} · ${formatAge(now - query.dataUpdatedAt)}`}</Clock>}
       query={query}
       source="usgs"
     >

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { SelectableRow } from '@/components/terminal/data-table'
 import { TWO_PANE } from '@/components/terminal/grid'
 import { PickerButton } from '@/components/terminal/picker-button'
+import { Clock } from '@/components/terminal/clock'
 import { QueryPanel } from '@/components/terminal/query-panel'
 import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
@@ -13,7 +14,6 @@ import {
   forkRatio, formatStars, meanForkRatio, median, repoLanguages, repoSummary, sortRepos, starBuckets, starsByLanguage, type RepoSort,
 } from '@/features/github/lib/github-terminal'
 import type { GithubRepo } from '@/features/github/types'
-import { useNow } from '@/hooks/use-now'
 import { formatAge } from '@/lib/terminal-format'
 
 type View = 'repo' | 'languages' | 'analysis'
@@ -196,7 +196,6 @@ function GithubBody({ repos, selection, onSelection }: { repos: GithubRepo[]; se
 export function GithubPanel() {
   const { t } = useTranslation()
   const query = useTrendingRepos()
-  const now = useNow(1_000)
   // Kept here so a failed refetch, which swaps the panel frame, does not reset the selection
   const [selection, setSelection] = useState(INITIAL_SELECTION)
   const onSelection = (patch: Partial<Selection>) => setSelection((current) => ({ ...current, ...patch }))
@@ -205,7 +204,7 @@ export function GithubPanel() {
       id="6.1"
       title={t('terminal.tech.github.title')}
       gap={14}
-      meta={t('terminal.tech.github.meta', { age: formatAge(now - query.dataUpdatedAt) })}
+      meta={<Clock>{(now) => t('terminal.tech.github.meta', { age: formatAge(now - query.dataUpdatedAt) })}</Clock>}
       query={query}
       source="github search"
       placeholder={PLACEHOLDER}
