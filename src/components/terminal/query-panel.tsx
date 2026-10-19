@@ -52,17 +52,19 @@ export function LoadingBody({ source, placeholder = DEFAULT_PLACEHOLDER, timeout
 /** Panel that renders a query's loading, error, degraded (cached) and ready states. */
 export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOLDER, retryMs = DEFAULT_RETRY_MS, cacheNote, children, ...panel }: QueryPanelProps<Data>) {
   const { t } = useTranslation()
-  const now = useNow(1_000)
-  const [waitingSince] = useState(() => waitStart(source, Date.now()))
-  const status = panelStatus(query, waitingSince, now)
   const settled = query.data !== undefined || query.isError
+  const now = useNow(1_000)
+  const [wait, setWait] = useState(() => ({ settled, since: waitStart(source, Date.now()) }))
+  // A new query key (another city) leaves the panel without data again: its wait starts over
+  if (wait.settled !== settled) setWait((current) => ({ settled, since: settled ? current.since : waitStart(source, Date.now()) }))
+  const status = panelStatus(query, wait.since, now)
   useEffect(() => {
     if (settled) endWait(source)
   }, [settled, source])
   const failing = status.phase === 'error' || status.phase === 'degraded'
   // A rate-limited source may ask for a longer wait than the panel's own cadence
   const retryAfterMs = query.error instanceof HttpError ? query.error.retryAfterMs ?? 0 : 0
-  const retryAt = (query.errorUpdatedAt || waitingSince) + Math.max(retryMs, retryAfterMs)
+  const retryAt = (query.errorUpdatedAt || wait.since) + Math.max(retryMs, retryAfterMs)
 
   const { refetch } = query
   useEffect(() => {
