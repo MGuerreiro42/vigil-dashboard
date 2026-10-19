@@ -16,9 +16,10 @@ function normalizeWeather(raw: any, coords: { lat: number; lng: number }): Weath
   const forecastDays = dailyRaw.time?.length ?? 0
 
   // 25 points so the 24 h chart spans a whole day with a label every 4 h at both ends
-  const nowIso = new Date().toISOString().slice(0, 13) // "2024-04-14T15"
+  // timezone=auto: hourly times are the city's local hour, so anchor on its current time, not the UTC clock
+  const nowHour: string = currentRaw.time?.slice(0, 13) ?? '' // "2024-04-14T15"
   const hourlyTimes: string[] = hourlyRaw.time ?? []
-  const startIdx = Math.max(0, hourlyTimes.findIndex((time: string) => time >= nowIso))
+  const startIdx = Math.max(0, hourlyTimes.findIndex((time: string) => time >= nowHour))
   const hourly: HourlyPoint[] = hourlyTimes.slice(startIdx, startIdx + 25).map((_: string, i: number) => ({
     time: hourlyTimes[startIdx + i],
     temp: hourlyRaw.temperature_2m?.[startIdx + i] ?? 0,
