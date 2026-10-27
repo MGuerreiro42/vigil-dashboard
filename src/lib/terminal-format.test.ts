@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatAge, formatCountdown, formatPrice, formatSigned } from './terminal-format'
+import { formatAge, formatCountdown, formatDayMonth, formatMonthYear, formatPrice, formatShortDate, formatSigned, parseIsoDay } from './terminal-format'
 
 describe('formatPrice', () => {
   it('picks precision by magnitude', () => {
@@ -31,5 +31,21 @@ describe('formatCountdown', () => {
     expect(formatCountdown(41_200)).toBe('00:42')
     expect(formatCountdown(552_000)).toBe('09:12')
     expect(formatCountdown(-1)).toBe('00:00')
+  })
+})
+
+describe('dates', () => {
+  const october16 = parseIsoDay('2026-10-16')
+
+  it('reads an ISO day as a local date', () => {
+    expect([october16.getFullYear(), october16.getMonth(), october16.getDate()]).toEqual([2026, 9, 16])
+  })
+
+  it('formats short dates per language', () => {
+    expect(formatShortDate(october16, 'pt-BR')).toBe('16 out')
+    expect(formatShortDate(october16, 'en-US')).toBe('Oct 16')
+    expect(formatMonthYear(october16, 'pt-BR')).toBe('out 2026')
+    expect(formatMonthYear(october16, 'en-US', true)).toBe('Oct 26')
+    expect(formatDayMonth(october16, 'pt-BR')).toBe('16/10')
   })
 })
