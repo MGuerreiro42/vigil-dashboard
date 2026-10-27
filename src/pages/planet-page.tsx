@@ -9,7 +9,7 @@ const WeatherWidget = lazy(() => import('@/features/weather/components/weather-w
 
 export function PlanetPage() {
   return (
-    <PageLayout stacked>
+    <PageLayout>
       <PageSection id="natural-events">
         <Suspense fallback={<WidgetSkeleton />}><NaturalEventsWidget isFocused /></Suspense>
       </PageSection>

@@ -10,7 +10,7 @@ const quake = {
 }
 
 beforeEach(() => {
-  useAlertsStore.setState({ alerts: [], unreadCount: 0 })
+  useAlertsStore.setState({ alerts: [], unreadCount: 0, dismissedIds: [] })
 })
 
 it('ignores an alert whose id is already listed', () => {
@@ -25,4 +25,12 @@ it('keeps alerts without an id', () => {
   addAlert(quake)
   addAlert(quake)
   expect(useAlertsStore.getState().unreadCount).toBe(2)
+})
+
+it('dismisses an alert for good', () => {
+  const { addAlert, dismiss } = useAlertsStore.getState()
+  addAlert({ ...quake, id: 'earthquake-us123' })
+  dismiss('earthquake-us123')
+  addAlert({ ...quake, id: 'earthquake-us123' })
+  expect(useAlertsStore.getState()).toMatchObject({ unreadCount: 0, alerts: [] })
 })

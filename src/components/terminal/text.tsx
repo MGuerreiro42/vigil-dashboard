@@ -1,0 +1,57 @@
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { AlertSeverity } from '@/store/alerts-store'
+import type { Tone } from '@/lib/terminal-format'
+import { blockBar, pollutantBar, sparkline } from '@/lib/text-bars'
+import { TONE_CLASS } from './tone'
+
+/** Coloured inline text: badges and levels are plain text, never a filled chip. */
+export function ToneText({ tone, className = '', children }: { tone: Tone; className?: string; children: ReactNode }) {
+  return <span className={`${TONE_CLASS[tone]} ${className}`}>{children}</span>
+}
+
+const LEVEL_TONE: Record<AlertSeverity, Tone> = { critical: 'err', warning: 'warn', info: 'info' }
+
+/** ERRO / AVISO / INFO. */
+export function Level({ severity }: { severity: AlertSeverity }) {
+  const { t } = useTranslation()
+  return <ToneText tone={LEVEL_TONE[severity]}>{t(`terminal.levels.${severity}`)}</ToneText>
+}
+
+export function BlockBar({ value, max, width, tone = 'text' }: { value: number; max: number; width: number; tone?: Tone }) {
+  return <ToneText tone={tone} className="overflow-hidden whitespace-nowrap">{blockBar(value, max, width)}</ToneText>
+}
+
+export function Sparkline({ values, tone = 'info' }: { values: number[]; tone?: Tone }) {
+  return <ToneText tone={tone} className="whitespace-nowrap">{sparkline(values)}</ToneText>
+}
+
+export function PollutantBar({ value, limit }: { value: number; limit: number }) {
+  const bar = pollutantBar(value, limit)
+  return (
+    <span className="whitespace-nowrap">
+      <ToneText tone={bar.overLimit ? 'err' : 'ok'}>{bar.filled}</ToneText>
+      <ToneText tone="dim">{bar.rest}</ToneText>
+    </span>
+  )
+}
+
+/** `[dispensar]`, `[r] tentar agora`: an inline text button. */
+export function BracketButton({ tone = 'info', className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone }) {
+  return <button type="button" className={`inline ${TONE_CLASS[tone]} hover:underline ${className}`} {...props} />
+}
+
+/** Link that opens outside the app; `↗` is part of the label, as in the design. */
+export function ExternalLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return <a target="_blank" rel="noopener noreferrer" {...props} />
+}
+
+/** "what is empty" plus "why, or when it comes back"; never just "no data". */
+export function EmptyState({ title, hint }: { title: ReactNode; hint: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-[2px]">
+      <span>{title}</span>
+      <span className="text-dim">{hint}</span>
+    </div>
+  )
+}
