@@ -38,7 +38,7 @@ import { useUpcomingLaunches } from '@/features/space/api/launches'
 import { useKpIndex } from '@/features/space/api/space-weather'
 import { formatCountdown } from '@/features/space/lib/countdown'
 import { kpToScale } from '@/features/space/lib/geomagnetic'
-import { kpTone } from '@/features/space/lib/space-terminal'
+import { formatKp, kpTone } from '@/features/space/lib/space-terminal'
 import { useAirQuality } from '@/features/weather/api/air-quality'
 import { useWeather } from '@/features/weather/api/open-meteo'
 import { conditionLabel } from '@/features/weather/lib/conditions'
@@ -308,7 +308,7 @@ function SpaceFacts() {
       </KeyValue>
       <KeyValue label="kp">
         {kp && latestKp
-          ? <><ToneText tone={kpTone(latestKp.kp)}>{latestKp.kp.toFixed(2)} {kpToScale(latestKp.kp)}</ToneText> <Sparkline values={kp.slice(-KP_SPARK_LENGTH).map((reading) => reading.kp)} tone="dim" /></>
+          ? <><ToneText tone={kpTone(latestKp.kp)}>{formatKp(latestKp.kp, intlLocale())} {kpToScale(latestKp.kp)}</ToneText> <Sparkline values={kp.slice(-KP_SPARK_LENGTH).map((reading) => reading.kp)} tone="dim" /></>
           : <Missing />}
       </KeyValue>
       <KeyValue label={t('terminal.overview.space.asteroids')}>{asteroidValue}</KeyValue>
