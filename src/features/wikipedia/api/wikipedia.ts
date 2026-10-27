@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { fetchOk } from '@/lib/http'
 import { queryKeys } from '@/lib/query-keys'
 import type { WikiSummary, WikiLangCode } from '@/features/wikipedia/types'
@@ -17,6 +17,8 @@ export function useRandomWikipedia(lang: WikiLangCode, seed: number) {
     queryKey: queryKeys.wikipedia.random(lang, seed),
     queryFn: ({ signal }) => fetchRandomArticle(lang, signal),
     staleTime: Infinity,
+    // The current article stays up while the next one loads
+    placeholderData: keepPreviousData,
     gcTime: 1000 * 60 * 30,
   })
 }

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createReconnectingSocket, reconnectDelay } from './reconnecting-socket'
+import { createReconnectingSocket, openEventSource, reconnectDelay } from './reconnecting-socket'
 
 class FakeSocket {
   static instances: FakeSocket[] = []
@@ -150,5 +150,44 @@ describe('createReconnectingSocket', () => {
     expect(FakeSocket.instances).toHaveLength(0)
     setHidden(false)
     expect(FakeSocket.instances).toHaveLength(1)
+  })
+})
+
+class FakeEventSource {
+  static instances: FakeEventSource[] = []
+  onopen: ((event: Event) => void) | null = null
+  onmessage: ((event: MessageEvent) => void) | null = null
+  onerror: ((event: Event) => void) | null = null
+  closed = false
+
+  constructor() {
+    FakeEventSource.instances.push(this)
+  }
+
+  close() {
+    this.closed = true
+  }
+}
+
+describe('openEventSource', () => {
+  beforeEach(() => {
+    FakeEventSource.instances = []
+    vi.stubGlobal('EventSource', FakeEventSource)
+  })
+
+  it('closes on error and leaves the retry to the shared backoff', () => {
+    const onStatus = vi.fn()
+    const onMessage = vi.fn()
+    handles.push(createReconnectingSocket('https://x', { onMessage, onStatus }, openEventSource))
+    const first = FakeEventSource.instances[0]
+    first.onopen?.(new Event('open'))
+    first.onmessage?.(new MessageEvent('message', { data: '{"id":1}' }))
+    expect(onMessage).toHaveBeenCalledWith({ id: 1 })
+
+    first.onerror?.(new Event('error'))
+    expect(first.closed).toBe(true)
+    expect(onStatus).toHaveBeenLastCalledWith({ state: 'reconnecting', attempt: 1, nextRetryAt: Date.now() + 1_000 })
+    vi.advanceTimersByTime(1_000)
+    expect(FakeEventSource.instances).toHaveLength(2)
   })
 })
