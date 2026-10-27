@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { countSourceStatuses, useSourceHealthStore } from '@/store/source-health-store'
 
-// Screen-specific keys (space for the radar, n/p for discover) join when those screens are built
-const KEYS = ['screen', 'tabs', 'open', 'refresh'] as const
+// Screen-specific keys (n/p for discover) join when those screens are built
+const KEYS = ['screen', 'tabs', 'open', 'refresh', 'radar'] as const
 
 function SourcesStatus() {
   const { t } = useTranslation()

@@ -75,6 +75,7 @@ export function parseGdacsEvents(collection: { features?: RawFeature[] }): Natur
         description: properties.severitydata?.severitytext.trim() || null,
         alertLevel,
         country: properties.country,
+        eventName: properties.eventname || undefined,
       } satisfies NaturalEvent
     })
 }

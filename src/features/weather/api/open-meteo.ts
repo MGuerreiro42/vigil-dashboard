@@ -15,11 +15,11 @@ function normalizeWeather(raw: any, coords: { lat: number; lng: number }): Weath
   const hourlyRaw = raw.hourly
   const forecastDays = dailyRaw.time?.length ?? 0
 
-  // Pegar as próximas 24h a partir da hora atual
+  // 25 points so the 24 h chart spans a whole day with a label every 4 h at both ends
   const nowIso = new Date().toISOString().slice(0, 13) // "2024-04-14T15"
   const hourlyTimes: string[] = hourlyRaw.time ?? []
   const startIdx = Math.max(0, hourlyTimes.findIndex((time: string) => time >= nowIso))
-  const hourly: HourlyPoint[] = hourlyTimes.slice(startIdx, startIdx + 24).map((_: string, i: number) => ({
+  const hourly: HourlyPoint[] = hourlyTimes.slice(startIdx, startIdx + 25).map((_: string, i: number) => ({
     time: hourlyTimes[startIdx + i],
     temp: hourlyRaw.temperature_2m?.[startIdx + i] ?? 0,
     precipProb: hourlyRaw.precipitation_probability?.[startIdx + i] ?? 0,

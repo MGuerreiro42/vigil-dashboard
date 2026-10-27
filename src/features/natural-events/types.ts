@@ -15,6 +15,8 @@ export interface NaturalEvent {
   alertLevel?: 'Green' | 'Orange' | 'Red'
   /** Country name from GDACS — undefined for EONET events */
   country?: string
+  /** GDACS storm name, e.g. CHAMPI-26 */
+  eventName?: string
 }
 
 export interface EonetCategory {
