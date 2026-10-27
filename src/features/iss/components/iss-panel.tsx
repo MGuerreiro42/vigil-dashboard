@@ -9,8 +9,9 @@ import { QueryPanel } from '@/components/terminal/query-panel'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
 import { ToneText } from '@/components/terminal/text'
-import { useISSCoordinates, useISSPosition, useISSTLE } from '@/features/iss/api/iss'
-import { daylightShare, formatHemisphere, issRegion, orbitalPeriodMinutes, propagateTrack, utcOffsetLabel, type TrackSample } from '@/features/iss/lib/iss-track'
+import { useISSPosition, useISSTLE } from '@/features/iss/api/iss'
+import { useRegionName } from '@/features/iss/lib/use-region-name'
+import { daylightShare, formatHemisphere, orbitalPeriodMinutes, propagateTrack, utcOffsetLabel, type TrackSample } from '@/features/iss/lib/iss-track'
 import type { ISSPosition, ISSTLE } from '@/features/iss/types'
 import { intlLocale } from '@/i18n'
 import { formatShortDate } from '@/lib/terminal-format'
@@ -21,28 +22,12 @@ const GLOBE_WINDOW_MINUTES = 46
 const GLOBE_STEP_MINUTES = 1.5
 const TABLE_STEP_MINUTES = 9
 const TABLE_ROWS = 10
-const ISO_COUNTRY = /^[A-Z]{2}$/
 
 type NowKey = 'over' | 'lat' | 'lon' | 'altitude' | 'speed' | 'footprint' | 'light' | 'subsolar'
 type ElementKey = 'inclination' | 'raan' | 'eccentricity' | 'argPerigee' | 'meanAnomaly' | 'meanMotion' | 'bstar'
 
 const trackColor = (sample: TrackSample) => (sample.minutes < 0 ? '--color-land' : sample.eclipsed ? '--color-info' : '--color-warn')
 const latLon = (lon: number, lat: number) => `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`
-
-/** Country from the coordinates lookup over land; the coarse region table over the oceans or while it loads. */
-function useRegionName(position: ISSPosition) {
-  const { t } = useTranslation()
-  const { data: coordinates } = useISSCoordinates(position)
-  const code = coordinates?.countryCode
-  if (code && ISO_COUNTRY.test(code)) {
-    try {
-      return new Intl.DisplayNames([intlLocale()], { type: 'region' }).of(code) ?? code
-    } catch {
-      return code
-    }
-  }
-  return t(`terminal.space.iss.regions.${issRegion(position.lng, position.lat)}`)
-}
 
 function NowView({ position }: { position: ISSPosition }) {
   const { t } = useTranslation()

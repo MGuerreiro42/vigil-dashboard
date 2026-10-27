@@ -9,9 +9,8 @@ import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
 import { BlockBar, EmptyState, ExternalLink } from '@/components/terminal/text'
 import { useTrendingRepos } from '@/features/github/api/github'
-import { formatStars } from '@/features/github/lib/github-format'
 import {
-  forkRatio, meanForkRatio, median, repoLanguages, repoSummary, sortRepos, starBuckets, starsByLanguage, type RepoSort,
+  forkRatio, formatStars, meanForkRatio, median, repoLanguages, repoSummary, sortRepos, starBuckets, starsByLanguage, type RepoSort,
 } from '@/features/github/lib/github-terminal'
 import type { GithubRepo } from '@/features/github/types'
 import { useNow } from '@/hooks/use-now'

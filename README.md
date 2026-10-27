@@ -8,90 +8,93 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square)
 
 ---
-<img width="1719" height="1255" alt="image" src="https://github.com/user-attachments/assets/7ae00ab8-7c9c-4083-bb29-beebf9f15b7b" />
 
 ## The Project
 
-**Vigil** aggregates data from multiple global sources into a single, compact and responsive dashboard. The core idea is to demonstrate the ability to integrate heterogeneous systems — WebSockets, polling REST APIs, XML feeds, geolocation services — while keeping the interface fluid, lightweight, and informative.
+**Vigil** aggregates data from multiple global sources into one terminal-style screen: a single monospace font, a green/red/amber/cyan palette on near-black, bordered panels labelled `[n.m]`, text bars and sparklines instead of chart libraries, and dot-matrix canvases for maps and globes. The core idea is to integrate heterogeneous systems — WebSockets, server-sent events, polling REST APIs, geolocation — while keeping the interface fast, keyboard-driven and honest about where every number comes from and how old it is.
 
-The dashboard is split into a **summary view** (home page with all widgets in miniature) and **individual pages** per data domain, where the experience expands with more detail, interactivity, and dedicated visualizations.
+Six screens, each one key away:
+
+| Key | Route | Screen |
+|---|---|---|
+| `1` | `/` | **Overview**: daily brief, source health and one card per screen |
+| `2` | `/markets` | Crypto (live prices, 7-day chart, order book, trades), FX, Brazilian rates, fear & greed |
+| `3` | `/planet` | Natural events globe, quake map, weather and air quality, rain radar |
+| `4` | `/space` | ISS globe and orbit, launches, space weather, asteroids, space news |
+| `5` | `/news` | Wikipedia headlines, live Wikipedia edits, Bluesky trends, random article |
+| `6` | `/tech` | GitHub trending repositories, Hacker News front page |
+
+`←/→` move between tabs, `enter` opens, `r` refreshes the current screen. Below 600 px the keybar turns into a bottom tab bar. The UI is translated into Portuguese and English.
 
 ---
 
 ## Features & Data Sources
 
-| Widget | Source | Type |
+| Panel | Source | Type |
 |---|---|---|
 | **Crypto** | CoinGecko (Binance REST fallback) + Binance streams | REST + WebSocket |
 | **Economy** | Frankfurter (ECB rates), Banco Central do Brasil SGS, alternative.me Fear & Greed, Coinpaprika, mempool.space | REST |
-| **ISS** | Where the ISS at | REST polling |
+| **ISS** | Where the ISS at (position, TLE), orbit propagated in the browser | REST + SGP4 |
 | **Space** | Launch Library 2, NOAA SWPC, NASA NeoWs, Spaceflight News | REST |
 | **Natural Events** | GDACS (UN/EU) event API | GeoJSON REST |
 | **Seismic** | USGS Earthquake Catalog | REST |
 | **News** | Wikimedia Feed API (headlines, most read, on this day — PT/EN) | REST |
 | **Live pulse** | Wikimedia EventStreams (every Wikipedia edit), Bluesky trending topics | SSE + REST |
 | **Weather** | Open-Meteo forecast, air quality and geocoding (city search) | REST |
-| **Rain radar** | RainViewer radar tiles on an Esri dark basemap | REST + map tiles |
+| **Rain radar** | RainViewer radar tiles, sampled into the dot map | REST + tiles |
 | **GitHub Trending** | GitHub Search API | REST |
 | **Hacker News** | HN front page via the Algolia API | REST |
 | **Wikipedia** | Wikipedia REST API | REST |
+
+### Overview
+- **Brief** — rule-based rows built from every source (quakes, air quality, weather, crypto, launches and geomagnetic storms, GitHub and HN, Wikipedia headlines, failing sources), sorted by severity, each timestamped and linking to its screen. Rows are stored as message codes plus parameters and translated on the client, so switching language needs no refetch. "since HH:MM" is the user's previous visit, kept in `localStorage`.
+- **Alerts** — thresholds watched from any screen (quake ≥ M5 in the last 24 h, AQI ≥ 100, Kp ≥ 5, 24 h change ≥ 10%) feed the `[alerts n]` popover; dismissed alerts stay dismissed.
+- **Sources** — one row per source: ok / degraded (serving cache) / error / reconnecting, latency of the last request, and data age ticking every second.
 
 ---
 
 ## Tech Stack
 
 ### Core
-- **React 19** — with `lazy()` + `Suspense` for route-based code splitting
-- **TypeScript 6** — strict typing across the codebase; zero implicit `any`
-- **Vite 8 (Rolldown)** — routes, widgets, the globe and Leaflet are split on dynamic `import()`, so each page downloads only what it renders
-- **Tailwind CSS v4** — utility-first with a design system based on CSS variables and opacity tokens
+- **React 19** — `lazy()` + `Suspense` route-based code splitting
+- **TypeScript 6** — strict typing; raw API payloads are typed at the boundary
+- **Vite 8 (Rolldown)** — every screen is its own chunk
+- **Tailwind CSS v4** — design tokens (colors, type sizes, breakpoints) in `@theme`; no radius, shadow or gradient anywhere
 
 ### State & Data
-- **TanStack Query v5** — server cache, stale-while-revalidate, automatic retry and request deduplication
-- **Zustand v5** — minimal global state for: selected crypto IDs, Binance tickers (WebSocket), geolocation, alerts, and preferences
-- **Separation of concerns**: each data domain lives in `src/features/<domain>/` with its own API module, types and components
+- **TanStack Query v5** — server cache, stale-while-revalidate, retries and request deduplication
+- **Persisted cache** — `@tanstack/react-query-persist-client` keeps the query cache in `localStorage`, so a failing source shows "cache from 3 h ago" in dim text instead of an empty panel, even after a reload
+- **Source health** — `fetchOk` times every request and records successes and failures (HTTP status, timeout, network) in a Zustand store; a source registry maps each source to its requests and query keys for the [1.2] panel, the brief and the keybar status
+- **Zustand v5** — Binance tickers, stream status, source health, geolocation and alerts
+- Each data domain lives in `src/features/<domain>/` with its API module, types, pure helpers and panels
 
 ### Real-Time Communication
-- **Binance WebSocket** (`wss://stream.binance.com`) — real-time mini-ticker for crypto prices, with a Zustand store as buffer. Shared by the dashboard and `/crypto`, reconnects with exponential backoff and closes while the tab is hidden
-- **Price flash** — each crypto row detects the direction of change (`up/down`) and applies a transient color for 500ms using `useRef` + `useEffect`
-
-### Routing
-- **React Router v7** — lazy routes with `Suspense`, every page is an independent chunk
-- Pattern: dashboard as global summary → dedicated pages per domain (`/crypto`, `/iss`, `/earthquakes`, etc.)
+- **Binance WebSocket** — live mini-ticker for the ticker strip, overview and markets, plus per-coin depth and trade streams
+- **Wikimedia EventStreams (SSE)** — every Wikipedia edit, summarised per second
+- Both share one reconnecting helper: backoff 1·2·4·8·16 s, an error state after 5 failed attempts, frozen values shown in dim while reconnecting, and closed while the tab is hidden
 
 ### Visualizations
-- **react-globe.gl** — 3D WebGL globe for ISS tracking with trajectory trail
-- **Recharts** — area charts (sparklines, 7-day history) and order book depth
-- **Leaflet + react-leaflet** — interactive maps for seismic and natural events
-- **Native Canvas** — animated background particles via `requestAnimationFrame` with no extra dependency
+- **Dot-matrix maps and globes** on `<canvas>` with **d3-geo** projections and the **world-atlas** land topology: the land mask is rasterized once per size, then drawn as 4 px dots with glyph markers, tracks and crosshair hit-testing
+- **Dotted line charts** on canvas with a hover/tap cursor readout
+- **satellite.js** — SGP4 propagation of the ISS TLE for the past and future ground track and its day/night segments
+- **Text bars and sparklines** (`█`, `▁▂▃▄▅▆▇█`) for histograms, gauges and trends
+- Canvases redraw only while on screen and the tab is visible; `prefers-reduced-motion` stops globe rotation and the cursor blink
 
 ### CORS
-- Every source is called directly from the browser: each one was checked for `Access-Control-Allow-Origin`, so no proxy or backend is needed (GDACS moved from its RSS feed, which needed a proxy, to its CORS-enabled GeoJSON API)
+- Every source is called directly from the browser: each one was checked for `Access-Control-Allow-Origin`, so no proxy or backend is needed
 
 ---
 
 ## Architecture Decisions
 
-### Widget Shell
-All widgets share a `WidgetShell` that encapsulates: header with title/icon, LIVE indicator, loading/error state with retry, and a navigation link to the dedicated page. This ensures visual consistency and avoids duplicating UI state logic.
+### One panel, five states
+Every data panel goes through `QueryPanel` (REST) or `StreamPanel` (WebSocket/SSE): loading draws rim-coloured dots shaped like the table to come and turns into an error after 10 s; an error names its cause (HTTP status, timeout, network) with a retry countdown; a failure with cached data shows the cache in dim with its age; a dropped stream shows the reconnect attempt and the downtime. Empty lists say what is empty and when it comes back.
 
-### Aggressive Code Splitting
-Heavy widgets (3D globe, Leaflet maps) are fully isolated into separate chunks via `React.lazy()`. The dashboard only loads the Dashboard chunk — the rest load on demand. The Three.js/Globe vendor (~476KB gz) never blocks the initial load.
-
-### Dashboard Performance
-- Binance WebSocket disconnected on the dashboard (only active on `/crypto`)
-- `React.memo` on list components that receive frequent updates (`CompactCoinRow`)
-- `useMemo` for expensive derived calculations (chart domain, seismic sorting, brief insights)
-- Widgets loaded with `Suspense` + animated skeleton, without blocking the main thread
+### Terminal primitives
+`Panel`, `Tabs` (real `role=tab` buttons with arrow-key navigation), CSS-grid `DataTable`, `StatLine`, `BlockBar`, `Sparkline` and `PromptInput` are shared by every screen. The dev-only `/__primitives` route renders all of them and every panel state.
 
 ### Responsiveness
-Three-tier layout:
-- **Mobile** (`< md`): single column, natural scroll, compact header
-- **Tablet** (`md`): 2-column grid, stacked side panels
-- **Desktop** (`lg+`): fixed `h-screen overflow-hidden` layout, 3/5-column grids, no scroll
-
-### Gestalt & Visual Hierarchy
-The `DailyBrief` (insights panel) explicitly applies visual design principles: critical alerts get larger cards, a thicker highlight bar, a pulsing dot, and a colored gradient. Informational items recede visually. Sort order is `alert → warning → info`.
+Content spans the full viewport. The overview and space screens use a 12-column grid with spans at 600, 1024 and 1280 px; other rows auto-fit. Below 600 px the header wraps, source labels hide (status labels stay) and list + detail panels get a picker button.
 
 ---
 
@@ -100,16 +103,22 @@ The `DailyBrief` (insights panel) explicitly applies visual design principles: c
 ```
 src/
 ├── features/              # One folder per data domain
-│   ├── crypto/            # CoinGecko + Binance WebSocket (api, components, hooks, store)
+│   ├── crypto/            # CoinGecko + Binance WebSocket
 │   ├── iss/               # ISS position, orbit and TLE
 │   ├── earthquakes/       # USGS
 │   ├── natural-events/    # GDACS GeoJSON events
 │   ├── weather/           # Open-Meteo forecast + air quality
+│   ├── economy/  space/  pulse/  hacker-news/
 │   ├── github/  news/  wikipedia/
-│   └── brief/             # Vigil Brief insight generator
-├── components/            # Shared layout and UI (header, widget shell, skeletons)
-├── hooks/                 # Shared hooks (WebSocket, globe, geolocation, auto-advance)
-├── lib/                   # Framework-free helpers (HTTP, query client and keys, reconnecting socket)
+│   ├── brief/             # Brief rules, alert thresholds, last visit
+│   └── overview/          # Overview panels and cards
+├── components/
+│   ├── layout/            # Shell: prompt header, ticker, keybar, tab bar, alerts, shortcuts
+│   ├── terminal/          # Panel, tabs, tables, text bars, panel states
+│   ├── geo/               # Dot-matrix map and globe canvases
+│   └── charts/            # Dotted line chart canvas
+├── hooks/                 # Shared hooks (WebSocket, geolocation, clock, source rows)
+├── lib/                   # Framework-free helpers (HTTP, query client, source registry, formatting, socket)
 ├── pages/                 # One page per route (lazy loaded)
 └── store/                 # Zustand stores shared across features (app, geo, alerts)
 ```

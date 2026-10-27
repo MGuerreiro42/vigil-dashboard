@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useWeather } from '@/features/weather/api/open-meteo'
-import { getWMO } from '@/features/weather/lib/wmo-icons'
+import { conditionLabel } from '@/features/weather/lib/conditions'
 import { useNow } from '@/hooks/use-now'
 import { LANGUAGES } from '@/i18n'
 import { useGeoStore } from '@/store/geo-store'
@@ -23,7 +23,7 @@ function WeatherSummary() {
   const city = placeName ? placeInitials(placeName) : coords ? null : 'sp'
   return (
     <span>
-      {city && `${city} `}{Math.round(current.temp)}° {getWMO(current.weatherCode).label.toLowerCase()}
+      {city && `${city} `}{Math.round(current.temp)}° {conditionLabel(current.weatherCode)}
       <span className="max-sm:hidden"> · {current.humidity}% · {Math.round(current.windSpeed)} km/h</span>
     </span>
   )

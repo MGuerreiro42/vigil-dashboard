@@ -1,6 +1,5 @@
 import { lazy } from 'react'
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
-import { MotionConfig } from 'framer-motion'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { persistOptions, queryClient } from '@/lib/query-client'
 import { TerminalShell } from '@/components/layout/terminal-shell'
@@ -31,25 +30,23 @@ const LEGACY_REDIRECTS: Record<string, string> = {
 export default function App() {
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-      <MotionConfig reducedMotion="user">
-        <BrowserRouter>
-          <Routes>
-            <Route element={<TerminalShell />}>
-              <Route path="/"        element={<Dashboard />} />
-              <Route path="/markets" element={<MarketsPage />} />
-              <Route path="/planet"  element={<PlanetPage />} />
-              <Route path="/space"   element={<SpacePage />} />
-              <Route path="/news"    element={<NewsPage />} />
-              <Route path="/tech"    element={<TechPage />} />
-              {PrimitivesPage && <Route path="/__primitives" element={<PrimitivesPage />} />}
-            </Route>
-            {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
-              <Route key={from} path={from} element={<Navigate to={to} replace />} />
-            ))}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </MotionConfig>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<TerminalShell />}>
+            <Route path="/"        element={<Dashboard />} />
+            <Route path="/markets" element={<MarketsPage />} />
+            <Route path="/planet"  element={<PlanetPage />} />
+            <Route path="/space"   element={<SpacePage />} />
+            <Route path="/news"    element={<NewsPage />} />
+            <Route path="/tech"    element={<TechPage />} />
+            {PrimitivesPage && <Route path="/__primitives" element={<PrimitivesPage />} />}
+          </Route>
+          {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
+            <Route key={from} path={from} element={<Navigate to={to} replace />} />
+          ))}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
     </PersistQueryClientProvider>
   )
 }

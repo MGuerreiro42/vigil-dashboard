@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { AlertProducers } from '@/features/brief/components/alert-producers'
 import { BinanceTickerSync } from '@/features/crypto/components/binance-ticker-sync'
 import { useGeolocation } from '@/hooks/use-geolocation'
 import { useAppStore } from '@/store/app-store'
@@ -24,6 +25,7 @@ export function TerminalShell() {
   return (
     <div className="flex min-h-screen flex-col bg-bg">
       <BinanceTickerSync coinIds={cryptoIds} />
+      <AlertProducers />
       <PromptHeader screen={screen} />
       <TickerStrip />
       <main className="flex flex-1 flex-col gap-[28px] px-[20px] pt-[24px] pb-[28px] max-sm:px-[12px] max-sm:pt-[20px] max-sm:pb-[24px]">
