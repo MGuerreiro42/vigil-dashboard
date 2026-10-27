@@ -56,3 +56,8 @@ export function formatCountdown(remainingMs: number): string {
   const seconds = Math.max(0, Math.ceil(remainingMs / 1000))
   return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
 }
+
+/** Local 24-hour "07:30", the same in every language. */
+export function formatClock(date: Date): string {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}

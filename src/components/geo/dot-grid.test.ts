@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createProjection, dragRotation, easeRotationToward, gridSize, isOnVisibleHemisphere, maskCellAt, nearestMarkerIndex, type GeoMarker } from './dot-grid'
+import { createProjection, dragRotation, easeRotationToward, gridSize, invertInsideWorld, isOnVisibleHemisphere, maskCellAt, nearestMarkerIndex, type GeoMarker } from './dot-grid'
 
 describe('gridSize', () => {
   it('fits whole 4px dots and drops the remainder', () => {
@@ -73,5 +73,21 @@ describe('globe rotation', () => {
   it('eases toward the focus the short way around the antimeridian', () => {
     const [longitude] = easeRotationToward([170, 0], 175, 0, 1)
     expect(longitude).toBeCloseTo(185)
+  })
+})
+
+describe('invertInsideWorld', () => {
+  // A 400×100 canvas leaves 100px of empty margin on each side of the 200×100 world
+  const projection = createProjection('map', 400, 100, {})
+
+  it('reads coordinates inside the projected world', () => {
+    const lonLat = invertInsideWorld(projection, [200, 50])
+    expect(lonLat?.[0]).toBeCloseTo(0)
+    expect(lonLat?.[1]).toBeCloseTo(0)
+  })
+
+  it('reports nothing in the margins instead of a wrapped longitude', () => {
+    expect(invertInsideWorld(projection, [20, 50])).toBeNull()
+    expect(invertInsideWorld(projection, [390, 50])).toBeNull()
   })
 })

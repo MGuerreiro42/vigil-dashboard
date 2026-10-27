@@ -56,6 +56,18 @@ export function isOnVisibleHemisphere(rotation: Rotation, lon: number, lat: numb
   return geoDistance([lon, lat], [-rotation[0], -rotation[1]]) < GLOBE_VISIBLE_RADIANS
 }
 
+/**
+ * Longitude/latitude under a screen point, or null in the empty margins around the projected world.
+ * The inverse projection wraps longitudes, so a point is kept only if it projects back onto itself.
+ */
+export function invertInsideWorld(projection: GeoProjection, pointer: ScreenPoint): [number, number] | null {
+  const lonLat = projection.invert?.(pointer)
+  if (!lonLat) return null
+  const back = projection(lonLat)
+  if (!back || Math.hypot(back[0] - pointer[0], back[1] - pointer[1]) > 0.5) return null
+  return lonLat
+}
+
 /** Index of the marker closest to the pointer within the hit radius, or null. */
 export function nearestMarkerIndex(markers: GeoMarker[], project: (lonLat: [number, number]) => ScreenPoint | null, pointer: ScreenPoint, radius = HIT_RADIUS) {
   let bestIndex: number | null = null
