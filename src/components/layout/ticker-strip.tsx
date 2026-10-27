@@ -26,11 +26,12 @@ export function TickerStrip() {
   const cryptoIds = useAppStore((state) => state.cryptoIds)
   const { data: coins } = useCryptoMarket(cryptoIds)
   const streamState = useSourceHealthStore((state) => state.streams[BINANCE_STREAM]?.state)
-  const live = streamState !== 'reconnecting' && streamState !== 'error'
+  const label = streamState === 'error' ? 'offline' : streamState === 'reconnecting' ? 'reconnecting' : 'live'
+  const tone = label === 'offline' ? 'err' : label === 'reconnecting' ? 'info' : 'ok'
 
   return (
     <div className="flex gap-[28px] overflow-hidden whitespace-nowrap border-b border-line px-[20px] py-[7px]">
-      <ToneText tone={live ? 'ok' : 'info'}>{t(live ? 'terminal.live' : 'terminal.reconnecting')}</ToneText>
+      <ToneText tone={tone}>{t(`terminal.${label}`)}</ToneText>
       {[...(coins ?? [])].sort((first, second) => first.rank - second.rank).slice(0, TICKER_SIZE).map((coin) => <TickerItem key={coin.id} coin={coin} />)}
     </div>
   )

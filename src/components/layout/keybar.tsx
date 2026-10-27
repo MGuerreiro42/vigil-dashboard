@@ -3,9 +3,9 @@ import { useSourceRows } from '@/hooks/use-source-rows'
 import { countRowStatuses } from '@/lib/source-registry'
 import type { Screen } from './sections'
 
-const KEYS = ['screen', 'tabs', 'open', 'refresh', 'radar'] as const
+const KEYS = ['screen', 'tabs', 'open', 'refresh'] as const
 // Shortcuts that only work on one screen are listed while it is open
-const SCREEN_KEYS: Partial<Record<Screen['id'], 'discover'>> = { news: 'discover' }
+const SCREEN_KEYS: Partial<Record<Screen['id'], 'discover' | 'radar'>> = { planet: 'radar', news: 'discover' }
 
 function SourcesStatus() {
   const { t } = useTranslation()

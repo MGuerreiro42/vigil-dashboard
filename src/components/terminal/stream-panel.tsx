@@ -34,7 +34,7 @@ export function StreamPanel({ stream, source, frozenNote, children, meta, metaTo
       >
         <span>
           {failed
-            ? <><ToneText tone="err">{t('terminal.panel.errorTag')}</ToneText> {t('terminal.panel.streamFailed', { source, max: MAX_RECONNECT_ATTEMPTS })}</>
+            ? <><ToneText tone="err">{t('terminal.panel.errorTag')}</ToneText> {source}: {t('terminal.errors.stream_lost')}</>
             : <><ToneText tone="info">↻</ToneText> {t('terminal.panel.streamLost', { source, lost: seconds(now - (stream.lostAt ?? now)), retry: seconds((stream.nextRetryAt ?? now) - now) })}</>}
         </span>
         {frozenNote && <span className="text-dim">{frozenNote}</span>}
