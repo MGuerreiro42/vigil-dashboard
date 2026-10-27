@@ -124,6 +124,11 @@ function RadarBody({ allFrames }: { allFrames: RadarFrame[] }) {
   if (!active) return <EmptyState title={t('terminal.planet.radar.empty')} hint={t('terminal.planet.radar.emptyHint')} />
 
   const offsets = frameOffsets(frames)
+  const frameLabel = (index: number) => (offsets[index] === 0 ? t('terminal.planet.now') : t('terminal.planet.radar.minutesAgo', { count: -offsets[index] }))
+  const selectFrame = (index: number) => {
+    setSelected(index)
+    setPlaying(false)
+  }
   const sampled = raster?.ok ? raster.sample : null
   const tainted = raster?.ok === false && raster.reason === 'tainted'
 
@@ -136,19 +141,33 @@ function RadarBody({ allFrames }: { allFrames: RadarFrame[] }) {
       {raster?.ok === false && raster.reason === 'load' && <span className="text-dim">{t('terminal.planet.radar.tilesFailed')}</span>}
       <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[6px]">
         <BracketButton tone="ok" aria-pressed={playing} onClick={togglePlaying}>{t(playing ? 'terminal.planet.radar.pause' : 'terminal.planet.radar.play')}</BracketButton>
-        <div role="group" aria-label={t('terminal.planet.radar.frames')} className="flex flex-wrap gap-x-[8px] gap-y-[2px]">
+        <span className="ml-auto sm:hidden" aria-live="off">{frameLabel(activeIndex)}</span>
+        <div role="group" aria-label={t('terminal.planet.radar.frames')} className="flex flex-wrap gap-x-[8px] gap-y-[2px] max-sm:hidden">
           {offsets.map((offset, index) => (
-            <button
-              key={frames[index].time}
-              type="button"
-              aria-pressed={index === activeIndex}
-              onClick={() => { setSelected(index); setPlaying(false) }}
-              className={index === activeIndex ? 'text-ok' : 'text-dim'}
-            >
+            <button key={frames[index].time} type="button" aria-pressed={index === activeIndex} aria-label={frameLabel(index)} onClick={() => selectFrame(index)} className={index === activeIndex ? 'text-ok' : 'text-dim'}>
               {offset === 0 ? t('terminal.planet.now') : `−${-offset}`}
             </button>
           ))}
         </div>
+      </div>
+      <div className="flex flex-col gap-[4px] sm:hidden">
+        <div role="group" aria-label={t('terminal.planet.radar.frames')} className="grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${offsets.length}, minmax(0,1fr))` }}>
+          {frames.map((frame, index) => (
+            <button
+              key={frame.time}
+              type="button"
+              aria-pressed={index === activeIndex}
+              aria-label={frameLabel(index)}
+              onClick={() => selectFrame(index)}
+              className={`h-[20px] ${index === activeIndex ? 'bg-ok' : index < activeIndex ? 'bg-frame-played' : 'bg-line'}`}
+            />
+          ))}
+        </div>
+        <span className="flex justify-between text-dim" aria-hidden>
+          <span>−{-offsets[0]}</span>
+          <span>−{-offsets[Math.floor(offsets.length / 2)]}</span>
+          <span>{t('terminal.planet.now')}</span>
+        </span>
       </div>
       <LegendGrid minItem={130} gap="4px 16px">
         <span><ToneText className="font-semibold" tone="info">+</ToneText> {t('terminal.planet.radar.you', { city })}</span>

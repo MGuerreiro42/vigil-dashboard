@@ -59,17 +59,33 @@ export function timelineBuckets(events: NaturalEvent[], now: number, columns: nu
   return buckets
 }
 
-/** "−7d      −5d  …  agora" laid out on the bucket columns; labels that would run into "now" are dropped. */
-export function timelineAxis(columns: number, days: number, nowLabel: string, dayLabel: (daysAgo: number) => string): string {
+const BUCKET_HOURS = [3, 6, 12]
+
+/**
+ * One 1ch column per bucket: the shortest bucket whose 7 days fit the track. Past 12 h the
+ * bucket stops growing and the window shrinks to the newest columns instead.
+ */
+export function timelineGrid(trackWidth: number, charWidth: number, days: number): { columns: number; hours: number } {
+  const fit = charWidth > 0 ? Math.max(1, Math.floor(trackWidth / charWidth)) : (days * 24) / BUCKET_HOURS[0]
+  const hours = BUCKET_HOURS.find((bucketHours) => (days * 24) / bucketHours <= fit) ?? BUCKET_HOURS[BUCKET_HOURS.length - 1]
+  return { columns: Math.min(fit, (days * 24) / hours), hours }
+}
+
+/** Start, middle and "now" laid out on the bucket columns; a label that would touch its neighbour is dropped. */
+export function timelineAxis(columns: number, hours: number, nowLabel: string, dayLabel: (daysAgo: number) => string): string {
   const axis = Array(columns).fill(' ')
-  const nowStart = columns - nowLabel.length
-  for (let daysAgo = days; daysAgo > 0; daysAgo -= 2) {
+  const days = (columns * hours) / 24
+  const nowStart = Math.max(0, columns - nowLabel.length)
+  let freeFrom = 0
+  const middle = Math.floor(days / 2)
+  const marks = [{ daysAgo: Math.floor(days), start: 0 }, { daysAgo: middle, start: Math.round(((days - middle) / days) * columns) }]
+  for (const { daysAgo, start } of marks) {
     const label = dayLabel(daysAgo)
-    const start = Math.round(((days - daysAgo) / days) * columns)
-    if (start + label.length > nowStart) continue
+    if (daysAgo <= 0 || start < freeFrom || start + label.length >= nowStart) continue
     axis.splice(start, label.length, ...label)
+    freeFrom = start + label.length + 1
   }
-  axis.splice(nowStart, nowLabel.length, ...nowLabel)
+  axis.splice(nowStart, nowLabel.length, ...nowLabel.slice(0, columns))
   return axis.join('')
 }
 
