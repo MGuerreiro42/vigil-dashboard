@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { createProjection, dragRotation, easeRotationToward, gridSize, invertInsideWorld, isOnVisibleHemisphere, maskCellAt, nearestMarkerIndex, type GeoMarker } from './dot-grid'
+import { createProjection, dragRotation, easeRotationToward, gridOffset, gridSize, invertInsideWorld, isOnVisibleHemisphere, maskCellAt, nearestMarkerIndex, type GeoMarker } from './dot-grid'
 
 describe('gridSize', () => {
   it('fits whole 4px dots and drops the remainder', () => {
     expect(gridSize(403, 181)).toEqual({ columns: 100, rows: 45 })
+  })
+
+  it('centres the grid in the leftover pixels', () => {
+    expect(gridOffset(403, 181)).toEqual([1, 0])
+    expect(gridOffset(407, 183)).toEqual([1, 1])
   })
 })
 

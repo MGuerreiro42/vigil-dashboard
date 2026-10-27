@@ -19,7 +19,12 @@ export interface GeoMarker {
   lat: number
   glyph: string
   color: string
+  /** Placed by `layoutLabels`; on a quake, magnitude then place, so it can fall back to the magnitude */
   label?: string | null
+  /** Ranked labels share the width quota (strongest first); unranked ones are always tried */
+  labelRank?: number
+  /** Hovered or selected: always labelled */
+  pinned?: boolean
 }
 
 export interface GeoTrackPoint {
@@ -30,6 +35,12 @@ export interface GeoTrackPoint {
 
 export function gridSize(width: number, height: number) {
   return { columns: Math.floor(width / DOT_PITCH), rows: Math.floor(height / DOT_PITCH) }
+}
+
+/** Top-left of the dot grid, centred in the space the whole dots leave over. */
+export function gridOffset(width: number, height: number): ScreenPoint {
+  const { columns, rows } = gridSize(width, height)
+  return [Math.floor((width - columns * DOT_PITCH) / 2), Math.floor((height - rows * DOT_PITCH) / 2)]
 }
 
 export function createProjection(kind: GeoKind, width: number, height: number, options: { rotation?: Rotation; bbox?: BBox }): GeoProjection {

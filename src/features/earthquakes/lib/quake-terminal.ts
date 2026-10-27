@@ -11,11 +11,24 @@ export function quakeBand(magnitude: number): QuakeBand {
   return 'minor'
 }
 
-const BAND_GLYPH: Record<QuakeBand, string> = { severe: '@', strong: 'O', moderate: 'o', minor: '·' }
-const BAND_TONE: Record<QuakeBand, Tone> = { severe: 'err', strong: 'warn', moderate: 'text', minor: 'text' }
+/** The one magnitude scale: map markers, legends, distribution, lists and the analysis histogram. */
+export const QUAKE_SCALE: Record<QuakeBand, { glyph: string; tone: Tone; range: string }> = {
+  severe: { glyph: '@', tone: 'err', range: '≥ 6.0' },
+  strong: { glyph: 'O', tone: 'warn', range: '4.5–5.9' },
+  moderate: { glyph: 'o', tone: 'text', range: '3.0–4.4' },
+  minor: { glyph: '·', tone: 'dim', range: '< 3.0' },
+}
+/** Strongest first, the order of legends and the distribution table. */
+export const QUAKE_BANDS_DOWN: QuakeBand[] = [...QUAKE_BANDS].reverse()
 
-export const quakeGlyph = (magnitude: number) => BAND_GLYPH[quakeBand(magnitude)]
-export const quakeTone = (magnitude: number) => BAND_TONE[quakeBand(magnitude)]
+export const quakeGlyph = (magnitude: number) => QUAKE_SCALE[quakeBand(magnitude)].glyph
+export const quakeTone = (magnitude: number) => QUAKE_SCALE[quakeBand(magnitude)].tone
+
+export function quakeBandCounts(quakes: Earthquake[]): Record<QuakeBand, number> {
+  const counts: Record<QuakeBand, number> = { severe: 0, strong: 0, moderate: 0, minor: 0 }
+  for (const quake of quakes) counts[quakeBand(quake.magnitude)] += 1
+  return counts
+}
 
 export type QuakeSort = 'recent' | 'magnitudeDown' | 'magnitudeUp'
 
