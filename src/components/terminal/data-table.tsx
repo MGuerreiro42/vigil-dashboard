@@ -22,7 +22,7 @@ export function DataTable({ columns, phoneColumns = columns, gap = '2px 10px', h
       {header && (
         <div role="row" className="contents text-dim">
           {header.map((cell, index) => (
-            <span key={index} role="columnheader" className={`${cell.right ? 'text-right' : ''} ${PRIORITY_CLASS[cell.priority ?? 'p1']}`}>{cell.label}</span>
+            <span key={index} role="columnheader" className={`min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${cell.right ? 'text-right' : ''} ${PRIORITY_CLASS[cell.priority ?? 'p1']}`}>{cell.label}</span>
           ))}
         </div>
       )}

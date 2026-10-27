@@ -52,9 +52,13 @@ export function QuakeDistribution({ quakes }: { quakes: Earthquake[] }) {
           )
         })}
       </div>
-      <span className="text-dim">
-        {t('terminal.planet.quakes.distributionNote', { count: quakes.length })}{' '}
-        <ToneText tone={quakeTone(largest.magnitude)}>M{largest.magnitude.toFixed(1)}</ToneText> {shortPlace(largest.place)} · {t('terminal.planet.quakes.barNote')}
+      {/* Two items in a flex-wrap, so a wrapped line never starts with "·" */}
+      <span className="flex flex-wrap gap-x-[16px] text-dim">
+        <span>
+          {t('terminal.planet.quakes.distributionNote', { count: quakes.length })}{' '}
+          <ToneText tone={quakeTone(largest.magnitude)}>M{largest.magnitude.toFixed(1)}</ToneText> {shortPlace(largest.place)}
+        </span>
+        <span className="whitespace-nowrap">{t('terminal.planet.quakes.barNote')}</span>
       </span>
     </div>
   )
