@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { Tone } from '@/lib/terminal-format'
 import { TONE_CLASS } from './tone'
 
+// Phones use one 12px rhythm between groups whatever the desktop gap
 const GAP_CLASS = { 6: 'gap-[6px]', 8: 'gap-[8px]', 10: 'gap-[10px]', 12: 'gap-[12px]', 14: 'gap-[14px]' } as const
 
 export interface PanelProps {
@@ -18,7 +19,7 @@ export interface PanelProps {
   children: ReactNode
 }
 
-const LABEL = 'absolute -top-[10px] m-0 bg-bg px-[6px] text-[13px] font-normal leading-[1.55]'
+const LABEL = 'absolute -top-[10px] m-0 bg-bg px-[6px] font-normal leading-[1.55]'
 
 /** Bordered box with `[n.m] title` cut into the top border and an optional meta on the right. */
 export function Panel({ id, title, meta, metaTone = 'dim', gap = 10, onOpen, className = '', children }: PanelProps) {
@@ -38,7 +39,7 @@ export function Panel({ id, title, meta, metaTone = 'dim', gap = 10, onOpen, cla
   return (
     <section
       aria-labelledby={headingId}
-      className={`relative flex min-w-0 flex-col border border-line px-[16px] pt-[18px] pb-[14px] ${GAP_CLASS[gap]} ${onOpen ? 'cursor-pointer hover:border-rim focus-visible:bg-transparent' : ''} ${className}`}
+      className={`relative flex min-w-0 flex-col border border-line px-[16px] pt-[18px] pb-[14px] ${GAP_CLASS[gap]} max-sm:gap-[12px] ${onOpen ? 'cursor-pointer hover:border-rim focus-visible:bg-transparent' : ''} ${className}`}
       {...openProps}
     >
       <h2 id={headingId} className={`${LABEL} left-[12px] text-ok`}>[{id}] {title}</h2>

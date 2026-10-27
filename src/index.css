@@ -75,6 +75,9 @@
     font: 13px/1.55 var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
+  @media (max-width: 599px) {
+    body { font-size: 12px; }
+  }
   a { color: var(--color-info); text-decoration: none; }
   a:hover { color: var(--color-text); text-decoration: underline; }
   ::selection { background: var(--color-line); }

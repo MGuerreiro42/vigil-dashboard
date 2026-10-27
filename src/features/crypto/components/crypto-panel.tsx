@@ -71,11 +71,11 @@ function CryptoBody({ restCoins, selection, onSelection }: { restCoins: CryptoAs
   return (
     <>
       <StatLine>
-        <Stat label={t('terminal.markets.crypto.assets')}>{summary.count}</Stat>
+        <Stat label={t('terminal.markets.crypto.assets')} priority="p2">{summary.count}</Stat>
         <Stat label={t('terminal.markets.crypto.topGainer')}>{summary.topGainer.symbol} <Change value={summary.topGainer.change24h} suffix="%" /></Stat>
         <Stat label={t('terminal.markets.crypto.topLoser')}>{summary.topLoser.symbol} <Change value={summary.topLoser.change24h} suffix="%" /></Stat>
         <Stat label={t('terminal.markets.crypto.volume')}>{formatUsdCompact(summary.volume24h)}</Stat>
-        <Stat label={t('terminal.markets.crypto.rising')}>{summary.rising}/{summary.count}</Stat>
+        <Stat label={t('terminal.markets.crypto.rising')}>{t('terminal.markets.crypto.risingValue', { rising: summary.rising, count: summary.count })}</Stat>
       </StatLine>
 
       <div className={TWO_PANE}>

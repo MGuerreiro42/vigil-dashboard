@@ -9,7 +9,7 @@ import { QueryPanel } from '@/components/terminal/query-panel'
 import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
 import { Tabs } from '@/components/terminal/tabs'
-import { EmptyState, PollutantBar, ToneText } from '@/components/terminal/text'
+import { EmptyState, LegendGrid, PollutantBar, ToneText } from '@/components/terminal/text'
 import { paddedRange } from '@/features/economy/lib/economy-format'
 import { useAirQuality } from '@/features/weather/api/air-quality'
 import { useCitySearch } from '@/features/weather/api/geocoding'
@@ -154,10 +154,10 @@ function HourlyChart({ hourly }: { hourly: HourlyPoint[] }) {
 
   return (
     <>
-      <div className="flex flex-wrap gap-x-[20px] gap-y-[4px] text-dim">
-        <span><ToneText tone="info">■</ToneText> {t('terminal.planet.weather.tempLegend')}</span>
-        <span><ToneText tone="text">■</ToneText> {t('terminal.planet.weather.rainLegend')}</span>
-      </div>
+      <LegendGrid minItem={200}>
+        <span><ToneText className="font-semibold" tone="info">■</ToneText> {t('terminal.planet.weather.tempLegend')}</span>
+        <span><ToneText className="font-semibold" tone="text">■</ToneText> {t('terminal.planet.weather.rainLegend')}</span>
+      </LegendGrid>
       <DotChart label={t('terminal.planet.weather.chartLabel')} series={series} min={min} max={max} format={formatDegrees} xLabels={xLabels} rightAxis={rightAxis} height="200px" onCursorChange={setCursor} />
       <ChartLegend readout={point && t('terminal.planet.weather.readout', { time: clockTime(point.time), temp: point.temp.toFixed(1), rain: point.precipProb })} />
     </>
@@ -230,11 +230,11 @@ function WeatherBody({ weather, air, airFailed, view, onView }: { weather: Weath
 
   return (
     <>
-      <StatLine wide={false}>
-        <span>{t('terminal.planet.weather.temp')} <ToneText tone="info">{Math.round(current.temp)}°</ToneText> {conditionLabel(current.weatherCode)}</span>
-        <Stat label={t('terminal.planet.weather.feels')}>{Math.round(current.feelsLike)}°</Stat>
-        {air && <span>{t('terminal.planet.weather.aqi')} <ToneText tone={aqiTone(air.category)}>{air.aqi}</ToneText> {t(`terminal.planet.weather.aqiBands.${air.category}`)}</span>}
-        <Stat label={t('terminal.planet.weather.wind')}>{Math.round(current.windSpeed)} km/h</Stat>
+      <StatLine>
+        <Stat label={t('terminal.planet.weather.temp')}><ToneText tone="info">{Math.round(current.temp)}°</ToneText> {conditionLabel(current.weatherCode)}</Stat>
+        <Stat label={t('terminal.planet.weather.feels')} priority="p2">{Math.round(current.feelsLike)}°</Stat>
+        {air && <Stat label={t('terminal.planet.weather.aqi')}><ToneText tone={aqiTone(air.category)}>{air.aqi}</ToneText> {t(`terminal.planet.weather.aqiBands.${air.category}`)}</Stat>}
+        <Stat label={t('terminal.planet.weather.wind')} priority="p2">{Math.round(current.windSpeed)} km/h</Stat>
       </StatLine>
       <Forecast weather={weather} />
       <Tabs label={t('terminal.planet.weather.tabs.label')} idBase={tabsId} value={view} onChange={onView} items={VIEWS.map((id) => ({ id, label: t(`terminal.planet.weather.tabs.${id}`) }))} />

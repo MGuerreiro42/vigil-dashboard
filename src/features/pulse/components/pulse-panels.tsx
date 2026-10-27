@@ -15,6 +15,7 @@ import { useSourceHealthStore } from '@/store/source-health-store'
 
 const EDIT_ROWS = 12
 const TREND_ROWS = 10
+const PHONE_LANGUAGES = 3
 const EDITS_PLACEHOLDER = [
   '··  ························  ·········  ····',
   '··  ··················  ···········  ···',
@@ -31,12 +32,13 @@ function EditsBody({ summary, feed }: { summary: EditStreamSummary; feed: LiveEd
 
   return (
     <>
-      <StatLine wide={false}>
-        <span>{t('terminal.news.edits.perMinute')} <span className="text-text">{summary.perMinute}</span> <Sparkline values={bucketedPerSecond(summary.perSecond)} /></span>
+      <StatLine>
+        <Stat label={t('terminal.news.edits.perMinute')}>{summary.perMinute} <Sparkline values={bucketedPerSecond(summary.perSecond)} /></Stat>
         <Stat label={t('terminal.news.edits.bots')}>{Math.round(summary.botShare * 100)}%</Stat>
-        <span>{t('terminal.news.edits.newArticles')} <ToneText tone="ok">{summary.newArticles}</ToneText> {t('terminal.news.edits.lastMinute')}</span>
+        <Stat label={t('terminal.news.edits.newArticles')} priority="p2"><ToneText tone="ok">{summary.newArticles}</ToneText> <span className="text-dim">{t('terminal.news.edits.lastMinute')}</span></Stat>
       </StatLine>
-      {languages.length > 0 && <span className="text-dim">{languages.join(' · ')}</span>}
+      {languages.length > 0 && <span className="text-dim max-sm:hidden">{languages.join(' · ')}</span>}
+      {languages.length > 0 && <span className="text-dim sm:hidden">{t('terminal.news.edits.top', { languages: languages.slice(0, PHONE_LANGUAGES).join(' · ') })}</span>}
       {feed.length ? (
         <DataTable columns="32px minmax(0,1fr) minmax(0,140px) 64px" gap="2px 12px">
           {feed.slice(0, EDIT_ROWS).map((edit) => {
