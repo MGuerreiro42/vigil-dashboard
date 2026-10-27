@@ -6,6 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 A live global monitoring dashboard in a terminal skin. Twenty-one public sources (REST, WebSocket and server-sent events) on six keyboard-driven screens, every number labelled with where it came from and how old it is. No backend, no API keys.
 
@@ -199,4 +200,4 @@ Static SPA on Vercel; `vercel.json` only rewrites client routes to `index.html`.
 
 ---
 
-*Portfolio project by Miguel Guerreiro.*
+*Portfolio project by Miguel Guerreiro. [MIT](LICENSE) licensed.*
