@@ -1,8 +1,9 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNow } from '@/hooks/use-now'
 import { HttpError, type Failure } from '@/lib/http'
 import { formatAge, formatCountdown } from '@/lib/terminal-format'
+import { Clock } from './clock'
 import { Panel, type PanelProps } from './panel'
 import { endWait, panelStatus, waitStart, type PanelQuery } from './panel-state'
 import { BracketButton, ToneText } from './text'
@@ -52,28 +53,37 @@ export function LoadingBody({ source, placeholder = DEFAULT_PLACEHOLDER, timeout
 /** Panel that renders a query's loading, error, degraded (cached) and ready states. */
 export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOLDER, retryMs = DEFAULT_RETRY_MS, cacheNote, children, ...panel }: QueryPanelProps<Data>) {
   const { t } = useTranslation()
-  const now = useNow(1_000)
-  const [waitingSince] = useState(() => waitStart(source, Date.now()))
-  const status = panelStatus(query, waitingSince, now)
   const settled = query.data !== undefined || query.isError
+  // Only a panel still waiting needs the clock, to turn its loading into a timeout
+  const now = useNow(settled ? null : 1_000)
+  const [wait, setWait] = useState(() => ({ settled, since: waitStart(source, Date.now()) }))
+  // A new query key (another city) leaves the panel without data again: its wait starts over
+  if (wait.settled !== settled) setWait((current) => ({ settled, since: settled ? current.since : waitStart(source, Date.now()) }))
+  const status = panelStatus(query, wait.since, now)
   useEffect(() => {
     if (settled) endWait(source)
   }, [settled, source])
-  const failing = status.phase === 'error' || status.phase === 'degraded'
+  // Past the timeout but not failed yet: the query is between its own retries, and a refetch would only join them
+  const retrying = !query.isError
   // A rate-limited source may ask for a longer wait than the panel's own cadence
-  const retryAfterMs = query.error instanceof HttpError ? query.error.retryAfterMs ?? 0 : 0
-  const retryAt = (query.errorUpdatedAt || waitingSince) + Math.max(retryMs, retryAfterMs)
+  const failure = query.error ?? query.failureReason
+  const retryAfterMs = failure instanceof HttpError ? failure.retryAfterMs ?? 0 : 0
+  const retryAt = query.errorUpdatedAt + Math.max(retryMs, retryAfterMs)
 
-  const { refetch } = query
+  // Read through a ref: a combined query builds a new refetch on every render, which would re-arm the timer
+  const refetchRef = useRef(query.refetch)
+  useEffect(() => { refetchRef.current = query.refetch })
   useEffect(() => {
-    if (!failing) return
-    const timer = setTimeout(() => refetch(), Math.max(0, retryAt - Date.now()))
+    if (!query.isError) return
+    const timer = setTimeout(() => refetchRef.current(), Math.max(0, retryAt - Date.now()))
     return () => clearTimeout(timer)
-  }, [failing, retryAt, refetch])
+  }, [query.isError, retryAt])
 
-  const retryLine = (
+  const retryLine = retrying ? (
+    <span className="text-dim">{t('terminal.panel.retrying')}</span>
+  ) : (
     <span className="text-dim">
-      {t('terminal.panel.retryIn', { time: formatCountdown(retryAt - now) })} · <BracketButton onClick={() => refetch()}>{t('terminal.panel.retryNow')}</BracketButton>
+      <Clock>{(tick) => t('terminal.panel.retryIn', { time: formatCountdown(retryAt - tick) })}</Clock> · <BracketButton onClick={() => query.refetch()}>{t('terminal.panel.retryNow')}</BracketButton>
     </span>
   )
 
@@ -96,12 +106,12 @@ export function QueryPanel<Data>({ query, source, placeholder = DEFAULT_PLACEHOL
   }
 
   if (status.phase === 'degraded') {
-    const age = formatAge(now - query.dataUpdatedAt, true)
+    const age = (tick: number) => formatAge(tick - query.dataUpdatedAt, true)
     return (
-      <Panel {...panel} gap={6} meta={t('terminal.panel.cache', { age })} metaTone="warn">
+      <Panel {...panel} gap={6} meta={<Clock>{(tick) => t('terminal.panel.cache', { age: age(tick) })}</Clock>} metaTone="warn">
         <span><ToneText tone="warn">{t('terminal.panel.degradedTag')}</ToneText> {source}: <FailureText failure={status.failure ?? UNKNOWN_FAILURE} /></span>
         {retryLine}
-        {cacheNote && <span className="text-dim">{t('terminal.panel.cachedFrom', { age })} · {cacheNote(query.data)}</span>}
+        {cacheNote && <span className="text-dim"><Clock>{(tick) => t('terminal.panel.cachedFrom', { age: age(tick) })}</Clock> · {cacheNote(query.data)}</span>}
         <div className="is-cached contents">{children(query.data)}</div>
       </Panel>
     )

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { SelectableRow } from '@/components/terminal/data-table'
 import { TWO_PANE } from '@/components/terminal/grid'
 import { PickerButton } from '@/components/terminal/picker-button'
+import { Clock } from '@/components/terminal/clock'
 import { QueryPanel } from '@/components/terminal/query-panel'
 import { Stat, StatLine } from '@/components/terminal/stat-line'
 import { tabId, tabPanelId } from '@/components/terminal/tab-ids'
@@ -13,7 +14,6 @@ import {
   forkRatio, formatStars, meanForkRatio, median, repoLanguages, repoSummary, sortRepos, starBuckets, starsByLanguage, type RepoSort,
 } from '@/features/github/lib/github-terminal'
 import type { GithubRepo } from '@/features/github/types'
-import { useNow } from '@/hooks/use-now'
 import { formatAge } from '@/lib/terminal-format'
 
 type View = 'repo' | 'languages' | 'analysis'
@@ -21,6 +21,8 @@ type View = 'repo' | 'languages' | 'analysis'
 const ALL = 'all'
 const LIST_COLUMNS = 'minmax(0,1fr) 88px 56px'
 const BAR_WIDTH = 40
+// What fits the ~190px bar column at 390px
+const PHONE_BAR_WIDTH = 20
 const SORTS: RepoSort[] = ['starsDesc', 'starsAsc', 'forks', 'name']
 const VIEWS: View[] = ['repo', 'languages', 'analysis']
 const PLACEHOLDER = [
@@ -71,7 +73,7 @@ function LanguagesView({ repos }: { repos: GithubRepo[] }) {
         {rows.map((row) => (
           <div key={row.language ?? ''} className="contents">
             <span className="overflow-hidden text-ellipsis whitespace-nowrap">{languageLabel(row.language)}</span>
-            <BlockBar value={row.stars} max={max} width={BAR_WIDTH} tone="land" />
+            <BlockBar value={row.stars} max={max} width={BAR_WIDTH} phoneWidth={PHONE_BAR_WIDTH} tone="land" />
             <span className="text-right">{formatStars(row.stars)}</span>
           </div>
         ))}
@@ -96,7 +98,7 @@ function AnalysisView({ repos }: { repos: GithubRepo[] }) {
         {buckets.map((bucket) => (
           <div key={bucket.label} className="contents">
             <span>{bucket.label}</span>
-            {bucket.count ? <BlockBar value={bucket.count} max={max} width={BAR_WIDTH} tone="land" /> : <span className="text-line">·</span>}
+            {bucket.count ? <BlockBar value={bucket.count} max={max} width={BAR_WIDTH} phoneWidth={PHONE_BAR_WIDTH} tone="land" /> : <span className="text-line">·</span>}
             <span className="text-right">{bucket.count}</span>
           </div>
         ))}
@@ -118,8 +120,10 @@ function GithubBody({ repos, selection, onSelection }: { repos: GithubRepo[]; se
   const tabsId = useId()
   if (!repos.length) return <EmptyState title={t('terminal.tech.github.empty')} hint={t('terminal.tech.github.emptyHint')} />
 
-  const { language, sort, view, pickerOpen } = selection
+  const { sort, view, pickerOpen } = selection
   const languages = repoLanguages(repos)
+  // A refetch can drop every repo of the chosen language: fall back to all instead of an empty list
+  const language = languages.includes(selection.language) ? selection.language : ALL
   const listed = sortRepos(language === ALL ? repos : repos.filter((repo) => repo.language === language), sort)
   const selected = listed.find((repo) => repo.id === selection.repoId) ?? listed[0] ?? repos[0]
   const byStars = sortRepos(repos, 'starsDesc')
@@ -196,7 +200,6 @@ function GithubBody({ repos, selection, onSelection }: { repos: GithubRepo[]; se
 export function GithubPanel() {
   const { t } = useTranslation()
   const query = useTrendingRepos()
-  const now = useNow(1_000)
   // Kept here so a failed refetch, which swaps the panel frame, does not reset the selection
   const [selection, setSelection] = useState(INITIAL_SELECTION)
   const onSelection = (patch: Partial<Selection>) => setSelection((current) => ({ ...current, ...patch }))
@@ -205,7 +208,7 @@ export function GithubPanel() {
       id="6.1"
       title={t('terminal.tech.github.title')}
       gap={14}
-      meta={t('terminal.tech.github.meta', { age: formatAge(now - query.dataUpdatedAt) })}
+      meta={<Clock>{(now) => t('terminal.tech.github.meta', { age: formatAge(now - query.dataUpdatedAt) })}</Clock>}
       query={query}
       source="github search"
       placeholder={PLACEHOLDER}

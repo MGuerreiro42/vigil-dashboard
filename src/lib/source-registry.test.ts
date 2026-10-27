@@ -29,6 +29,12 @@ describe('sourceRow', () => {
     expect(sourceRow(rest, [answered, unreadable], undefined, noCache, now)).toMatchObject({ status: 'error', failure: { code: 'invalid_payload', status: null } })
   })
 
+  it('is ok again once another endpoint of the source answers after a failure', () => {
+    const search = health({ latencyMs: null, lastSuccessAt: null, lastFailure: { code: 'network', status: null }, lastFailureAt: 2_000 })
+    expect(sourceRow(rest, [health({ lastSuccessAt: 9_000 }), search], undefined, noCache, now)).toMatchObject({ status: 'ok', failure: null })
+    expect(sourceRow(rest, [health({ lastSuccessAt: 1_000 }), search], undefined, noCache, now)).toMatchObject({ status: 'error' })
+  })
+
   it('shows data restored from the persisted cache as cache until a request this session', () => {
     const restored = { updatedAt: 4_000, hasData: true }
     expect(sourceRow(rest, [undefined], undefined, restored, now)).toMatchObject({ status: 'ok', latency: 'cache', ageMs: 6_000 })

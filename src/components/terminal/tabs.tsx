@@ -27,7 +27,7 @@ const VARIANT = {
   },
   text: {
     list: 'flex flex-wrap gap-x-[16px] gap-y-[2px]',
-    tab: 'max-sm:min-h-[32px]',
+    tab: 'max-sm:min-h-touch',
     active: 'text-ok',
     idle: 'text-dim',
   },

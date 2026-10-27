@@ -27,3 +27,10 @@ it('dismisses an alert for good', () => {
   addAlert(quake)
   expect(useAlertsStore.getState()).toMatchObject({ unreadCount: 0, alerts: [] })
 })
+
+it('keeps dismissed ids across a reload', () => {
+  const { addAlert, dismiss } = useAlertsStore.getState()
+  addAlert(quake)
+  dismiss('earthquake-us123')
+  expect(JSON.parse(localStorage.getItem('vigil-dismissed-alerts') ?? '{}').state).toEqual({ dismissedIds: ['earthquake-us123'] })
+})

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useWebSocket } from '@/hooks/use-web-socket'
 import type { BinanceOrderBook, BinanceOrderBookEntry, BinanceTrade, RawDepth, RawTrade } from '@/features/crypto/types'
+import { FLOW_WINDOW_MS } from '@/features/crypto/lib/market-math'
 
 /** Maps CoinGecko IDs → Binance USDT pair (lowercase) */
 export const COINGECKO_TO_BINANCE: Record<string, string> = {
@@ -63,12 +64,13 @@ export function useBinanceOrderBook(coinId: string | null): BinanceOrderBook | n
 
 // ─── Aggregated trade stream ──────────────────────────────────────────────
 
-const MAX_TRADES = 60
+// shortcut: a hard cap so a burst cannot grow the buffer without bound; a busy minute of BTC stays well under it
+const MAX_TRADES = 5_000
 const EMPTY_TRADES: BinanceTrade[] = []
 
 /**
  * Subscribes to Binance trade stream for the given CoinGecko ID.
- * Returns the last MAX_TRADES trades in reverse-chronological order.
+ * Returns the trades of the last FLOW_WINDOW_MS in reverse-chronological order.
  * Passes null to disconnect.
  */
 export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
@@ -105,9 +107,11 @@ export function useBinanceTrades(coinId: string | null): BinanceTrade[] {
       frameRef.current = null
       const batch = bufferRef.current.reverse()
       bufferRef.current = []
+      // Measured against the newest trade, so a skewed client clock does not empty the window
+      const cutoff = batch[0].timestamp - FLOW_WINDOW_MS
       setTrades((prev) => ({
         symbol,
-        data: [...batch, ...(prev?.symbol === symbol ? prev.data : [])].slice(0, MAX_TRADES),
+        data: [...batch, ...(prev?.symbol === symbol ? prev.data : [])].filter((trade) => trade.timestamp >= cutoff).slice(0, MAX_TRADES),
       }))
     })
   } })

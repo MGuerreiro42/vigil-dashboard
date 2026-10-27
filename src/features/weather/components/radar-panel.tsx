@@ -46,10 +46,10 @@ const frameKey = (frame: RadarFrame, bbox: BBox) => `${frame.tileUrl}|${bbox.joi
  * Samples the active frame's tiles into the dot renderer; each frame loads once and stays cached while
  * it is among the current frames, so playback does not refetch.
  */
-function useRainRaster(frames: RadarFrame[], active: RadarFrame, bbox: BBox) {
+function useRainRaster(frames: RadarFrame[], active: RadarFrame | undefined, bbox: BBox) {
   const cache = useRef(new Map<string, Promise<RainRasterResult>>())
   const [shown, setShown] = useState<{ key: string; result: RainRasterResult } | null>(null)
-  const key = frameKey(active, bbox)
+  const key = active ? frameKey(active, bbox) : null
   const liveKeys = frames.map((frame) => frameKey(frame, bbox)).join(' ')
 
   useEffect(() => {
@@ -58,6 +58,7 @@ function useRainRaster(frames: RadarFrame[], active: RadarFrame, bbox: BBox) {
   }, [liveKeys])
 
   useEffect(() => {
+    if (!key) return
     let cancelled = false
     let pending = cache.current.get(key)
     if (!pending) {
@@ -120,7 +121,7 @@ function RadarBody({ allFrames }: { allFrames: RadarFrame[] }) {
   }, [playing, frames.length])
 
   const active = frames[activeIndex]
-  const raster = useRainRaster(frames, active ?? frames[0], bbox)
+  const raster = useRainRaster(frames, active, bbox)
   if (!active) return <EmptyState title={t('terminal.planet.radar.empty')} hint={t('terminal.planet.radar.emptyHint')} />
 
   const offsets = frameOffsets(frames)
@@ -159,8 +160,11 @@ function RadarBody({ allFrames }: { allFrames: RadarFrame[] }) {
               aria-pressed={index === activeIndex}
               aria-label={frameLabel(index)}
               onClick={() => selectFrame(index)}
-              className={`h-[20px] ${index === activeIndex ? 'bg-ok' : index < activeIndex ? 'bg-frame-played' : 'bg-line'}`}
-            />
+              className="flex h-touch items-center"
+            >
+              {/* The bar stays 20px; the button around it is the 44px tap target */}
+              <span className={`h-[20px] w-full ${index === activeIndex ? 'bg-ok' : index < activeIndex ? 'bg-frame-played' : 'bg-line'}`} />
+            </button>
           ))}
         </div>
         <span className="flex justify-between text-dim" aria-hidden>
